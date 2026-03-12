@@ -10,10 +10,10 @@ import {
   CartesianGrid,
 } from "recharts";
 
-type WeeklyNetChartProps = {
+type WeekdayNetPerHourChartProps = {
   data: {
     day: string;
-    net: number;
+    netPerHour: number;
   }[];
 };
 
@@ -21,11 +21,13 @@ function formatCurrency(value: number) {
   return new Intl.NumberFormat("el-GR", {
     style: "currency",
     currency: "EUR",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value || 0);
 }
 
-export default function WeeklyNetChart({ data }: WeeklyNetChartProps) {
+export default function WeekdayNetPerHourChart({
+  data,
+}: WeekdayNetPerHourChartProps) {
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -34,10 +36,10 @@ export default function WeeklyNetChart({ data }: WeeklyNetChartProps) {
           <XAxis dataKey="day" tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={(value) => `€${value}`} tick={{ fontSize: 12 }} />
           <Tooltip
-            formatter={(value) => [formatCurrency(Number(value)), "Καθαρά"]}
+            formatter={(value) => [formatCurrency(Number(value)), "Καθαρά / ώρα"]}
             labelFormatter={(label) => `Ημέρα: ${label}`}
           />
-          <Bar dataKey="net" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="netPerHour" radius={[8, 8, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

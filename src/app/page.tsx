@@ -4,6 +4,7 @@ import { calculateShiftMetrics } from "@/lib/calculations";
 import { getCurrentUserFromCookie } from "@/lib/auth";
 import LogoutButton from "@/components/logout-button";
 import WeeklyNetChart from "@/components/weekly-net-chart";
+import WeekdayNetPerHourChart from "@/components/weekday-net-per-hour-chart";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("el-GR", {
@@ -77,7 +78,7 @@ export default async function HomePage() {
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  const todayShifts = shifts.filter((shift) => {
+  const todayShifts = shifts.filter((shift: { date: string | number | Date; }) => {
     const shiftDate = new Date(shift.date).toISOString().slice(0, 10);
     return shiftDate === todayStr;
   });
@@ -90,13 +91,13 @@ export default async function HomePage() {
   startOfWeek.setDate(now.getDate() - diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
 
-  const weeklyShifts = shifts.filter((shift) => {
+  const weeklyShifts = shifts.filter((shift: { date: string | number | Date; }) => {
     const shiftDate = new Date(shift.date);
     return shiftDate >= startOfWeek;
   });
 
   const todayTotals = todayShifts.reduce(
-    (acc, shift) => {
+    (acc: { revenue: number; tips: number; hours: number; orders: number; kilometers: number; variableCost: number; netProfit: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -132,7 +133,7 @@ export default async function HomePage() {
   );
 
   const overallTotals = shifts.reduce(
-    (acc, shift) => {
+    (acc: { revenue: number; tips: number; kilometers: number; variableCost: number; netProfit: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -165,7 +166,7 @@ export default async function HomePage() {
   );
 
     const weeklyTotals = weeklyShifts.reduce(
-    (acc, shift) => {
+    (acc: { revenue: number; netProfit: number; hours: number; kilometers: number; orders: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -200,7 +201,7 @@ export default async function HomePage() {
   const weeklyNetPerHour =
     weeklyTotals.hours > 0 ? weeklyTotals.netProfit / weeklyTotals.hours : 0;
 
-  const shiftsWithMetrics = shifts.map((shift) => {
+  const shiftsWithMetrics = shifts.map((shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
     const metrics = calculateShiftMetrics(
       {
         platformEarnings: Number(shift.platformEarnings),
@@ -223,7 +224,7 @@ export default async function HomePage() {
 
   const bestShift = shiftsWithMetrics.reduce<
     (typeof shiftsWithMetrics)[number] | null
-  >((best, current) => {
+  >((best: { metrics: { netPerHour: number; }; }, current: { metrics: { netPerHour: number; }; }) => {
     if (!best) return current;
     return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
   }, null);
@@ -238,7 +239,7 @@ export default async function HomePage() {
     }
   >();
 
-  shiftsWithMetrics.forEach((shift) => {
+  shiftsWithMetrics.forEach((shift: { date: string | number | Date; metrics: { totalRevenue: number; netProfit: number; }; hours: any; }) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -277,7 +278,7 @@ export default async function HomePage() {
 
   const weeklyDayMap = new Map<string, number>();
 
-  weeklyShifts.forEach((shift) => {
+  weeklyShifts.forEach((shift: { date: string | number | Date; platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -309,6 +310,42 @@ export default async function HomePage() {
     day: day.slice(0, 3),
     net: weeklyDayMap.get(day) ?? 0,
   }));
+
+    const weekdayStatsMap = new Map<
+    string,
+    {
+      netProfit: number;
+      hours: number;
+    }
+  >();
+
+  shiftsWithMetrics.forEach((shift: { date: string | number | Date; metrics: { netProfit: number; }; hours: any; }) => {
+    const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
+      weekday: "long",
+    });
+
+    const normalizedDay =
+      dayName.charAt(0).toUpperCase() + dayName.slice(1).toLowerCase();
+
+    const current = weekdayStatsMap.get(normalizedDay) ?? {
+      netProfit: 0,
+      hours: 0,
+    };
+
+    current.netProfit += shift.metrics.netProfit;
+    current.hours += Number(shift.hours);
+
+    weekdayStatsMap.set(normalizedDay, current);
+  });
+
+  const weekdayNetPerHourData = weekdayOrder.map((day) => {
+    const stats = weekdayStatsMap.get(day) ?? { netProfit: 0, hours: 0 };
+
+    return {
+      day: day.slice(0, 3),
+      netPerHour: stats.hours > 0 ? stats.netProfit / stats.hours : 0,
+    };
+  });
   const grossPerHour =
     todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
 
@@ -493,6 +530,28 @@ export default async function HomePage() {
             <div className="mt-4">
               <WeeklyNetChart data={weeklyChartData} />
             </div>
+          </div>
+
+          <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Απόδοση ανά ημέρα εβδομάδας
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Δες ποιες ημέρες σου δίνουν καλύτερα καθαρά ανά ώρα.
+            </p>
+
+            <div className="mt-4">
+              <WeekdayNetPerHourChart data={weekdayNetPerHourData} />
+            </div>
+          </div>
+
+           <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">Insight</p>
+            <p className="mt-1 text-sm text-slate-700">
+              {bestDayEntry
+                ? `Η πιο αποδοτική ημέρα σου μέχρι τώρα είναι η ${bestDayEntry.day}, με μέσο όρο ${formatCurrency(bestDayEntry.netPerHour)} καθαρά ανά ώρα.`
+                : "Δεν υπάρχουν ακόμα αρκετά δεδομένα για insight."}
+            </p>
           </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
