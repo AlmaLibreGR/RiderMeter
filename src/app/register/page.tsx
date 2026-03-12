@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function updateField(name: "email" | "password", value: string) {
-    setForm((prev) => ({
+    setForm((prev: any) => ({
       ...prev,
       [name]: value,
     }));
@@ -64,7 +64,7 @@ export default function RegisterPage() {
             <input
               type="email"
               value={form.email}
-              onChange={(e) => updateField("email", e.target.value)}
+              onChange={(e: { target: { value: string; }; }) => updateField("email", e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="you@example.com"
             />
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             <input
               type="password"
               value={form.password}
-              onChange={(e) => updateField("password", e.target.value)}
+              onChange={(e: { target: { value: string; }; }) => updateField("password", e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="Τουλάχιστον 6 χαρακτήρες"
             />
