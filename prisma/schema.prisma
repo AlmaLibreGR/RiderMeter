@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  roleType     String    @default("simple")
+  createdAt    DateTime  @default(now())
+
+  vehicles     Vehicle[]
+  fixedCosts   FixedCost[]
+  shifts       Shift[]
+}
+
+model Vehicle {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  vehicleType         String
+  fuelType            String
+  consumptionPer100Km Float
+  fuelPrice           Float
+  maintenancePerKm    Float
+  tiresPerKm          Float
+  depreciationPerKm   Float
+  createdAt           DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FixedCost {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  insuranceMonthly  Float    @default(0)
+  phoneMonthly      Float    @default(0)
+  accountantMonthly Float    @default(0)
+  roadTaxMonthly    Float    @default(0)
+  kteoMonthly       Float    @default(0)
+  otherMonthly      Float    @default(0)
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Shift {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  date             DateTime
+  platform         String
+  area             String
+  hours            Float
+  ordersCount      Int
+  kilometers       Float
+  platformEarnings Float
+  tipsCard         Float    @default(0)
+  tipsCash         Float    @default(0)
+  bonus            Float    @default(0)
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
