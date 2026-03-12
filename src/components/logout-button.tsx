@@ -22,8 +22,8 @@ export default function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={loading}
-      className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900 disabled:opacity-60"
-      aria-label="Logout"
+      className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300/80 bg-white px-5 py-3 font-medium text-slate-900 shadow-sm hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-60 md:w-auto"
+      aria-label="Αποσύνδεση"
       tabIndex={0}
     >
       {loading ? "Αποσύνδεση..." : "Αποσύνδεση"}
