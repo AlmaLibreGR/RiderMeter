@@ -1,4 +1,46 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## RiderMeter Project
+
+RiderMeter is a KPI dashboard for delivery riders in Greece, built with Next.js, TypeScript, and Prisma.
+
+### Setup
+
+1. Clone the repository:
+	```bash
+	git clone https://github.com/yourusername/RiderMeter.git
+	cd RiderMeter
+	```
+2. Install dependencies:
+	```bash
+	npm install
+	```
+3. Set environment variables:
+	- Create a `.env` file and set:
+	  ```
+	  DATABASE_URL=your_database_url
+	  JWT_SECRET=your_strong_secret
+	  ```
+4. Run database migrations:
+	```bash
+	npx prisma migrate deploy
+	```
+5. Start the development server:
+	```bash
+	npm run dev
+	```
+
+### Deployment
+
+Deploy on Vercel or any Node.js hosting. Ensure `JWT_SECRET` is set and cookies are secure in production.
+
+### Features
+- Secure authentication with JWT
+- Dashboard and charts for shift metrics
+- Vehicle and fixed cost management
+- Accessible UI
+
+### Contributing
+Add comments for complex logic and API endpoints. Follow TypeScript and Next.js best practices.
 
 ## Getting Started
 

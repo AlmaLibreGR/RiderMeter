@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { comparePassword, createToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  // Handles user login, validates credentials, and sets authentication cookie
   try {
     const body = await req.json();
 
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     response.cookies.set("token", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });

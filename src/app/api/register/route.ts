@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword, createToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  // Handles user registration, validates input, hashes password, and sets authentication cookie
   try {
     const body = await req.json();
 

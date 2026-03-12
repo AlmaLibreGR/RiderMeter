@@ -23,6 +23,8 @@ export default function LogoutButton() {
       onClick={handleLogout}
       disabled={loading}
       className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900 disabled:opacity-60"
+      aria-label="Logout"
+      tabIndex={0}
     >
       {loading ? "Αποσύνδεση..." : "Αποσύνδεση"}
     </button>

@@ -1,43 +1,4 @@
-export function calculateShiftMetrics(
-  shift: {
-    platformEarnings: number;
-    tipsCard: number;
-    tipsCash: number;
-    bonus: number;
-    hours: number;
-    ordersCount: number;
-    kilometers: number;
-  },
-  vehicle?: {
-    fuelPrice: number;
-    consumptionPer100Km: number;
-    maintenancePerKm: number;
-    tiresPerKm: number;
-    depreciationPerKm: number;
-  } | null,
-  fixedCosts?: {
-    insuranceMonthly: number;
-    phoneMonthly: number;
-    accountantMonthly: number;
-    roadTaxMonthly: number;
-    kteoMonthly: number;
-    otherMonthly: number;
-  } | null
-) {
-  const tipsTotal = Number(shift.tipsCard) + Number(shift.tipsCash);
-
-  const totalRevenue =
-    Number(shift.platformEarnings) + Number(shift.bonus) + tipsTotal;
-
-  const grossPerHour =
-    Number(shift.hours) > 0 ? totalRevenue / Number(shift.hours) : 0;
-
-  const revenuePerOrder =
-    Number(shift.ordersCount) > 0
-      ? totalRevenue / Number(shift.ordersCount)
-      : 0;
-
-  let fuelCostPerKm = 0;
+// ...existing code...
   let totalCostPerKm = 0;
   let variableCost = 0;
   let dailyFixedCost = 0;
