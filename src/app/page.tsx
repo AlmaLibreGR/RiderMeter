@@ -224,7 +224,7 @@ export default async function HomePage() {
 
   const bestShift = shiftsWithMetrics.reduce<
   ((typeof shiftsWithMetrics)[number]) | null
->((best: { metrics: { netPerHour: number; }; }, current: { metrics: { netPerHour: number; }; }) => {
+>((best, current) => {
   if (!best) return current;
   return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
 }, null);
