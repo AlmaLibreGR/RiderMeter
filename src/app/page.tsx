@@ -223,11 +223,11 @@ export default async function HomePage() {
   });
 
   const bestShift = shiftsWithMetrics.reduce<
-    (typeof shiftsWithMetrics)[number] | null
-  >((best: { metrics: { netPerHour: number; }; }, current: { metrics: { netPerHour: number; }; }) => {
-    if (!best) return current;
-    return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
-  }, null);
+  ((typeof shiftsWithMetrics)[number]) | null
+>((best: { metrics: { netPerHour: number; }; }, current: { metrics: { netPerHour: number; }; }) => {
+  if (!best) return current;
+  return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
+}, null);
 
   const dayMap = new Map<
     string,
