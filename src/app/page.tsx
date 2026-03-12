@@ -216,14 +216,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             >
               <div className="space-y-3">
                 <SetupItem
-                  href="/vehicle"
+                  href="/setup"
                   status={dataset.setup.hasVehicleProfile ? t("common.setupReady") : t("common.setupNeeded")}
                   statusReady={dataset.setup.hasVehicleProfile}
                   title={t("dashboard.setup.vehicleTitle")}
                   body={t("dashboard.setup.vehicleBody")}
                 />
                 <SetupItem
-                  href="/fixed-costs"
+                  href="/setup"
                   status={dataset.setup.hasCostProfile ? t("common.setupReady") : t("common.setupNeeded")}
                   statusReady={dataset.setup.hasCostProfile}
                   title={t("dashboard.setup.costTitle")}

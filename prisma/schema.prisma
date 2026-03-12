@@ -21,6 +21,7 @@ model User {
   vehicleProfiles  VehicleProfile[]
   costProfiles     CostProfile[]
   platformProfiles PlatformProfile[]
+  expenseCategories ExpenseCategory[]
   expenses         Expense[]
   appSettings      AppSettings?
   shifts           Shift[]
@@ -51,6 +52,15 @@ model VehicleProfile {
   maintenanceCostPerKm    Decimal  @default(0) @db.Decimal(10, 4)
   tiresCostPerKm          Decimal  @default(0) @db.Decimal(10, 4)
   depreciationCostPerKm   Decimal  @default(0) @db.Decimal(10, 4)
+  routineServiceIntervalKm Decimal? @db.Decimal(10, 2)
+  routineServiceCost      Decimal? @db.Decimal(10, 2)
+  majorServiceIntervalKm  Decimal? @db.Decimal(10, 2)
+  majorServiceCost        Decimal? @db.Decimal(10, 2)
+  tireReplacementIntervalKm Decimal? @db.Decimal(10, 2)
+  tireReplacementCost     Decimal? @db.Decimal(10, 2)
+  purchasePrice           Decimal? @db.Decimal(10, 2)
+  resaleValue             Decimal? @db.Decimal(10, 2)
+  expectedLifecycleKm     Decimal? @db.Decimal(10, 2)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -99,9 +109,25 @@ model PlatformProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model ExpenseCategory {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  name          String
+  scope         String   @default("business")
+  cadence       String   @default("monthly")
+  defaultAmount Decimal  @default(0) @db.Decimal(10, 2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+}
+
 model Expense {
   id          Int      @id @default(autoincrement())
   userId      Int
+  categoryId  Int?
   date        DateTime
   category    String
   amount      Decimal  @db.Decimal(10, 2)
@@ -109,7 +135,8 @@ model Expense {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenseCategory ExpenseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
 
 model AppSettings {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getDurationHoursFromTimes } from "@/lib/dates";
 
 const numericString = z.union([z.number(), z.string(), z.null(), z.undefined()]);
 
@@ -34,16 +35,6 @@ export const canonicalShiftSchema = z
     notes: z.string().max(2000).optional().nullable(),
   })
   .superRefine((value, context) => {
-    const hoursWorked = Number(value.hoursWorked ?? 0);
-
-    if (!Number.isFinite(hoursWorked) || hoursWorked <= 0) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["hoursWorked"],
-        message: "Hours worked must be greater than zero.",
-      });
-    }
-
     const startTime = value.startTime?.trim();
     const endTime = value.endTime?.trim();
 
@@ -52,6 +43,25 @@ export const canonicalShiftSchema = z
         code: z.ZodIssueCode.custom,
         path: ["endTime"],
         message: "Start and end time must be provided together.",
+      });
+    }
+
+    const derivedDuration = getDurationHoursFromTimes(startTime, endTime);
+    const hoursWorked = Number(value.hoursWorked ?? 0);
+
+    if (startTime && endTime && (!derivedDuration || derivedDuration <= 0)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endTime"],
+        message: "Start time must be before end time.",
+      });
+    }
+
+    if ((!startTime || !endTime) && (!Number.isFinite(hoursWorked) || hoursWorked <= 0)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["hoursWorked"],
+        message: "Hours worked must be greater than zero.",
       });
     }
   });

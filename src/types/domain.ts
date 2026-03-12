@@ -7,6 +7,21 @@ export type CurrencyCode = (typeof supportedCurrencies)[number];
 export const supportedPlatforms = ["efood", "wolt", "freelance", "other"] as const;
 export type PlatformKey = (typeof supportedPlatforms)[number];
 
+export const supportedVehicleTypes = ["car", "scooter", "ebike"] as const;
+export type VehicleType = (typeof supportedVehicleTypes)[number];
+
+export const supportedExpenseScopes = ["business", "personal"] as const;
+export type ExpenseScope = (typeof supportedExpenseScopes)[number];
+
+export const expenseCadences = [
+  "daily",
+  "weekly",
+  "monthly",
+  "yearly",
+  "one_time",
+] as const;
+export type ExpenseCadence = (typeof expenseCadences)[number];
+
 export const dashboardPeriods = ["today", "week", "month", "custom"] as const;
 export type DashboardPeriod = (typeof dashboardPeriods)[number];
 
@@ -34,13 +49,22 @@ export type CanonicalShift = {
 };
 
 export type VehicleProfileSnapshot = {
-  vehicleType: string;
+  vehicleType: VehicleType;
   fuelType: string;
   fuelPricePerLiter: number;
   fuelConsumptionPer100Km: number;
   maintenanceCostPerKm: number;
   depreciationCostPerKm: number;
   tiresCostPerKm: number;
+  routineServiceIntervalKm: number | null;
+  routineServiceCost: number | null;
+  majorServiceIntervalKm: number | null;
+  majorServiceCost: number | null;
+  tireReplacementIntervalKm: number | null;
+  tireReplacementCost: number | null;
+  purchasePrice: number | null;
+  resaleValue: number | null;
+  expectedLifecycleKm: number | null;
 };
 
 export type CostProfileSnapshot = {
@@ -51,6 +75,32 @@ export type CostProfileSnapshot = {
   roadTaxMonthly: Money;
   kteoMonthly: Money;
   otherMonthly: Money;
+  recurringCategories: ExpenseCategorySnapshot[];
+};
+
+export type ExpenseCategorySnapshot = {
+  id: number;
+  name: string;
+  scope: ExpenseScope;
+  cadence: ExpenseCadence;
+  defaultAmount: Money;
+  isActive: boolean;
+};
+
+export type ExpenseEntrySnapshot = {
+  id: number;
+  categoryId: number | null;
+  category: string;
+  amount: Money;
+  description: string | null;
+  date: string;
+  scope: ExpenseScope;
+};
+
+export type SetupSnapshot = {
+  vehicleProfile: VehicleProfileSnapshot | null;
+  recurringCategories: ExpenseCategorySnapshot[];
+  recentExpenses: ExpenseEntrySnapshot[];
 };
 
 export type AppSettingsSnapshot = {

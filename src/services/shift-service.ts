@@ -1,5 +1,6 @@
 import type { Shift } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getDurationHoursFromTimes } from "@/lib/dates";
 import { canonicalShiftSchema, historyQuerySchema, shiftPayloadSchema } from "@/lib/validators/shift";
 import { asNullableString, roundCurrency, toSafeNumber } from "@/lib/utils";
 import type { CanonicalShift, PlatformKey } from "@/types/domain";
@@ -14,6 +15,8 @@ function normalizePlatform(value: string | null | undefined): PlatformKey {
 }
 
 export function mapShiftRecordToCanonical(shift: Shift): CanonicalShift {
+  const derivedHoursWorked = getDurationHoursFromTimes(shift.startTime, shift.endTime);
+
   return {
     id: shift.id,
     userId: shift.userId,
@@ -22,7 +25,7 @@ export function mapShiftRecordToCanonical(shift: Shift): CanonicalShift {
       shift.date.toISOString().slice(0, 10),
     startTime: shift.startTime ?? null,
     endTime: shift.endTime ?? null,
-    hoursWorked: toSafeNumber(shift.hoursWorked ?? shift.hours),
+    hoursWorked: toSafeNumber(derivedHoursWorked ?? shift.hoursWorked ?? shift.hours),
     ordersCompleted: toSafeNumber(shift.ordersCompleted ?? shift.ordersCount),
     kilometersDriven: toSafeNumber(shift.kilometersDriven ?? shift.kilometers),
     baseEarnings: roundCurrency(
@@ -71,7 +74,11 @@ export function normalizeShiftPayload(input: unknown) {
   const parsed = shiftPayloadSchema.parse(input);
 
   if ("hoursWorked" in parsed) {
-    return canonicalShiftSchema.parse(parsed);
+    const derivedHoursWorked = getDurationHoursFromTimes(parsed.startTime, parsed.endTime);
+    return canonicalShiftSchema.parse({
+      ...parsed,
+      hoursWorked: derivedHoursWorked ?? parsed.hoursWorked,
+    });
   }
 
   return canonicalShiftSchema.parse({
@@ -100,6 +107,8 @@ export function normalizeShiftPayload(input: unknown) {
 export async function createShift(userId: number, input: unknown) {
   const payload = normalizeShiftPayload(input);
   const shiftDate = payload.date || nowIsoDate();
+  const derivedHoursWorked = getDurationHoursFromTimes(payload.startTime, payload.endTime);
+  const hoursWorked = toSafeNumber(derivedHoursWorked ?? payload.hoursWorked);
 
   const created = await prisma.shift.create({
     data: {
@@ -110,8 +119,8 @@ export async function createShift(userId: number, input: unknown) {
       endTime: asNullableString(payload.endTime),
       platform: payload.platform ?? "other",
       area: payload.area,
-      hours: toSafeNumber(payload.hoursWorked),
-      hoursWorked: toSafeNumber(payload.hoursWorked),
+      hours: hoursWorked,
+      hoursWorked,
       ordersCount: Math.round(toSafeNumber(payload.ordersCompleted)),
       ordersCompleted: Math.round(toSafeNumber(payload.ordersCompleted)),
       kilometers: toSafeNumber(payload.kilometersDriven),
@@ -149,6 +158,8 @@ export async function updateShift(userId: number, shiftId: number, input: unknow
   }
 
   const shiftDate = payload.date || nowIsoDate();
+  const derivedHoursWorked = getDurationHoursFromTimes(payload.startTime, payload.endTime);
+  const hoursWorked = toSafeNumber(derivedHoursWorked ?? payload.hoursWorked);
   const updated = await prisma.shift.update({
     where: {
       id: shiftId,
@@ -160,8 +171,8 @@ export async function updateShift(userId: number, shiftId: number, input: unknow
       endTime: asNullableString(payload.endTime),
       platform: payload.platform ?? "other",
       area: payload.area,
-      hours: toSafeNumber(payload.hoursWorked),
-      hoursWorked: toSafeNumber(payload.hoursWorked),
+      hours: hoursWorked,
+      hoursWorked,
       ordersCount: Math.round(toSafeNumber(payload.ordersCompleted)),
       ordersCompleted: Math.round(toSafeNumber(payload.ordersCompleted)),
       kilometers: toSafeNumber(payload.kilometersDriven),

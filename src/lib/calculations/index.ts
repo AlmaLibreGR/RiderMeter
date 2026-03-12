@@ -9,6 +9,8 @@ import type {
 } from "@/types/domain";
 import { clampPercent, roundCurrency, safeDivide, toSafeNumber } from "@/lib/utils";
 
+export * from "./setup";
+
 type CalculationContext = {
   vehicleProfile: VehicleProfileSnapshot | null;
   costProfile: CostProfileSnapshot | null;

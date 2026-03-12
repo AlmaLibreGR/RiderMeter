@@ -30,8 +30,7 @@
     "exportCsv": "Export CSV",
     "edit": "Edit",
     "delete": "Delete",
-    "update": "Update"
-    ,
+    "update": "Update",
     "order": "order",
     "kilometer": "km"
   },
@@ -96,10 +95,10 @@
       "cta": "Add your first shift"
     },
     "setup": {
-      "vehicleTitle": "Vehicle profile",
-      "vehicleBody": "Fuel, maintenance, and depreciation make net profit trustworthy.",
-      "costTitle": "Cost profile",
-      "costBody": "Fixed costs let the dashboard reflect real operating margin."
+      "vehicleTitle": "Setup workspace",
+      "vehicleBody": "Define vehicle assumptions, recurring categories, and manual expenses so your net profit reflects real life.",
+      "costTitle": "Expense categories",
+      "costBody": "Build your own business and personal budget categories and keep fixed costs honest."
     },
     "charts": {
       "trendTitle": "Revenue vs costs by day",
@@ -169,7 +168,7 @@
   "shiftForm": {
     "eyebrow": "Fast entry",
     "title": "Capture a shift without slowing down",
-    "body": "Enter the essentials first, then add any extra cost details when you have them.",
+    "body": "Set your start and end time once and let RiderMeter calculate the working duration automatically.",
     "groups": {
       "schedule": "Schedule and route",
       "performance": "Performance",
@@ -197,6 +196,13 @@
       "area": "Use a recognizable zone so you can compare areas later.",
       "fuelExpenseDirect": "Use only when you want to override estimated fuel cost.",
       "notes": "Weather, demand, delays, or anything worth remembering."
+    },
+    "duration": {
+      "title": "Working duration",
+      "auto": "Automatic",
+      "manual": "Manual",
+      "awaiting": "Waiting for time range",
+      "manualHelp": "Use this only if you do not want to save start and end times."
     },
     "preview": {
       "grossRevenue": "Gross revenue",
@@ -245,7 +251,7 @@
     "saved": "Settings saved successfully.",
     "fields": {
       "vehicleType": "Vehicle type",
-      "fuelType": "Fuel type",
+      "fuelType": "Energy type",
       "fuelConsumptionPer100Km": "Fuel consumption per 100 km",
       "fuelPricePerLiter": "Fuel price per liter",
       "maintenanceCostPerKm": "Maintenance cost per km",
@@ -260,6 +266,115 @@
       "otherMonthly": "Other recurring costs per month",
       "totalMonthlyCost": "Total monthly cost",
       "dailyFixedCost": "Daily fixed cost"
+    }
+  },
+  "setupWorkspace": {
+    "eyebrow": "First setup",
+    "title": "Turn your rider profile into a real profit model",
+    "body": "Pick your vehicle, define cost assumptions from real maintenance intervals, and build your own business and personal expense categories.",
+    "sections": {
+      "vehicleEyebrow": "Vehicle assumptions",
+      "vehicleTitle": "Vehicle cost engine",
+      "vehicleBody": "Choose car, scooter, or e-bike and enter the maintenance rules you already know. RiderMeter turns them into cost-per-kilometer automatically.",
+      "budgetEyebrow": "Recurring budgets",
+      "budgetTitle": "Business and personal categories",
+      "budgetBody": "Create your own expense categories such as insurance, mobile, snacks, gas, or anything else you want to track regularly.",
+      "expensesEyebrow": "Manual expenses",
+      "expensesTitle": "Log real spending",
+      "expensesBody": "Add one-off or day-to-day expenses whenever they happen and keep a recent ledger close by.",
+      "recentEyebrow": "Recent entries",
+      "recentTitle": "Latest expense activity",
+      "recentBody": "Review the latest manual expenses you logged from your setup workspace."
+    },
+    "messages": {
+      "save": "Save setup",
+      "saved": "Setup saved successfully.",
+      "error": "Failed to save the setup workspace."
+    },
+    "vehicle": {
+      "types": {
+        "car": "Car",
+        "scooter": "Scooter",
+        "ebike": "E-bike"
+      },
+      "typeBodies": {
+        "car": "Best when you need full operating-cost visibility for a car-based delivery setup.",
+        "scooter": "Ideal for city delivery with fuel, service, and tire assumptions.",
+        "ebike": "Built for electric delivery setups where charging, service, and lifecycle matter most."
+      },
+      "energyModes": {
+        "electric": "Electric",
+        "petrol": "Petrol",
+        "diesel": "Diesel"
+      },
+      "fuelConsumption": "Fuel consumption per 100 km",
+      "fuelConsumptionHelp": "Example: 3.2 liters / 100 km for a scooter or 7.5 for a car.",
+      "fuelPrice": "Fuel price per liter",
+      "fuelPriceHelp": "Use the price you usually pay, not the theoretical best case.",
+      "ebikeConsumption": "Energy cost per 100 km",
+      "ebikeConsumptionHelp": "Use the charging cost equivalent for 100 km.",
+      "ebikePrice": "Electricity price basis",
+      "ebikePriceHelp": "Set the cost level you want RiderMeter to use for charging.",
+      "carRoutineInterval": "Oil / small service interval (km)",
+      "carRoutineCost": "Oil / small service cost",
+      "carMajorInterval": "Major service interval (km)",
+      "carMajorCost": "Major service cost",
+      "carTireInterval": "Tire replacement interval (km)",
+      "carTireCost": "Tire replacement cost",
+      "scooterRoutineInterval": "Oil change interval (km)",
+      "scooterRoutineCost": "Oil change cost",
+      "scooterMajorInterval": "Service interval (km)",
+      "scooterMajorCost": "Service cost",
+      "scooterTireInterval": "Tire replacement interval (km)",
+      "scooterTireCost": "Tire replacement cost",
+      "ebikeRoutineInterval": "Routine service interval (km)",
+      "ebikeRoutineCost": "Routine service cost",
+      "ebikeMajorInterval": "Major service interval (km)",
+      "ebikeMajorCost": "Major service cost",
+      "ebikeTireInterval": "Tire replacement interval (km)",
+      "ebikeTireCost": "Tire replacement cost",
+      "purchasePrice": "Purchase price",
+      "resaleValue": "Expected resale value",
+      "expectedLifecycleKm": "Expected lifecycle (km)",
+      "energyPerKm": "Energy cost / km",
+      "maintenancePerKm": "Maintenance / km",
+      "tiresPerKm": "Tires / km",
+      "totalPerKm": "Total vehicle cost / km"
+    },
+    "categories": {
+      "name": "Category name",
+      "scope": "Scope",
+      "scopeHelp": "Decide whether this affects business costs or your personal budget.",
+      "scopes": {
+        "business": "Business",
+        "personal": "Personal"
+      },
+      "cadence": "Cadence",
+      "cadences": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "one_time": "One time"
+      },
+      "amount": "Default amount",
+      "active": "Active",
+      "addBusiness": "Add business category",
+      "addPersonal": "Add personal category",
+      "dailyBudget": "Daily business budget",
+      "monthlyBudget": "Monthly business budget"
+    },
+    "expenses": {
+      "date": "Date",
+      "category": "Category",
+      "selectCategory": "Select a saved category",
+      "amount": "Amount",
+      "description": "Description",
+      "submit": "Save expense entry",
+      "success": "Expense entry saved.",
+      "error": "Failed to save expense entry.",
+      "unsavedCategory": "Save your categories first, then log expenses against them.",
+      "empty": "No expense entries yet. Add your first real-world cost here."
     }
   }
 }
