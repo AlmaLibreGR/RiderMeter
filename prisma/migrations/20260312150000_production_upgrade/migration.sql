@@ -106,6 +106,9 @@ CREATE TABLE "AppSettings" (
     CONSTRAINT "AppSettings_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateIndex
+CREATE UNIQUE INDEX "AppSettings_userId_key" ON "AppSettings"("userId");
+
 -- Backfill canonical profiles from legacy tables
 INSERT INTO "VehicleProfile" (
   "userId",
@@ -161,9 +164,6 @@ INSERT INTO "AppSettings" ("userId", "locale", "createdAt", "updatedAt")
 SELECT "id", COALESCE("locale", 'el'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 FROM "User"
 ON CONFLICT ("userId") DO NOTHING;
-
--- CreateIndex
-CREATE UNIQUE INDEX "AppSettings_userId_key" ON "AppSettings"("userId");
 
 -- AddForeignKey
 ALTER TABLE "VehicleProfile" ADD CONSTRAINT "VehicleProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
