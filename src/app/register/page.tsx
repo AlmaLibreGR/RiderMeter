@@ -4,10 +4,15 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+type FormState = {
+  email: string;
+  password: string;
+};
+
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     email: "",
     password: "",
   });
@@ -15,14 +20,14 @@ export default function RegisterPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function updateField(name: "email" | "password", value: string) {
-    setForm((prev: any) => ({
+  function updateField(name: keyof FormState, value: string) {
+    setForm((prev: FormState) => ({
       ...prev,
       [name]: value,
     }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -64,7 +69,9 @@ export default function RegisterPage() {
             <input
               type="email"
               value={form.email}
-              onChange={(e: { target: { value: string; }; }) => updateField("email", e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                updateField("email", e.target.value)
+              }
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="you@example.com"
             />
@@ -77,7 +84,9 @@ export default function RegisterPage() {
             <input
               type="password"
               value={form.password}
-              onChange={(e: { target: { value: string; }; }) => updateField("password", e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                updateField("password", e.target.value)
+              }
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="Τουλάχιστον 6 χαρακτήρες"
             />
@@ -95,7 +104,7 @@ export default function RegisterPage() {
         </form>
 
         <p className="mt-6 text-sm text-slate-600">
-          Έχεις ήδη λογαριασμό;{" "}
+          Έχεις ήδη λογαριασμό?{" "}
           <Link href="/login" className="font-medium text-slate-900 underline">
             Σύνδεση
           </Link>
