@@ -199,6 +199,72 @@ export default async function HomePage() {
   const weeklyNetPerHour =
     weeklyTotals.hours > 0 ? weeklyTotals.netProfit / weeklyTotals.hours : 0;
 
+  const shiftsWithMetrics = shifts.map((shift) => {
+    const metrics = calculateShiftMetrics(
+      {
+        platformEarnings: Number(shift.platformEarnings),
+        tipsCard: Number(shift.tipsCard),
+        tipsCash: Number(shift.tipsCash),
+        bonus: Number(shift.bonus),
+        hours: Number(shift.hours),
+        ordersCount: Number(shift.ordersCount),
+        kilometers: Number(shift.kilometers),
+      },
+      vehicle,
+      fixedCosts
+    );
+
+    return {
+      ...shift,
+      metrics,
+    };
+  });
+
+  const bestShift = shiftsWithMetrics.reduce<
+    (typeof shiftsWithMetrics)[number] | null
+  >((best, current) => {
+    if (!best) return current;
+    return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
+  }, null);
+
+  const dayMap = new Map<
+    string,
+    {
+      revenue: number;
+      netProfit: number;
+      hours: number;
+      shifts: number;
+    }
+  >();
+
+  shiftsWithMetrics.forEach((shift) => {
+    const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
+      weekday: "long",
+    });
+
+    const current = dayMap.get(dayName) ?? {
+      revenue: 0,
+      netProfit: 0,
+      hours: 0,
+      shifts: 0,
+    };
+
+    current.revenue += shift.metrics.totalRevenue;
+    current.netProfit += shift.metrics.netProfit;
+    current.hours += Number(shift.hours);
+    current.shifts += 1;
+
+    dayMap.set(dayName, current);
+  });
+
+  const bestDayEntry = Array.from(dayMap.entries())
+    .map(([day, stats]) => ({
+      day,
+      ...stats,
+      netPerHour: stats.hours > 0 ? stats.netProfit / stats.hours : 0,
+    }))
+    .sort((a, b) => b.netPerHour - a.netPerHour)[0];
+
   const grossPerHour =
     todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
 
@@ -357,6 +423,62 @@ export default async function HomePage() {
             <h2 className="text-lg font-semibold text-slate-900">
               Αυτή η εβδομάδα
             </h2>
+
+          <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Καλύτερες επιδόσεις
+            </h2>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Καλύτερη βάρδια</p>
+
+                {bestShift ? (
+                  <>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
+                      {new Date(bestShift.date).toLocaleDateString("el-GR")} ·{" "}
+                      {bestShift.area}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {bestShift.platform.toUpperCase()} ·{" "}
+                      {formatCurrency(bestShift.metrics.netPerHour)} καθαρά / ώρα
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      Καθαρά: {formatCurrency(bestShift.metrics.netProfit)} · Ώρες:{" "}
+                      {formatNumber(bestShift.hours)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm text-slate-600">
+                    Δεν υπάρχουν ακόμα αρκετά δεδομένα.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Καλύτερη μέρα εβδομάδας</p>
+
+                {bestDayEntry ? (
+                  <>
+                    <p className="mt-1 text-lg font-semibold capitalize text-slate-900">
+                      {bestDayEntry.day}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {formatCurrency(bestDayEntry.netPerHour)} καθαρά / ώρα
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      Καθαρά: {formatCurrency(bestDayEntry.netProfit)} · Βάρδιες:{" "}
+                      {formatNumber(bestDayEntry.shifts)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm text-slate-600">
+                    Δεν υπάρχουν ακόμα αρκετά δεδομένα.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-5">
               <div>
