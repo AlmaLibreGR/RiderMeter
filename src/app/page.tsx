@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { calculateShiftMetrics } from "@/lib/calculations";
 import { getCurrentUserFromCookie } from "@/lib/auth";
 import LogoutButton from "@/components/logout-button";
+import WeeklyNetChart from "@/components/weekly-net-chart";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("el-GR", {
@@ -264,7 +265,50 @@ export default async function HomePage() {
       netPerHour: stats.hours > 0 ? stats.netProfit / stats.hours : 0,
     }))
     .sort((a, b) => b.netPerHour - a.netPerHour)[0];
+  const weekdayOrder = [
+    "Δευτέρα",
+    "Τρίτη",
+    "Τετάρτη",
+    "Πέμπτη",
+    "Παρασκευή",
+    "Σάββατο",
+    "Κυριακή",
+  ];
 
+  const weeklyDayMap = new Map<string, number>();
+
+  weeklyShifts.forEach((shift) => {
+    const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
+      weekday: "long",
+    });
+
+    const normalizedDay =
+      dayName.charAt(0).toUpperCase() + dayName.slice(1).toLowerCase();
+
+    const metrics = calculateShiftMetrics(
+      {
+        platformEarnings: Number(shift.platformEarnings),
+        tipsCard: Number(shift.tipsCard),
+        tipsCash: Number(shift.tipsCash),
+        bonus: Number(shift.bonus),
+        hours: Number(shift.hours),
+        ordersCount: Number(shift.ordersCount),
+        kilometers: Number(shift.kilometers),
+      },
+      vehicle,
+      fixedCosts
+    );
+
+    weeklyDayMap.set(
+      normalizedDay,
+      (weeklyDayMap.get(normalizedDay) ?? 0) + metrics.netProfit
+    );
+  });
+
+  const weeklyChartData = weekdayOrder.map((day) => ({
+    day: day.slice(0, 3),
+    net: weeklyDayMap.get(day) ?? 0,
+  }));
   const grossPerHour =
     todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
 
@@ -437,6 +481,19 @@ export default async function HomePage() {
             <h2 className="text-lg font-semibold text-slate-900">
               Καλύτερες επιδόσεις
             </h2>
+
+             <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Πορεία καθαρών αυτή την εβδομάδα
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Δες ποιες ημέρες αποδίδουν καλύτερα.
+            </p>
+
+            <div className="mt-4">
+              <WeeklyNetChart data={weeklyChartData} />
+            </div>
+          </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
