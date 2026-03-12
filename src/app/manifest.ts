@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Rider KPI",
-    short_name: "Rider KPI",
-    description: "Εφαρμογή για διανομείς efood / Wolt στην Ελλάδα",
+    name: "Rider Meter",
+    short_name: "Rider Meter",
+    description: "Εφαρμογή για διανομείς στην Ελλάδα",
     start_url: "/",
     display: "standalone",
     background_color: "#f8fafc",
