@@ -21,11 +21,12 @@ function formatNumber(value: number) {
 
 export default async function HomePage() {
   const currentUser = await getCurrentUserFromCookie();
-    if (!currentUser) {
-      return (
-      <main className="min-h-screen bg-slate-50 p-6">
+
+  if (!currentUser) {
+    return (
+      <main className="min-h-screen bg-slate-50 p-4 md:p-6">
         <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Rider KPI</h1>
+          <h1 className="text-3xl font-bold text-slate-900">RiderMeter</h1>
           <p className="mt-3 text-slate-600">
             Πρέπει να συνδεθείς για να δεις το dashboard σου.
           </p>
@@ -49,6 +50,7 @@ export default async function HomePage() {
       </main>
     );
   }
+
   const shifts = await prisma.shift.findMany({
     where: {
       userId: currentUser.userId,
@@ -78,7 +80,7 @@ export default async function HomePage() {
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  const todayShifts = shifts.filter((shift: { date: string | number | Date; }) => {
+  const todayShifts = shifts.filter((shift) => {
     const shiftDate = new Date(shift.date).toISOString().slice(0, 10);
     return shiftDate === todayStr;
   });
@@ -91,13 +93,13 @@ export default async function HomePage() {
   startOfWeek.setDate(now.getDate() - diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
 
-  const weeklyShifts = shifts.filter((shift: { date: string | number | Date; }) => {
+  const weeklyShifts = shifts.filter((shift) => {
     const shiftDate = new Date(shift.date);
     return shiftDate >= startOfWeek;
   });
 
   const todayTotals = todayShifts.reduce(
-    (acc: { revenue: number; tips: number; hours: number; orders: number; kilometers: number; variableCost: number; netProfit: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
+    (acc, shift) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -108,7 +110,8 @@ export default async function HomePage() {
           ordersCount: Number(shift.ordersCount),
           kilometers: Number(shift.kilometers),
         },
-        vehicle
+        vehicle,
+        fixedCosts
       );
 
       acc.revenue += metrics.totalRevenue;
@@ -133,7 +136,7 @@ export default async function HomePage() {
   );
 
   const overallTotals = shifts.reduce(
-    (acc: { revenue: number; tips: number; kilometers: number; variableCost: number; netProfit: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
+    (acc, shift) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -165,8 +168,8 @@ export default async function HomePage() {
     }
   );
 
-    const weeklyTotals = weeklyShifts.reduce(
-    (acc: { revenue: number; netProfit: number; hours: number; kilometers: number; orders: number; }, shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
+  const weeklyTotals = weeklyShifts.reduce(
+    (acc, shift) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -201,7 +204,7 @@ export default async function HomePage() {
   const weeklyNetPerHour =
     weeklyTotals.hours > 0 ? weeklyTotals.netProfit / weeklyTotals.hours : 0;
 
-  const shiftsWithMetrics = shifts.map((shift: { platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
+  const shiftsWithMetrics = shifts.map((shift) => {
     const metrics = calculateShiftMetrics(
       {
         platformEarnings: Number(shift.platformEarnings),
@@ -223,11 +226,11 @@ export default async function HomePage() {
   });
 
   const bestShift = shiftsWithMetrics.reduce<
-  ((typeof shiftsWithMetrics)[number]) | null
->((best, current) => {
-  if (!best) return current;
-  return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
-}, null);
+    ((typeof shiftsWithMetrics)[number]) | null
+  >((best, current) => {
+    if (!best) return current;
+    return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
+  }, null);
 
   const dayMap = new Map<
     string,
@@ -239,7 +242,7 @@ export default async function HomePage() {
     }
   >();
 
-  shiftsWithMetrics.forEach((shift: { date: string | number | Date; metrics: { totalRevenue: number; netProfit: number; }; hours: any; }) => {
+  shiftsWithMetrics.forEach((shift) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -266,6 +269,7 @@ export default async function HomePage() {
       netPerHour: stats.hours > 0 ? stats.netProfit / stats.hours : 0,
     }))
     .sort((a, b) => b.netPerHour - a.netPerHour)[0];
+
   const weekdayOrder = [
     "Δευτέρα",
     "Τρίτη",
@@ -278,7 +282,7 @@ export default async function HomePage() {
 
   const weeklyDayMap = new Map<string, number>();
 
-  weeklyShifts.forEach((shift: { date: string | number | Date; platformEarnings: any; tipsCard: any; tipsCash: any; bonus: any; hours: any; ordersCount: any; kilometers: any; }) => {
+  weeklyShifts.forEach((shift) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -311,7 +315,7 @@ export default async function HomePage() {
     net: weeklyDayMap.get(day) ?? 0,
   }));
 
-    const weekdayStatsMap = new Map<
+  const weekdayStatsMap = new Map<
     string,
     {
       netProfit: number;
@@ -319,7 +323,7 @@ export default async function HomePage() {
     }
   >();
 
-  shiftsWithMetrics.forEach((shift: { date: string | number | Date; metrics: { netProfit: number; }; hours: any; }) => {
+  shiftsWithMetrics.forEach((shift) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -346,6 +350,7 @@ export default async function HomePage() {
       netPerHour: stats.hours > 0 ? stats.netProfit / stats.hours : 0,
     };
   });
+
   const grossPerHour =
     todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
 
@@ -354,6 +359,17 @@ export default async function HomePage() {
 
   const revenuePerOrder =
     todayTotals.orders > 0 ? todayTotals.revenue / todayTotals.orders : 0;
+
+  const dailyFixedCost = fixedCosts
+    ? (
+        Number(fixedCosts.insuranceMonthly) +
+        Number(fixedCosts.phoneMonthly) +
+        Number(fixedCosts.accountantMonthly) +
+        Number(fixedCosts.roadTaxMonthly) +
+        Number(fixedCosts.kteoMonthly) +
+        Number(fixedCosts.otherMonthly)
+      ) / 30
+    : 0;
 
   const costPerKm = vehicle
     ? calculateShiftMetrics(
@@ -372,72 +388,60 @@ export default async function HomePage() {
     : 0;
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
+    <main className="min-h-screen bg-slate-50 p-4 md:p-6">
       <div className="mx-auto max-w-6xl">
         <div className="rounded-3xl bg-white p-8 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-  <div>
-    <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-      RiderMeter
-    </h1>
-    <p className="mt-2 text-sm text-slate-600 md:text-base">
-      Εφαρμογή για διανομείς freelancerστην Ελλάδα.
-    </p>
-  </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+                RiderMeter
+              </h1>
+              <p className="mt-2 text-sm text-slate-600 md:text-base">
+                Εφαρμογή για διανομείς freelancer στην Ελλάδα.
+              </p>
+            </div>
 
-  <div className="w-full md:w-auto">
-    <LogoutButton />
-  </div>
-</div>
+            <div className="w-full md:w-auto">
+              <LogoutButton />
+            </div>
+          </div>
 
-<div className="mt-6 grid grid-cols-2 gap-3 md:flex md:flex-wrap">
+          <div className="mt-6 grid grid-cols-2 gap-3 md:flex md:flex-wrap">
             <Link
-            href="/new-shift"
-            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
+              href="/new-shift"
+              className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Νέα Βάρδια
-              </Link>
+            </Link>
 
             <Link
-            href="/history"
-            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
+              href="/history"
+              className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Ιστορικό
             </Link>
 
             <Link
-            href="/vehicle"
-            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
+              href="/vehicle"
+              className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Όχημα
             </Link>
-            
+
             <Link
-            href="/fixed-costs"
-            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
+              href="/fixed-costs"
+              className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Πάγια Έξοδα
             </Link>
-
-
           </div>
 
-          <div className="rounded-2xl border p-4 md:p-5">
+          <div className="mt-4 rounded-2xl border p-4 md:p-5">
             <p className="text-sm text-slate-500">Ημερήσιο πάγιο</p>
             <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
-              {formatCurrency(fixedCosts
-              ? (
-                Number(fixedCosts.insuranceMonthly) +
-                Number(fixedCosts.phoneMonthly) +
-                Number(fixedCosts.accountantMonthly) +
-                Number(fixedCosts.roadTaxMonthly) +
-                Number(fixedCosts.kteoMonthly) +
-                Number(fixedCosts.otherMonthly)
-              ) / 30
-              : 0
-              )}
-              </p>
-            </div>
+              {formatCurrency(dailyFixedCost)}
+            </p>
+          </div>
 
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-2xl border p-4 md:p-5">
@@ -509,50 +513,84 @@ export default async function HomePage() {
               Συνολικά μέχρι τώρα
             </h2>
 
-                      <div className="mt-8 rounded-2xl border p-5">
+            <div className="mt-4 grid gap-4 md:grid-cols-4">
+              <div>
+                <p className="text-sm text-slate-500">Σύνολο βαρδιών</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatNumber(shifts.length)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Σύνολο μικτών</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(overallTotals.revenue)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Σύνολο κόστους με πάγια</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(overallTotals.variableCost)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Σύνολο καθαρών</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(overallTotals.netProfit)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-2xl border p-5">
             <h2 className="text-lg font-semibold text-slate-900">
               Αυτή η εβδομάδα
             </h2>
+
+            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
+              <div>
+                <p className="text-sm text-slate-500">Μικτά εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyTotals.revenue)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Καθαρά εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyTotals.netProfit)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Ώρες εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatNumber(weeklyTotals.hours)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Χλμ εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatNumber(weeklyTotals.kilometers)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Καθαρά / ώρα</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyNetPerHour)}
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 rounded-2xl border p-5">
             <h2 className="text-lg font-semibold text-slate-900">
               Καλύτερες επιδόσεις
             </h2>
-
-             <div className="mt-8 rounded-2xl border p-5">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Πορεία καθαρών αυτή την εβδομάδα
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Δες ποιες ημέρες αποδίδουν καλύτερα.
-            </p>
-
-            <div className="mt-4">
-              <WeeklyNetChart data={weeklyChartData} />
-            </div>
-          </div>
-
-          <div className="mt-8 rounded-2xl border p-5">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Απόδοση ανά ημέρα εβδομάδας
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Δες ποιες ημέρες σου δίνουν καλύτερα καθαρά ανά ώρα.
-            </p>
-
-            <div className="mt-4">
-              <WeekdayNetPerHourChart data={weekdayNetPerHourData} />
-            </div>
-          </div>
-
-           <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-            <p className="text-sm text-slate-500">Insight</p>
-            <p className="mt-1 text-sm text-slate-700">
-              {bestDayEntry
-                ? `Η πιο αποδοτική ημέρα σου μέχρι τώρα είναι η ${bestDayEntry.day}, με μέσο όρο ${formatCurrency(bestDayEntry.netPerHour)} καθαρά ανά ώρα.`
-                : "Δεν υπάρχουν ακόμα αρκετά δεδομένα για insight."}
-            </p>
-          </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
@@ -605,79 +643,40 @@ export default async function HomePage() {
             </div>
           </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
-              <div>
-                <p className="text-sm text-slate-500">Μικτά εβδομάδας</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(weeklyTotals.revenue)}
-                </p>
-              </div>
+          <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Πορεία καθαρών αυτή την εβδομάδα
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Δες ποιες ημέρες αποδίδουν καλύτερα.
+            </p>
 
-              <div>
-                <p className="text-sm text-slate-500">Καθαρά εβδομάδας</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(weeklyTotals.netProfit)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500">Ώρες εβδομάδας</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatNumber(weeklyTotals.hours)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500">Χλμ εβδομάδας</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatNumber(weeklyTotals.kilometers)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500">Καθαρά / ώρα</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(weeklyNetPerHour)}
-                </p>
-              </div>
+            <div className="mt-4">
+              <WeeklyNetChart data={weeklyChartData} />
             </div>
           </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-4">
-              <div>
-                <p className="text-sm text-slate-500">Σύνολο βαρδιών</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatNumber(shifts.length)}
-                </p>
-              </div>
+          <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Απόδοση ανά ημέρα εβδομάδας
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Δες ποιες ημέρες σου δίνουν καλύτερα καθαρά ανά ώρα.
+            </p>
 
-              <div>
-                <p className="text-sm text-slate-500">Σύνολο μικτών</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(overallTotals.revenue)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500">Σύνολο κόστους με πάγια</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(overallTotals.variableCost)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500">Σύνολο καθαρών</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(overallTotals.netProfit)}
-                </p>
-              </div>
+            <div className="mt-4">
+              <WeekdayNetPerHourChart data={weekdayNetPerHourData} />
             </div>
           </div>
 
-
-        
-
-        
+          <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">Insight</p>
+            <p className="mt-1 text-sm text-slate-700">
+              {bestDayEntry
+                ? `Η πιο αποδοτική ημέρα σου μέχρι τώρα είναι η ${bestDayEntry.day}, με μέσο όρο ${formatCurrency(bestDayEntry.netPerHour)} καθαρά ανά ώρα.`
+                : "Δεν υπάρχουν ακόμα αρκετά δεδομένα για insight."}
+            </p>
+          </div>
 
           {!vehicle ? (
             <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
