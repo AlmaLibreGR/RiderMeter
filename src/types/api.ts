@@ -1,9 +1,11 @@
-export type ApiResponse<T> = {
-  ok: boolean
-  data?: T
-  error?: string
-}
-const data: ApiResponse<User> = await res.json()
+export type ApiSuccess<T> = {
+  ok: true;
+  data: T;
+};
 
-export type Platform = "efood" | "wolt" | "uber"
-platform: Platform
+export type ApiError = {
+  ok: false;
+  error: string;
+};
+
+export type ApiResponse<T> = ApiSuccess<T> | ApiError;

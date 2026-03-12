@@ -1,4 +1,4 @@
-export type Platform = "efood" | "wolt" | "box" | "other";
+export type Platform = "efood" | "wolt" | "uber" | "other";
 
 export type ShiftInput = {
   id?: string;
@@ -9,6 +9,15 @@ export type ShiftInput = {
   kilometers: number;
   revenue: number;
   tips?: number;
+};
+
+export type VehicleSettings = {
+  consumptionPer100Km: number;
+  fuelPricePerLiter: number;
+};
+
+export type FixedCostsSettings = {
+  dailyFixedCost: number;
 };
 
 export type ShiftCalculationConfig = {
