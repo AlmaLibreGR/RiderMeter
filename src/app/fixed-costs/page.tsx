@@ -95,14 +95,14 @@ export default function FixedCostsPage() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-6">
+    <main className="rm-page-shell">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex justify-end">
           <LanguageSwitcher />
         </div>
 
-        <section className="rounded-[36px] border border-white/70 bg-white/85 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.08)] backdrop-blur">
-          <div className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+        <section className="rm-hero p-8">
+          <div className="rm-pill">
             {t("settings.costTitle")}
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
@@ -132,10 +132,10 @@ export default function FixedCostsPage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button type="submit" disabled={loading} className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={loading} className="rm-button-primary disabled:opacity-60">
                 {loading ? t("common.saving") : t("common.save")}
               </button>
-              <Link href="/" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900">
+              <Link href="/" className="rm-button-secondary">
                 {t("common.backToDashboard")}
               </Link>
             </div>
@@ -165,7 +165,7 @@ function NumberField({
         step="0.01"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none"
+        className="rm-input"
       />
     </div>
   );
@@ -173,7 +173,7 @@ function NumberField({
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+    <div className="rounded-[28px] border border-slate-200 bg-slate-50/90 p-5">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
     </div>

@@ -10,7 +10,7 @@ export default function Sparkline({
   const points = buildPoints(values);
 
   if (!points) {
-    return <div className="h-10 w-20 rounded-full bg-slate-100" />;
+    return <div className="h-10 w-20 rounded-full bg-slate-100/90" />;
   }
 
   return (
@@ -19,9 +19,10 @@ export default function Sparkline({
         d={points}
         fill="none"
         stroke={stroke}
-        strokeWidth="2.25"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        opacity="0.9"
       />
     </svg>
   );

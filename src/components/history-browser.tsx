@@ -70,13 +70,13 @@ export default function HistoryBrowser({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-white/70 bg-white/85 p-5 shadow-sm">
+      <section className="rm-surface p-5">
         <div className="grid gap-4 md:grid-cols-4">
           <Field label={t("history.filters.platform")}>
             <select
               value={platform}
               onChange={(event) => setPlatform(event.target.value)}
-              className={inputClass()}
+              className="rm-input"
             >
               <option value="all">{t("history.filters.allPlatforms")}</option>
               <option value="efood">efood</option>
@@ -92,7 +92,7 @@ export default function HistoryBrowser({
               type="date"
               value={dateFrom}
               onChange={(event) => setDateFrom(event.target.value)}
-              className={inputClass()}
+              className="rm-input"
             />
           </Field>
           <Field label={t("history.filters.to")}>
@@ -100,7 +100,7 @@ export default function HistoryBrowser({
               type="date"
               value={dateTo}
               onChange={(event) => setDateTo(event.target.value)}
-              className={inputClass()}
+              className="rm-input"
             />
           </Field>
           <div className="flex items-end">
@@ -108,7 +108,7 @@ export default function HistoryBrowser({
               type="button"
               onClick={resetFilters}
               disabled={!hasActiveFilters}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 font-medium text-slate-900 disabled:opacity-50"
+              className="rm-button-secondary w-full disabled:opacity-50"
             >
               {t("history.filters.clear")}
             </button>
@@ -136,20 +136,20 @@ export default function HistoryBrowser({
       </section>
 
       {filteredShifts.length === 0 ? (
-        <section className="rounded-[32px] border border-dashed border-slate-300 bg-white/75 p-8 text-center">
+        <section className="rm-empty-state">
           <h2 className="text-2xl font-semibold text-slate-950">{t("history.emptyTitle")}</h2>
           <p className="mt-2 text-sm text-slate-600">{t("history.emptyBody")}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
               href="/new-shift"
-              className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white"
+              className="rm-button-primary"
             >
               {t("common.newShift")}
             </Link>
             <button
               type="button"
               onClick={resetFilters}
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900"
+              className="rm-button-secondary"
             >
               {t("history.filters.clear")}
             </button>
@@ -160,15 +160,15 @@ export default function HistoryBrowser({
           {filteredShifts.map((shift) => (
             <article
               key={shift.id}
-              className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-sm"
+              className="rm-surface p-5"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
                       {shift.platform}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
                       {formatDate(shift.date, locale, timezone)}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export default function HistoryBrowser({
               </div>
 
               {shift.notes ? (
-                <div className="mt-4 rounded-3xl border border-amber-200 bg-amber-50/70 p-4 text-sm leading-6 text-amber-950">
+                <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
                   {shift.notes}
                 </div>
               ) : null}
@@ -226,7 +226,7 @@ function Field({
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[28px] border border-white/70 bg-white/85 p-4 shadow-sm">
+    <div className="rm-surface p-4">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
     </div>
@@ -235,13 +235,9 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl bg-slate-50 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
       <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{label}</p>
       <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
     </div>
   );
-}
-
-function inputClass() {
-  return "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none";
 }

@@ -54,12 +54,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   );
 
   return (
-    <main className="min-h-screen p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <section className="rounded-[36px] border border-white/70 bg-white/90 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.06)] backdrop-blur md:p-8">
+    <main className="rm-page-shell">
+      <div className="rm-page-container">
+        <section className="rm-hero">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+              <div className="rm-pill">
                 {t("dashboard.eyebrow")}
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
@@ -75,7 +75,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
             <div className="flex flex-col items-stretch gap-3 xl:items-end">
               <LanguageSwitcher />
-              <div className="rounded-[28px] border border-slate-200 bg-slate-950 px-6 py-5 text-white shadow-sm">
+              <div className="rounded-[28px] border border-slate-200 bg-slate-950 px-6 py-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/60">
                   {t(`dashboard.period.${dataset.period}`)}
                 </p>
@@ -169,7 +169,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ) : null}
 
         <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-          <section className="rounded-[32px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur md:p-6">
+          <section className="rm-surface-strong p-5 md:p-6">
             <SectionHeading
               eyebrow={t("dashboard.sections.trends")}
               title={t("dashboard.charts.trendTitle")}

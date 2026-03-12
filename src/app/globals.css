@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4efe6;
-  --background-strong: #e8dfcf;
-  --foreground: #16211d;
-  --surface: rgba(255, 255, 255, 0.88);
-  --surface-strong: #ffffff;
-  --border-soft: rgba(22, 33, 29, 0.1);
-  --brand: #0f766e;
-  --brand-strong: #134e4a;
-  --accent: #d97706;
+  --background: #f6f7f9;
+  --background-elevated: #fbfbfc;
+  --foreground: #111827;
+  --foreground-muted: #5b6472;
+  --surface: rgba(255, 255, 255, 0.84);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  --surface-subtle: #f8fafc;
+  --border-soft: rgba(15, 23, 42, 0.09);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --brand: #0f172a;
+  --brand-accent: #0f766e;
+  --danger: #be123c;
+  --warning: #b45309;
 }
 
 @theme inline {
@@ -25,21 +29,38 @@
 
 html {
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 32%),
-    radial-gradient(circle at top right, rgba(217, 119, 6, 0.12), transparent 26%),
-    linear-gradient(180deg, #f8f3ea 0%, #f4efe6 100%);
+    linear-gradient(180deg, #fcfcfd 0%, #f6f7f9 100%);
   color: var(--foreground);
+  color-scheme: light;
 }
 
 body {
   min-height: 100vh;
   background: transparent;
   color: var(--foreground);
-  font-family: "Segoe UI", sans-serif;
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(15, 118, 110, 0.18);
+  background: rgba(15, 23, 42, 0.1);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.4);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 a,
@@ -48,11 +69,12 @@ input,
 select,
 textarea {
   transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 
 button:focus-visible,
@@ -61,5 +83,113 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14);
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08);
+}
+
+.rm-page-shell {
+  @apply min-h-screen p-4 md:p-6;
+}
+
+.rm-page-container {
+  @apply mx-auto max-w-7xl space-y-6;
+}
+
+.rm-surface {
+  @apply rounded-[28px] border bg-white/88 backdrop-blur;
+  border-color: var(--border-soft);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.rm-surface-strong {
+  @apply rounded-[32px] border bg-white/94 backdrop-blur;
+  border-color: var(--border-soft);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+}
+
+.rm-hero {
+  @apply rounded-[36px] border p-6 md:p-8;
+  border-color: var(--border-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,250,251,0.92) 100%);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.05);
+}
+
+.rm-pill {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(248, 250, 252, 0.9);
+  color: var(--foreground-muted);
+}
+
+.rm-input {
+  @apply w-full rounded-2xl border bg-white px-4 py-3 text-[15px] text-slate-900 outline-none;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.rm-input:hover {
+  border-color: rgba(100, 116, 139, 0.45);
+}
+
+.rm-input:focus-visible {
+  border-color: rgba(15, 23, 42, 0.2);
+}
+
+.rm-button-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium text-white;
+  background: var(--brand);
+}
+
+.rm-button-primary:hover {
+  background: #020617;
+}
+
+.rm-button-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl border bg-white px-4 py-2.5 text-sm font-medium text-slate-700;
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.rm-button-secondary:hover {
+  border-color: rgba(100, 116, 139, 0.32);
+  background: #f8fafc;
+}
+
+.rm-empty-state {
+  @apply rounded-[28px] border border-dashed bg-white/78 p-8 text-center;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.rm-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.9) 0%,
+    rgba(241, 245, 249, 0.95) 50%,
+    rgba(226, 232, 240, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: rm-shimmer 1.6s linear infinite;
+}
+
+@keyframes rm-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    transition: none;
+  }
+
+  .rm-skeleton {
+    animation: none;
+  }
 }

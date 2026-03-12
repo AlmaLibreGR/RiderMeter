@@ -91,14 +91,14 @@ export default function VehiclePage() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-6">
+    <main className="rm-page-shell">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex justify-end">
           <LanguageSwitcher />
         </div>
 
-        <section className="rounded-[36px] border border-white/70 bg-white/85 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.08)] backdrop-blur">
-          <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+        <section className="rm-hero p-8">
+          <div className="rm-pill">
             {t("settings.vehicleTitle")}
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
@@ -109,7 +109,7 @@ export default function VehiclePage() {
           <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label={t("settings.fields.vehicleType")}>
-                <select value={form.vehicleType} onChange={(event) => setForm((current) => ({ ...current, vehicleType: event.target.value }))} className={inputClass()}>
+                <select value={form.vehicleType} onChange={(event) => setForm((current) => ({ ...current, vehicleType: event.target.value }))} className="rm-input">
                   <option value="scooter">Scooter</option>
                   <option value="motorcycle">{locale === "el" ? "Μηχανή" : "Motorcycle"}</option>
                   <option value="car">{locale === "el" ? "Αυτοκίνητο" : "Car"}</option>
@@ -117,7 +117,7 @@ export default function VehiclePage() {
                 </select>
               </Field>
               <Field label={t("settings.fields.fuelType")}>
-                <select value={form.fuelType} onChange={(event) => setForm((current) => ({ ...current, fuelType: event.target.value }))} className={inputClass()}>
+                <select value={form.fuelType} onChange={(event) => setForm((current) => ({ ...current, fuelType: event.target.value }))} className="rm-input">
                   <option value="petrol">{locale === "el" ? "Βενζίνη" : "Petrol"}</option>
                   <option value="diesel">{locale === "el" ? "Πετρέλαιο" : "Diesel"}</option>
                   <option value="electric">{locale === "el" ? "Ηλεκτρικό" : "Electric"}</option>
@@ -133,7 +133,7 @@ export default function VehiclePage() {
               <NumberField label={t("settings.fields.depreciationCostPerKm")} value={form.depreciationCostPerKm} onChange={(value) => setForm((current) => ({ ...current, depreciationCostPerKm: value }))} />
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50/90 p-5">
               <p className="text-sm text-slate-500">{t("settings.fields.totalCostPerKm")}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-950">
                 {formatCurrency(costPerKm, locale, "EUR")}
@@ -141,10 +141,10 @@ export default function VehiclePage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button type="submit" disabled={loading} className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={loading} className="rm-button-primary disabled:opacity-60">
                 {loading ? t("common.saving") : t("common.save")}
               </button>
-              <Link href="/" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900">
+              <Link href="/" className="rm-button-secondary">
                 {t("common.backToDashboard")}
               </Link>
             </div>
@@ -182,12 +182,8 @@ function NumberField({
         step="0.01"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClass()}
+        className="rm-input"
       />
     </Field>
   );
-}
-
-function inputClass() {
-  return "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none";
 }

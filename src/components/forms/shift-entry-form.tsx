@@ -185,7 +185,7 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
                 type="date"
                 value={form.date}
                 onChange={(event) => updateField("date", event.target.value)}
-                className={inputClass(Boolean(errors.date))}
+            className={inputClass(Boolean(errors.date))}
               />
             </Field>
             <Field label={t("shiftForm.fields.platform")}>
@@ -317,8 +317,8 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
       </div>
 
       <aside className="space-y-6">
-        <section className="rounded-[32px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
-          <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+        <section className="rm-surface-strong p-5">
+          <div className="rm-pill">
             {t("shiftForm.groups.preview")}
           </div>
           <div className="mt-4 space-y-4">
@@ -332,7 +332,7 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
             />
           </div>
 
-          <div className="mt-5 rounded-3xl bg-slate-50 p-4">
+            <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-semibold text-slate-900">
               {t("shiftForm.preview.validationTitle")}
             </p>
@@ -353,7 +353,7 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           </div>
 
           {feedback ? (
-            <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+            <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
               {feedback}
             </div>
           ) : null}
@@ -361,7 +361,7 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 w-full rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60"
+            className="rm-button-primary mt-5 w-full disabled:opacity-60"
           >
             {loading ? t("common.saving") : t("shiftForm.submit")}
           </button>
@@ -369,13 +369,13 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           <div className="mt-4 grid gap-3">
             <Link
               href="/"
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-center font-medium text-slate-900"
+              className="rm-button-secondary"
             >
               {t("common.backToDashboard")}
             </Link>
             <Link
               href="/history"
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-center font-medium text-slate-900"
+              className="rm-button-secondary"
             >
               {t("common.viewHistory")}
             </Link>
@@ -398,8 +398,8 @@ function FormGroup({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[32px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur md:p-6">
-      <div className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+    <section className="rm-surface-strong p-5 md:p-6">
+      <div className="rm-pill">
         {eyebrow}
       </div>
       <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
@@ -459,7 +459,7 @@ function NumberField({
 
 function PreviewStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl bg-slate-50 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
     </div>
@@ -479,6 +479,6 @@ function inputClass(hasError: boolean) {
   return `w-full rounded-2xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
     hasError
       ? "border-rose-300 bg-rose-50/40"
-      : "border-slate-300 bg-white focus:border-slate-400"
+      : "border-slate-300 bg-white hover:border-slate-400 focus:border-slate-400"
   }`;
 }

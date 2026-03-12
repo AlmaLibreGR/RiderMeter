@@ -11,12 +11,12 @@ export default function DeltaBadge({ value, direction }: DeltaBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-[0.02em] ${
         isUp
-          ? "bg-emerald-50 text-emerald-700"
+          ? "border-emerald-200/70 bg-emerald-50/80 text-emerald-700"
           : isDown
-            ? "bg-rose-50 text-rose-700"
-            : "bg-slate-100 text-slate-600"
+            ? "border-rose-200/70 bg-rose-50/80 text-rose-700"
+            : "border-slate-200 bg-slate-100/90 text-slate-600"
       }`}
     >
       {isUp ? <TrendingUp size={12} /> : isDown ? <TrendingDown size={12} /> : null}

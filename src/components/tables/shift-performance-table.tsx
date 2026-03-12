@@ -125,12 +125,12 @@ export default function ShiftPerformanceTable({
   }
 
   return (
-    <section className="rounded-[32px] border border-white/70 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur md:p-6">
+    <section className="rm-surface-strong p-5 md:p-6">
       <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
       <div className="mt-5 overflow-x-auto">
         <table className="min-w-full text-left">
           <thead>
-            <tr className="border-b border-slate-200 text-sm text-slate-500">
+            <tr className="border-b border-slate-200 text-xs uppercase tracking-[0.14em] text-slate-500">
               <th className="pb-3 pr-4 font-medium">{columns.date}</th>
               <th className="pb-3 pr-4 font-medium">{columns.hours}</th>
               <th className="pb-3 pr-4 font-medium">{columns.orders}</th>
@@ -145,7 +145,7 @@ export default function ShiftPerformanceTable({
           </thead>
           <tbody>
             {shifts.map((shift) => (
-              <tr key={shift.id} className="border-b border-slate-100 text-sm text-slate-700">
+              <tr key={shift.id} className="border-b border-slate-100 text-sm text-slate-700 last:border-b-0 hover:bg-slate-50/60">
                 <td className="py-4 pr-4">
                   <div>
                     <p className="font-medium text-slate-950">
@@ -177,7 +177,7 @@ export default function ShiftPerformanceTable({
                     <button
                       type="button"
                       onClick={() => beginEdit(shift)}
-                      className="inline-flex rounded-xl border border-slate-200 p-2 text-slate-600"
+                      className="inline-flex rounded-xl border border-slate-200 p-2 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       aria-label={t("common.edit")}
                     >
                       <Pencil size={15} />
@@ -185,7 +185,7 @@ export default function ShiftPerformanceTable({
                     <button
                       type="button"
                       onClick={() => handleDelete(shift.id)}
-                      className="inline-flex rounded-xl border border-slate-200 p-2 text-slate-600"
+                      className="inline-flex rounded-xl border border-slate-200 p-2 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       aria-label={t("common.delete")}
                     >
                       <Trash2 size={15} />
@@ -199,7 +199,7 @@ export default function ShiftPerformanceTable({
       </div>
 
       {editingShift && draft ? (
-        <div className="mt-6 rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+        <div className="mt-6 rounded-[28px] border border-slate-200 bg-slate-50/80 p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold text-slate-950">{t("table.editShift")}</h3>
@@ -211,7 +211,7 @@ export default function ShiftPerformanceTable({
                 setEditingShift(null);
                 setDraft(null);
               }}
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+              className="rm-button-secondary"
             >
               {t("common.cancel")}
             </button>
@@ -219,16 +219,16 @@ export default function ShiftPerformanceTable({
 
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <EditorField label={t("shiftForm.fields.date")}>
-              <input type="date" value={draft.date} onChange={(event) => setDraft((current) => current ? { ...current, date: event.target.value } : current)} className={inputClass()} />
+              <input type="date" value={draft.date} onChange={(event) => setDraft((current) => current ? { ...current, date: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.startTime")}>
-              <input type="time" value={draft.startTime} onChange={(event) => setDraft((current) => current ? { ...current, startTime: event.target.value } : current)} className={inputClass()} />
+              <input type="time" value={draft.startTime} onChange={(event) => setDraft((current) => current ? { ...current, startTime: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.endTime")}>
-              <input type="time" value={draft.endTime} onChange={(event) => setDraft((current) => current ? { ...current, endTime: event.target.value } : current)} className={inputClass()} />
+              <input type="time" value={draft.endTime} onChange={(event) => setDraft((current) => current ? { ...current, endTime: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.platform")}>
-              <select value={draft.platform} onChange={(event) => setDraft((current) => current ? { ...current, platform: event.target.value } : current)} className={inputClass()}>
+              <select value={draft.platform} onChange={(event) => setDraft((current) => current ? { ...current, platform: event.target.value } : current)} className="rm-input">
                 <option value="efood">efood</option>
                 <option value="wolt">Wolt</option>
                 <option value="freelance">Freelance</option>
@@ -236,35 +236,35 @@ export default function ShiftPerformanceTable({
               </select>
             </EditorField>
             <EditorField label={t("shiftForm.fields.area")}>
-              <input type="text" value={draft.area} onChange={(event) => setDraft((current) => current ? { ...current, area: event.target.value } : current)} className={inputClass()} />
+              <input type="text" value={draft.area} onChange={(event) => setDraft((current) => current ? { ...current, area: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.hoursWorked")}>
-              <input type="number" step="0.01" value={draft.hoursWorked} onChange={(event) => setDraft((current) => current ? { ...current, hoursWorked: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.hoursWorked} onChange={(event) => setDraft((current) => current ? { ...current, hoursWorked: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.ordersCompleted")}>
-              <input type="number" step="1" value={draft.ordersCompleted} onChange={(event) => setDraft((current) => current ? { ...current, ordersCompleted: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="1" value={draft.ordersCompleted} onChange={(event) => setDraft((current) => current ? { ...current, ordersCompleted: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.kilometersDriven")}>
-              <input type="number" step="0.01" value={draft.kilometersDriven} onChange={(event) => setDraft((current) => current ? { ...current, kilometersDriven: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.kilometersDriven} onChange={(event) => setDraft((current) => current ? { ...current, kilometersDriven: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.baseEarnings")}>
-              <input type="number" step="0.01" value={draft.baseEarnings} onChange={(event) => setDraft((current) => current ? { ...current, baseEarnings: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.baseEarnings} onChange={(event) => setDraft((current) => current ? { ...current, baseEarnings: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.tipsAmount")}>
-              <input type="number" step="0.01" value={draft.tipsAmount} onChange={(event) => setDraft((current) => current ? { ...current, tipsAmount: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.tipsAmount} onChange={(event) => setDraft((current) => current ? { ...current, tipsAmount: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.bonusAmount")}>
-              <input type="number" step="0.01" value={draft.bonusAmount} onChange={(event) => setDraft((current) => current ? { ...current, bonusAmount: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.bonusAmount} onChange={(event) => setDraft((current) => current ? { ...current, bonusAmount: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.fuelExpenseDirect")}>
-              <input type="number" step="0.01" value={draft.fuelExpenseDirect} onChange={(event) => setDraft((current) => current ? { ...current, fuelExpenseDirect: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.fuelExpenseDirect} onChange={(event) => setDraft((current) => current ? { ...current, fuelExpenseDirect: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <EditorField label={t("shiftForm.fields.tollsOrParking")}>
-              <input type="number" step="0.01" value={draft.tollsOrParking} onChange={(event) => setDraft((current) => current ? { ...current, tollsOrParking: event.target.value } : current)} className={inputClass()} />
+              <input type="number" step="0.01" value={draft.tollsOrParking} onChange={(event) => setDraft((current) => current ? { ...current, tollsOrParking: event.target.value } : current)} className="rm-input" />
             </EditorField>
             <div className="md:col-span-2 xl:col-span-3">
               <EditorField label={t("shiftForm.fields.notes")}>
-                <textarea value={draft.notes} onChange={(event) => setDraft((current) => current ? { ...current, notes: event.target.value } : current)} className={`${inputClass()} min-h-[110px]`} />
+                <textarea value={draft.notes} onChange={(event) => setDraft((current) => current ? { ...current, notes: event.target.value } : current)} className="rm-input min-h-[110px]" />
               </EditorField>
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function ShiftPerformanceTable({
               type="button"
               onClick={saveEdit}
               disabled={submitting}
-              className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60"
+              className="rm-button-primary disabled:opacity-60"
             >
               {submitting ? t("common.saving") : t("common.update")}
             </button>
@@ -298,8 +298,4 @@ function EditorField({ label, children }: { label: string; children: React.React
       {children}
     </div>
   );
-}
-
-function inputClass() {
-  return "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none";
 }

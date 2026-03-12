@@ -60,10 +60,10 @@ export default function DashboardControls({
                 to: value === "custom" ? range.to : "",
               })
             }
-            className={`rounded-full px-3.5 py-2 text-sm font-medium transition ${
+            className={`rounded-full border px-3.5 py-2 text-sm font-medium transition ${
               period === value
-                ? "bg-slate-950 text-white"
-                : "border border-slate-200 bg-white text-slate-600"
+                ? "border-slate-950 bg-slate-950 text-white"
+                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
             }`}
             disabled={isPending}
           >
@@ -84,9 +84,9 @@ export default function DashboardControls({
                 to: searchParams.get("to") ?? range.to,
               })
             }
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900"
+            className="rm-input px-4 py-2.5 text-sm"
           />
-          <span className="text-sm text-slate-400">-</span>
+          <span className="px-1 text-sm text-slate-400">-</span>
           <input
             type="date"
             value={range.to}
@@ -97,13 +97,13 @@ export default function DashboardControls({
                 to: event.target.value,
               })
             }
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900"
+            className="rm-input px-4 py-2.5 text-sm"
           />
         </div>
 
         <a
           href={exportHref}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
+          className="rm-button-secondary"
         >
           <Download size={15} />
           {t("common.exportCsv")}
@@ -111,7 +111,7 @@ export default function DashboardControls({
 
         <Link
           href="/new-shift"
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white"
+          className="rm-button-primary"
         >
           <Plus size={15} />
           {t("common.newShift")}
