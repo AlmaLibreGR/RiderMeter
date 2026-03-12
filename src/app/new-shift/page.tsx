@@ -122,7 +122,7 @@ export default function NewShiftPage() {
               type="date"
               value={form.date}
               onChange={(e) => updateField("date", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function NewShiftPage() {
             <select
               value={form.platform}
               onChange={(e) => updateField("platform", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
             >
               <option value="efood">efood</option>
               <option value="wolt">Wolt</option>
@@ -149,7 +149,7 @@ export default function NewShiftPage() {
               type="text"
               value={form.area}
               onChange={(e) => updateField("area", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="π.χ. Μαρούσι"
             />
           </div>
@@ -209,7 +209,7 @@ function Field({
         step="0.01"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3"
+        className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
       />
     </div>
   );

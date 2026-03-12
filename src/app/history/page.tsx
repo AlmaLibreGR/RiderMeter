@@ -74,12 +74,12 @@ export default async function HistoryPage() {
 
                 return (
                   <div
-                    key={shift.id}
-                    className="rounded-2xl border bg-white p-5"
+                  key={shift.id}
+                  className="rounded-2xl border bg-white p-4 md:p-5"
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <h2 className="text-lg font-semibold text-slate-900">
+                        <h2 className="text-base font-semibold text-slate-900 md:text-lg">
                           {shift.platform.toUpperCase()} · {shift.area}
                         </h2>
                         <p className="text-sm text-slate-500">
@@ -87,7 +87,7 @@ export default async function HistoryPage() {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                         <div>
                           <p className="text-xs uppercase text-slate-400">Ώρες</p>
                           <p className="font-semibold text-slate-900">{shift.hours}</p>

@@ -95,12 +95,12 @@ export default function VehiclePage() {
   const totalCostPerKm = fuelCostPerKm + maintenance + tires + depreciation;
 
   if (authorized === null) {
-    return <main className="min-h-screen bg-slate-50 p-6">Φόρτωση...</main>;
+    return <main className="min-h-screen bg-slate-50 p-4 md:p-6">Φόρτωση...</main>;
   }
 
   if (!authorized) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
+      <main className="min-h-screen bg-slate-50 p-4 md:p-6">
         <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-3xl font-bold text-slate-900">Όχημα & Κόστη</h1>
           <p className="mt-2 text-slate-600">
@@ -128,7 +128,7 @@ export default function VehiclePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
+    <main className="min-h-screen bg-slate-50 p-4 md:p-6">
       <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-bold text-slate-900">Όχημα & Κόστη</h1>
         <p className="mt-2 text-slate-600">
@@ -143,7 +143,7 @@ export default function VehiclePage() {
             <select
               value={form.vehicleType}
               onChange={(e) => updateField("vehicleType", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
             >
               <option value="scooter">Scooter</option>
               <option value="motorcycle">Μηχανή</option>
@@ -159,7 +159,7 @@ export default function VehiclePage() {
             <select
               value={form.fuelType}
               onChange={(e) => updateField("fuelType", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
             >
               <option value="petrol">Βενζίνη</option>
               <option value="diesel">Πετρέλαιο</option>
@@ -222,7 +222,7 @@ function Field({
         step="0.001"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3"
+        className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
       />
     </div>
   );

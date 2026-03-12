@@ -49,7 +49,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
+    <main className="min-h-screen bg-slate-50 p-4 md:p-6">
       <div className="mx-auto max-w-md rounded-3xl bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-bold text-slate-900">Εγγραφή</h1>
         <p className="mt-2 text-slate-600">
@@ -65,7 +65,7 @@ export default function RegisterPage() {
               type="email"
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="you@example.com"
             />
           </div>
@@ -78,7 +78,7 @@ export default function RegisterPage() {
               type="password"
               value={form.password}
               onChange={(e) => updateField("password", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
               placeholder="Τουλάχιστον 6 χαρακτήρες"
             />
           </div>

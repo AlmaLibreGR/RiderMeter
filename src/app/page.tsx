@@ -294,47 +294,56 @@ export default async function HomePage() {
     <main className="min-h-screen bg-slate-50 p-6">
       <div className="mx-auto max-w-6xl">
         <div className="rounded-3xl bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Rider KPI</h1>
-          <p className="mt-3 text-slate-600">
-            Εφαρμογή για διανομείς efood / Wolt στην Ελλάδα.
-          </p>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+  <div>
+    <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+      RiderMeter
+    </h1>
+    <p className="mt-2 text-sm text-slate-600 md:text-base">
+      Εφαρμογή για διανομείς freelancerστην Ελλάδα.
+    </p>
+  </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+  <div className="w-full md:w-auto">
+    <LogoutButton />
+  </div>
+</div>
+
+<div className="mt-6 grid grid-cols-2 gap-3 md:flex md:flex-wrap">
             <Link
-              href="/new-shift"
-              className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
+            href="/new-shift"
+            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Νέα Βάρδια
-            </Link>
+              </Link>
 
             <Link
-              href="/history"
-              className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900"
+            href="/history"
+            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Ιστορικό
             </Link>
 
             <Link
             href="/vehicle"
-            className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900"
+            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Όχημα
             </Link>
             
             <Link
             href="/fixed-costs"
-            className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900"
+            className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white md:px-5 md:text-base"
             >
               Πάγια Έξοδα
             </Link>
 
-            <LogoutButton />
 
           </div>
 
-          <div className="rounded-2xl border p-5">
+          <div className="rounded-2xl border p-4 md:p-5">
             <p className="text-sm text-slate-500">Ημερήσιο πάγιο</p>
-            <p className="mt-2 text-2xl font-semibold text-slate-900">
+            <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
               {formatCurrency(fixedCosts
               ? (
                 Number(fixedCosts.insuranceMonthly) +
@@ -349,66 +358,66 @@ export default async function HomePage() {
               </p>
             </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="rounded-2xl border p-5">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Μικτά σήμερα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(todayTotals.revenue)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Καθαρά σήμερα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(todayTotals.netProfit)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Tips σήμερα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(todayTotals.tips)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Κόστος / χλμ</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(costPerKm)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Μικτά / ώρα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(grossPerHour)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Καθαρά / ώρα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(netPerHour)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Παραγγελίες σήμερα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatNumber(todayTotals.orders)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Χλμ σήμερα</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatNumber(todayTotals.kilometers)}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-2xl border p-4 md:p-5">
               <p className="text-sm text-slate-500">Έσοδα / παραγγελία</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl">
                 {formatCurrency(revenuePerOrder)}
               </p>
             </div>
@@ -429,7 +438,7 @@ export default async function HomePage() {
               Καλύτερες επιδόσεις
             </h2>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
                 <p className="text-sm text-slate-500">Καλύτερη βάρδια</p>
 
@@ -480,7 +489,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-5">
+            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
               <div>
                 <p className="text-sm text-slate-500">Μικτά εβδομάδας</p>
                 <p className="mt-1 text-xl font-semibold text-slate-900">
