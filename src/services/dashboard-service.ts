@@ -1,10 +1,17 @@
 import { buildInsights } from "@/lib/analytics/insights";
 import { aggregateShiftMetrics, createEmptyAggregate, withShiftMetrics } from "@/lib/calculations";
-import { getPeriodRange, nowIsoDate, toDateLabel, toRangeStrings, toWeekdayLabel } from "@/lib/dates";
+import { nowIsoDate, previousRangeStrings, toDateLabel, toRangeStrings, toWeekdayLabel } from "@/lib/dates";
 import { groupBy } from "@/lib/utils";
 import { getCostProfileSnapshot, getUserSettingsSnapshot, getVehicleProfileSnapshot } from "@/services/settings-service";
 import { listUserShifts } from "@/services/shift-service";
-import type { DashboardDataset, DashboardPeriod, ShiftWithMetrics, TimeSeriesPoint } from "@/types/domain";
+import type {
+  DashboardComparisons,
+  DashboardDataset,
+  DashboardPeriod,
+  MetricDelta,
+  ShiftWithMetrics,
+  TimeSeriesPoint,
+} from "@/types/domain";
 
 export async function getDashboardDataset(args: {
   userId: number;
@@ -25,12 +32,22 @@ export async function getDashboardDataset(args: {
   const todayIso = nowIsoDate(settings.timezone);
   const selectedPeriod = args.period ?? settings.preferredDashboardPeriod ?? "week";
   const selectedRange = toRangeStrings(selectedPeriod, settings.timezone, args.from, args.to);
+  const previousRange = previousRangeStrings(
+    selectedRange.from,
+    selectedRange.to,
+    settings.timezone
+  );
   const weekRange = toRangeStrings("week", settings.timezone);
   const monthRange = toRangeStrings("month", settings.timezone);
 
   const todayShifts = shiftsWithMetrics.filter((shift) => shift.date === todayIso);
   const weekShifts = filterShiftsByRange(shiftsWithMetrics, weekRange.from, weekRange.to);
   const monthShifts = filterShiftsByRange(shiftsWithMetrics, monthRange.from, monthRange.to);
+  const previousShifts = filterShiftsByRange(
+    shiftsWithMetrics,
+    previousRange.from,
+    previousRange.to
+  );
   const selectedShifts = filterShiftsByRange(
     shiftsWithMetrics,
     selectedRange.from,
@@ -38,26 +55,26 @@ export async function getDashboardDataset(args: {
   );
 
   const trend = buildTrend(selectedShifts, settings.locale, settings.timezone);
+  const previousTrend = buildTrend(previousShifts, settings.locale, settings.timezone);
   const weekdayPerformance = buildWeekdayPerformance(selectedShifts, settings.locale, settings.timezone);
-
-  const previousWeekRange = getPeriodRange("week", settings.timezone);
-  const previousWeekShifts = shiftsWithMetrics.filter((shift) => {
-    const shiftDate = new Date(`${shift.date}T00:00:00.000Z`);
-    return shiftDate < previousWeekRange.from.toJSDate();
-  });
-  const previousWeekAggregate = aggregateShiftMetrics(previousWeekShifts.slice(0, 7));
+  const previousAggregate = aggregateShiftMetrics(previousShifts);
   const currentWeekAggregate = aggregateShiftMetrics(weekShifts);
+  const selectedAggregate = aggregateShiftMetrics(selectedShifts);
 
   return {
     period: selectedPeriod,
     range: selectedRange,
-    hero: aggregateShiftMetrics(selectedShifts),
+    previousRange,
+    hero: selectedAggregate,
     today: aggregateShiftMetrics(todayShifts),
     week: aggregateShiftMetrics(weekShifts),
     month: aggregateShiftMetrics(monthShifts),
-    selected: aggregateShiftMetrics(selectedShifts),
+    selected: selectedAggregate,
+    previous: previousAggregate,
+    comparisons: buildComparisons(selectedAggregate, previousAggregate),
     shifts: selectedShifts,
     trend,
+    previousTrend,
     weekdayPerformance,
     revenueComposition: [
       { key: "base", label: "dashboard.composition.base", value: selectedShifts.reduce((sum, shift) => sum + shift.baseEarnings, 0) },
@@ -75,7 +92,7 @@ export async function getDashboardDataset(args: {
       shifts: selectedShifts,
       trend,
       weekdayPerformance,
-      previousWeekNetProfitPerHour: previousWeekAggregate.netProfitPerHour,
+      previousWeekNetProfitPerHour: previousAggregate.netProfitPerHour,
       currentWeekNetProfitPerHour: currentWeekAggregate.netProfitPerHour,
     }),
     topShift: [...selectedShifts].sort(
@@ -87,6 +104,30 @@ export async function getDashboardDataset(args: {
       hasCostProfile: Boolean(costProfile),
     },
     settings,
+  };
+}
+
+function buildComparisons(current: DashboardDataset["selected"], previous: DashboardDataset["selected"]): DashboardComparisons {
+  return {
+    revenue: createDelta(current.totalRevenue, previous.totalRevenue),
+    netProfit: createDelta(current.netProfit, previous.netProfit),
+    orders: createDelta(current.totalOrders, previous.totalOrders),
+    hours: createDelta(current.totalHours, previous.totalHours),
+    kilometers: createDelta(current.totalKilometers, previous.totalKilometers),
+    margin: createDelta(current.marginPercent, previous.marginPercent),
+  };
+}
+
+function createDelta(current: number, previous: number): MetricDelta {
+  const changePercent =
+    previous > 0 ? ((current - previous) / previous) * 100 : current === 0 ? 0 : 100;
+
+  return {
+    current,
+    previous,
+    changePercent,
+    direction:
+      Math.abs(changePercent) < 0.05 ? "flat" : changePercent > 0 ? "up" : "down",
   };
 }
 

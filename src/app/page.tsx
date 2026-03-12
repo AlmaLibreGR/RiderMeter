@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CircleAlert } from "lucide-react";
 import CompositionChart from "@/components/charts/composition-chart";
+import DashboardControls from "@/components/dashboard/dashboard-controls";
 import TrendChart from "@/components/charts/trend-chart";
 import WeekdayPerformanceChart from "@/components/charts/weekday-performance-chart";
 import HeroKpiCard from "@/components/dashboard/hero-kpi-card";
@@ -48,14 +49,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const currency = dataset.settings.currency;
   const hasShifts = dataset.shifts.length > 0;
+  const marginTrend = dataset.trend.map((point) =>
+    point.revenue > 0 ? (point.netProfit / point.revenue) * 100 : 0
+  );
 
   return (
     <main className="min-h-screen p-4 md:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <section className="rounded-[36px] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.12),transparent_36%),linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,250,252,0.82))] p-6 shadow-[0_28px_90px_rgba(15,23,42,0.08)] backdrop-blur md:p-8">
+        <section className="rounded-[36px] border border-white/70 bg-white/90 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.06)] backdrop-blur md:p-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
                 {t("dashboard.eyebrow")}
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
@@ -64,40 +68,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
                 {t("dashboard.body")}
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href="/new-shift"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white"
-                >
-                  {t("common.newShift")}
-                  <ArrowRight size={16} />
-                </Link>
-                <Link
-                  href="/history"
-                  className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900"
-                >
-                  {t("common.history")}
-                </Link>
-                <Link
-                  href="/vehicle"
-                  className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900"
-                >
-                  {t("common.vehicle")}
-                </Link>
-                <Link
-                  href="/fixed-costs"
-                  className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900"
-                >
-                  {t("common.fixedCosts")}
-                </Link>
+              <div className="mt-6">
+                <DashboardControls period={dataset.period} range={dataset.range} />
               </div>
             </div>
 
             <div className="flex flex-col items-stretch gap-3 xl:items-end">
               <LanguageSwitcher />
-              <div className="rounded-[28px] bg-slate-950 px-6 py-5 text-white shadow-sm">
+              <div className="rounded-[28px] border border-slate-200 bg-slate-950 px-6 py-5 text-white shadow-sm">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/60">
-                  {t("dashboard.period.week")}
+                  {t(`dashboard.period.${dataset.period}`)}
                 </p>
                 <p className="mt-3 text-4xl font-semibold">
                   {formatCurrency(dataset.selected.netProfit, locale, currency)}
@@ -121,6 +101,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               locale,
               currency
             )} / ${t("common.shift")}`}
+            delta={formatDelta(dataset.comparisons.revenue.changePercent, locale)}
+            deltaDirection={dataset.comparisons.revenue.direction}
+            sparklineValues={dataset.trend.map((point) => point.revenue)}
           />
           <HeroKpiCard
             label={t("dashboard.hero.netProfit")}
@@ -130,11 +113,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               locale,
               currency
             )} / ${t("common.hour")}`}
+            delta={formatDelta(dataset.comparisons.netProfit.changePercent, locale)}
+            deltaDirection={dataset.comparisons.netProfit.direction}
+            sparklineValues={dataset.trend.map((point) => point.netProfit)}
           />
           <HeroKpiCard
             label={t("dashboard.hero.orders")}
             value={formatNumber(dataset.selected.totalOrders, locale, 0)}
-            helper={`${formatNumber(dataset.selected.ordersPerHour, locale)} / hour`}
+            helper={`${formatNumber(dataset.selected.ordersPerHour, locale)} / ${t("common.hour")}`}
+            delta={formatDelta(dataset.comparisons.orders.changePercent, locale)}
+            deltaDirection={dataset.comparisons.orders.direction}
+            sparklineValues={dataset.trend.map((point) => point.orders)}
           />
           <HeroKpiCard
             label={t("dashboard.hero.hours")}
@@ -143,17 +132,26 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               dataset.selected.averageRevenuePerHour,
               locale,
               currency
-            )} / hour`}
+            )} / ${t("common.hour")}`}
+            delta={formatDelta(dataset.comparisons.hours.changePercent, locale)}
+            deltaDirection={dataset.comparisons.hours.direction}
+            sparklineValues={dataset.trend.map((point) => point.hours)}
           />
           <HeroKpiCard
             label={t("dashboard.hero.kilometers")}
             value={formatNumber(dataset.selected.totalKilometers, locale)}
-            helper={`${formatNumber(dataset.selected.kilometersPerOrder, locale)} / order`}
+            helper={`${formatNumber(dataset.selected.kilometersPerOrder, locale)} / ${t("common.order")}`}
+            delta={formatDelta(dataset.comparisons.kilometers.changePercent, locale)}
+            deltaDirection={dataset.comparisons.kilometers.direction}
+            sparklineValues={dataset.trend.map((point) => point.kilometers)}
           />
           <HeroKpiCard
             label={t("dashboard.hero.margin")}
             value={formatPercent(dataset.selected.marginPercent, locale)}
             helper={`${formatCurrency(dataset.selected.totalCost, locale, currency)} ${t("common.cost")}`}
+            delta={formatDelta(dataset.comparisons.margin.changePercent, locale)}
+            deltaDirection={dataset.comparisons.margin.direction}
+            sparklineValues={marginTrend}
           />
         </section>
 
@@ -350,18 +348,27 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           title={t("dashboard.table.title")}
           columns={{
             date: t("dashboard.table.date"),
-            platform: t("dashboard.table.platform"),
-            area: t("dashboard.table.area"),
+            hours: t("dashboard.table.hours"),
+            orders: t("dashboard.table.orders"),
+            kilometers: t("dashboard.table.kilometers"),
             revenue: t("dashboard.table.revenue"),
             cost: t("dashboard.table.cost"),
             netProfit: t("dashboard.table.netProfit"),
             netPerHour: t("dashboard.table.netPerHour"),
+            margin: t("dashboard.table.margin"),
+            actions: t("dashboard.table.actions"),
           }}
           shifts={dataset.shifts.slice(0, 10)}
         />
       </div>
     </main>
   );
+}
+
+function formatDelta(value: number, locale: "en" | "el") {
+  const formatted = formatNumber(Math.abs(value), locale, 1);
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  return `${sign}${formatted}%`;
 }
 
 function formatInsightValues(

@@ -26,7 +26,14 @@
     "optional": "Προαιρετικό",
     "hour": "ώρα",
     "shift": "βάρδια",
-    "cost": "κόστος"
+    "cost": "κόστος",
+    "exportCsv": "Εξαγωγή CSV",
+    "edit": "Επεξεργασία",
+    "delete": "Διαγραφή",
+    "update": "Ενημέρωση"
+    ,
+    "order": "παραγγελία",
+    "kilometer": "χλμ"
   },
   "nav": {
     "cockpit": "Analytics cockpit για επαγγελματίες διανομείς"
@@ -61,7 +68,8 @@
     "period": {
       "today": "Σήμερα",
       "week": "Εβδομάδα",
-      "month": "Μήνας"
+      "month": "Μήνας",
+      "custom": "Προσαρμοσμένο"
     },
     "sections": {
       "today": "Σήμερα",
@@ -116,13 +124,25 @@
     "table": {
       "title": "Πίνακας απόδοσης βαρδιών",
       "date": "Ημερομηνία",
-      "platform": "Πλατφόρμα",
-      "area": "Περιοχή",
+      "hours": "Ώρες",
+      "orders": "Παραγγελίες",
+      "kilometers": "Χιλιόμετρα",
       "revenue": "Έσοδα",
       "cost": "Κόστος",
       "netProfit": "Καθαρό κέρδος",
-      "netPerHour": "Καθαρά / ώρα"
+      "netPerHour": "Καθαρά / ώρα",
+      "margin": "Περιθώριο",
+      "actions": "Ενέργειες"
     }
+  },
+  "table": {
+    "confirmDelete": "Να διαγραφεί αυτή η βάρδια;",
+    "editShift": "Επεξεργασία βάρδιας",
+    "other": "Άλλο",
+    "deleteSuccess": "Η βάρδια διαγράφηκε.",
+    "deleteError": "Η διαγραφή της βάρδιας απέτυχε.",
+    "updateSuccess": "Η βάρδια ενημερώθηκε.",
+    "updateError": "Η ενημέρωση της βάρδιας απέτυχε."
   },
   "insights": {
     "bestWeekday": {

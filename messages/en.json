@@ -26,7 +26,14 @@
     "optional": "Optional",
     "hour": "hour",
     "shift": "shift",
-    "cost": "cost"
+    "cost": "cost",
+    "exportCsv": "Export CSV",
+    "edit": "Edit",
+    "delete": "Delete",
+    "update": "Update"
+    ,
+    "order": "order",
+    "kilometer": "km"
   },
   "nav": {
     "cockpit": "Analytics cockpit for professional riders"
@@ -61,7 +68,8 @@
     "period": {
       "today": "Today",
       "week": "Week",
-      "month": "Month"
+      "month": "Month",
+      "custom": "Custom"
     },
     "sections": {
       "today": "Today",
@@ -116,13 +124,25 @@
     "table": {
       "title": "Shift performance table",
       "date": "Date",
-      "platform": "Platform",
-      "area": "Area",
+      "hours": "Hours",
+      "orders": "Orders",
+      "kilometers": "Kilometers",
       "revenue": "Revenue",
       "cost": "Cost",
       "netProfit": "Net profit",
-      "netPerHour": "Net / hour"
+      "netPerHour": "Net / hour",
+      "margin": "Margin",
+      "actions": "Actions"
     }
+  },
+  "table": {
+    "confirmDelete": "Delete this shift?",
+    "editShift": "Edit shift",
+    "other": "Other",
+    "deleteSuccess": "Shift deleted.",
+    "deleteError": "Failed to delete shift.",
+    "updateSuccess": "Shift updated.",
+    "updateError": "Failed to update shift."
   },
   "insights": {
     "bestWeekday": {

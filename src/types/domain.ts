@@ -148,6 +148,22 @@ export type CompositionSlice = {
   value: Money;
 };
 
+export type MetricDelta = {
+  current: number;
+  previous: number;
+  changePercent: number;
+  direction: "up" | "down" | "flat";
+};
+
+export type DashboardComparisons = {
+  revenue: MetricDelta;
+  netProfit: MetricDelta;
+  orders: MetricDelta;
+  hours: MetricDelta;
+  kilometers: MetricDelta;
+  margin: MetricDelta;
+};
+
 export type Insight = {
   id: string;
   titleKey: string;
@@ -162,13 +178,20 @@ export type DashboardDataset = {
     from: string;
     to: string;
   };
+  previousRange: {
+    from: string;
+    to: string;
+  };
   hero: AggregateMetrics;
   today: AggregateMetrics;
   week: AggregateMetrics;
   month: AggregateMetrics;
   selected: AggregateMetrics;
+  previous: AggregateMetrics;
+  comparisons: DashboardComparisons;
   shifts: ShiftWithMetrics[];
   trend: TimeSeriesPoint[];
+  previousTrend: TimeSeriesPoint[];
   weekdayPerformance: WeekdayPerformancePoint[];
   revenueComposition: CompositionSlice[];
   costComposition: CompositionSlice[];

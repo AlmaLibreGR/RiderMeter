@@ -134,3 +134,72 @@ export async function createShift(userId: number, input: unknown) {
 
   return mapShiftRecordToCanonical(created);
 }
+
+export async function updateShift(userId: number, shiftId: number, input: unknown) {
+  const payload = normalizeShiftPayload(input);
+  const existingShift = await prisma.shift.findFirst({
+    where: {
+      id: shiftId,
+      userId,
+    },
+  });
+
+  if (!existingShift) {
+    throw new Error("SHIFT_NOT_FOUND");
+  }
+
+  const shiftDate = payload.date || nowIsoDate();
+  const updated = await prisma.shift.update({
+    where: {
+      id: shiftId,
+    },
+    data: {
+      date: new Date(`${shiftDate}T00:00:00.000Z`),
+      shiftDate: new Date(`${shiftDate}T00:00:00.000Z`),
+      startTime: asNullableString(payload.startTime),
+      endTime: asNullableString(payload.endTime),
+      platform: payload.platform ?? "other",
+      area: payload.area,
+      hours: toSafeNumber(payload.hoursWorked),
+      hoursWorked: toSafeNumber(payload.hoursWorked),
+      ordersCount: Math.round(toSafeNumber(payload.ordersCompleted)),
+      ordersCompleted: Math.round(toSafeNumber(payload.ordersCompleted)),
+      kilometers: toSafeNumber(payload.kilometersDriven),
+      kilometersDriven: toSafeNumber(payload.kilometersDriven),
+      platformEarnings: roundCurrency(toSafeNumber(payload.baseEarnings)),
+      baseEarnings: roundCurrency(toSafeNumber(payload.baseEarnings)),
+      tipsCard: roundCurrency(toSafeNumber(payload.tipsAmount)),
+      tipsCash: 0,
+      tipsAmount: roundCurrency(toSafeNumber(payload.tipsAmount)),
+      bonus: roundCurrency(toSafeNumber(payload.bonusAmount)),
+      bonusAmount: roundCurrency(toSafeNumber(payload.bonusAmount)),
+      fuelExpenseDirect:
+        payload.fuelExpenseDirect == null
+          ? null
+          : roundCurrency(toSafeNumber(payload.fuelExpenseDirect)),
+      tollsOrParking: roundCurrency(toSafeNumber(payload.tollsOrParking)),
+      notes: asNullableString(payload.notes),
+    },
+  });
+
+  return mapShiftRecordToCanonical(updated);
+}
+
+export async function deleteShift(userId: number, shiftId: number) {
+  const existingShift = await prisma.shift.findFirst({
+    where: {
+      id: shiftId,
+      userId,
+    },
+  });
+
+  if (!existingShift) {
+    throw new Error("SHIFT_NOT_FOUND");
+  }
+
+  await prisma.shift.delete({
+    where: {
+      id: shiftId,
+    },
+  });
+}

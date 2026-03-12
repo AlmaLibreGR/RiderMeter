@@ -55,6 +55,23 @@ export function getPeriodRange(
   };
 }
 
+export function getPreviousEquivalentRange(
+  fromIso: string,
+  toIso: string,
+  timezone?: string
+) {
+  const from = parseIsoDate(fromIso, timezone);
+  const to = parseIsoDate(toIso, timezone);
+  const lengthInDays = Math.max(Math.floor(to.diff(from, "days").days) + 1, 1);
+  const previousTo = from.minus({ days: 1 }).endOf("day");
+  const previousFrom = previousTo.minus({ days: lengthInDays - 1 }).startOf("day");
+
+  return {
+    from: previousFrom,
+    to: previousTo,
+  };
+}
+
 export function isDateWithinRange(date: string, fromIso: string, toIso: string, timezone?: string) {
   const current = parseIsoDate(date, timezone);
   const from = parseIsoDate(fromIso, timezone);
@@ -64,6 +81,14 @@ export function isDateWithinRange(date: string, fromIso: string, toIso: string, 
 
 export function toRangeStrings(period: DashboardPeriod, timezone?: string, customFrom?: string, customTo?: string) {
   const range = getPeriodRange(period, timezone, customFrom, customTo);
+  return {
+    from: range.from.toISODate() ?? "",
+    to: range.to.toISODate() ?? "",
+  };
+}
+
+export function previousRangeStrings(fromIso: string, toIso: string, timezone?: string) {
+  const range = getPreviousEquivalentRange(fromIso, toIso, timezone);
   return {
     from: range.from.toISODate() ?? "",
     to: range.to.toISODate() ?? "",
