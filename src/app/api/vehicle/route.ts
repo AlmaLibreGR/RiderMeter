@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors";
 import { roundCurrency, toSafeNumber } from "@/lib/utils";
 import { vehicleProfileSchema } from "@/lib/validators/settings";
 
@@ -12,11 +13,21 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const vehicle =
-    (await prisma.vehicleProfile.findFirst({
+  let canonicalVehicle = null;
+
+  try {
+    canonicalVehicle = await prisma.vehicleProfile.findFirst({
       where: { userId: currentUser.userId },
       orderBy: { createdAt: "desc" },
-    })) ??
+    });
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error;
+    }
+  }
+
+  const vehicle =
+    canonicalVehicle ??
     (await prisma.vehicle.findFirst({
       where: { userId: currentUser.userId },
       orderBy: { createdAt: "desc" },
@@ -71,37 +82,57 @@ export async function POST(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const existingCanonical = await prisma.vehicleProfile.findFirst({
-      where: { userId: currentUser.userId },
-      orderBy: { createdAt: "desc" },
-    });
+    let existingCanonical = null;
+    let hasCanonicalTable = true;
 
-    const [vehicleProfile] = await prisma.$transaction([
-      existingCanonical
-        ? prisma.vehicleProfile.update({
-            where: { id: existingCanonical.id },
-            data: {
-              vehicleType: payload.vehicleType,
-              fuelType: payload.fuelType,
-              fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
-              fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
-              maintenanceCostPerKm: payload.maintenanceCostPerKm,
-              tiresCostPerKm: payload.tiresCostPerKm,
-              depreciationCostPerKm: payload.depreciationCostPerKm,
-            },
-          })
-        : prisma.vehicleProfile.create({
-            data: {
-              userId: currentUser.userId,
-              vehicleType: payload.vehicleType,
-              fuelType: payload.fuelType,
-              fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
-              fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
-              maintenanceCostPerKm: payload.maintenanceCostPerKm,
-              tiresCostPerKm: payload.tiresCostPerKm,
-              depreciationCostPerKm: payload.depreciationCostPerKm,
-            },
-          }),
+    try {
+      existingCanonical = await prisma.vehicleProfile.findFirst({
+        where: { userId: currentUser.userId },
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (error) {
+      if (!isPrismaSchemaMismatchError(error)) {
+        throw error;
+      }
+
+      hasCanonicalTable = false;
+    }
+
+    const operations = [];
+
+    if (hasCanonicalTable && existingCanonical) {
+      operations.push(
+        prisma.vehicleProfile.update({
+          where: { id: existingCanonical.id },
+          data: {
+            vehicleType: payload.vehicleType,
+            fuelType: payload.fuelType,
+            fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
+            fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
+            maintenanceCostPerKm: payload.maintenanceCostPerKm,
+            tiresCostPerKm: payload.tiresCostPerKm,
+            depreciationCostPerKm: payload.depreciationCostPerKm,
+          },
+        })
+      );
+    } else if (hasCanonicalTable) {
+      operations.push(
+        prisma.vehicleProfile.create({
+          data: {
+            userId: currentUser.userId,
+            vehicleType: payload.vehicleType,
+            fuelType: payload.fuelType,
+            fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
+            fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
+            maintenanceCostPerKm: payload.maintenanceCostPerKm,
+            tiresCostPerKm: payload.tiresCostPerKm,
+            depreciationCostPerKm: payload.depreciationCostPerKm,
+          },
+        })
+      );
+    }
+
+    operations.push(
       existingLegacy
         ? prisma.vehicle.update({
             where: { id: existingLegacy.id },
@@ -126,8 +157,11 @@ export async function POST(req: NextRequest) {
               tiresPerKm: payload.tiresCostPerKm,
               depreciationPerKm: payload.depreciationCostPerKm,
             },
-          }),
-    ]);
+          })
+    );
+
+    const results = await prisma.$transaction(operations);
+    const vehicleProfile = results[0];
 
     return NextResponse.json({ ok: true, data: vehicleProfile });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors";
 import { roundCurrency, toSafeNumber } from "@/lib/utils";
 import type {
   AppSettingsSnapshot,
@@ -18,10 +19,18 @@ const defaultSettings: AppSettingsSnapshot = {
 };
 
 export async function getUserSettingsSnapshot(userId: number): Promise<AppSettingsSnapshot> {
-  const settings = await prisma.appSettings.findFirst({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
+  let settings = null;
+
+  try {
+    settings = await prisma.appSettings.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error;
+    }
+  }
 
   if (!settings) {
     return defaultSettings;
@@ -40,11 +49,21 @@ export async function getUserSettingsSnapshot(userId: number): Promise<AppSettin
 export async function getVehicleProfileSnapshot(
   userId: number
 ): Promise<VehicleProfileSnapshot | null> {
-  const profile =
-    (await prisma.vehicleProfile.findFirst({
+  let canonicalProfile = null;
+
+  try {
+    canonicalProfile = await prisma.vehicleProfile.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
-    })) ??
+    });
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error;
+    }
+  }
+
+  const profile =
+    canonicalProfile ??
     (await prisma.vehicle.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -82,11 +101,21 @@ export async function getVehicleProfileSnapshot(
 export async function getCostProfileSnapshot(
   userId: number
 ): Promise<CostProfileSnapshot | null> {
-  const profile =
-    (await prisma.costProfile.findFirst({
+  let canonicalProfile = null;
+
+  try {
+    canonicalProfile = await prisma.costProfile.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
-    })) ??
+    });
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error;
+    }
+  }
+
+  const profile =
+    canonicalProfile ??
     (await prisma.fixedCost.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -129,16 +158,24 @@ export async function getCostProfileSnapshot(
 }
 
 export async function upsertUserLocale(userId: number, locale: AppLocale) {
-  return prisma.appSettings.upsert({
-    where: {
-      userId,
-    },
-    update: {
-      locale,
-    },
-    create: {
-      userId,
-      locale,
-    },
-  });
+  try {
+    return await prisma.appSettings.upsert({
+      where: {
+        userId,
+      },
+      update: {
+        locale,
+      },
+      create: {
+        userId,
+        locale,
+      },
+    });
+  } catch (error) {
+    if (isPrismaSchemaMismatchError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 }

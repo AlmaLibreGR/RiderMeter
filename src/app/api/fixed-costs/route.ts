@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isPrismaSchemaMismatchError } from "@/lib/prisma-errors";
 import { roundCurrency, toSafeNumber } from "@/lib/utils";
 import { costProfileSchema } from "@/lib/validators/settings";
 
@@ -33,11 +34,21 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const fixedCosts =
-    (await prisma.costProfile.findFirst({
+  let canonicalProfile = null;
+
+  try {
+    canonicalProfile = await prisma.costProfile.findFirst({
       where: { userId: currentUser.userId },
       orderBy: { createdAt: "desc" },
-    })) ??
+    });
+  } catch (error) {
+    if (!isPrismaSchemaMismatchError(error)) {
+      throw error;
+    }
+  }
+
+  const fixedCosts =
+    canonicalProfile ??
     (await prisma.fixedCost.findFirst({
       where: { userId: currentUser.userId },
       orderBy: { createdAt: "desc" },
@@ -78,37 +89,57 @@ export async function POST(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const existingCanonical = await prisma.costProfile.findFirst({
-      where: { userId: currentUser.userId },
-      orderBy: { createdAt: "desc" },
-    });
+    let existingCanonical = null;
+    let hasCanonicalTable = true;
 
-    const [costProfile] = await prisma.$transaction([
-      existingCanonical
-        ? prisma.costProfile.update({
-            where: { id: existingCanonical.id },
-            data: {
-              insuranceMonthly: roundCurrency(payload.insuranceMonthly),
-              phoneMonthly: roundCurrency(payload.phoneMonthly),
-              accountantMonthly: roundCurrency(payload.accountantMonthly),
-              roadTaxMonthly: roundCurrency(payload.roadTaxMonthly),
-              kteoMonthly: roundCurrency(payload.kteoMonthly),
-              otherMonthly: roundCurrency(payload.otherMonthly),
-              dailyFixedCost,
-            },
-          })
-        : prisma.costProfile.create({
-            data: {
-              userId: currentUser.userId,
-              insuranceMonthly: roundCurrency(payload.insuranceMonthly),
-              phoneMonthly: roundCurrency(payload.phoneMonthly),
-              accountantMonthly: roundCurrency(payload.accountantMonthly),
-              roadTaxMonthly: roundCurrency(payload.roadTaxMonthly),
-              kteoMonthly: roundCurrency(payload.kteoMonthly),
-              otherMonthly: roundCurrency(payload.otherMonthly),
-              dailyFixedCost,
-            },
-          }),
+    try {
+      existingCanonical = await prisma.costProfile.findFirst({
+        where: { userId: currentUser.userId },
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (error) {
+      if (!isPrismaSchemaMismatchError(error)) {
+        throw error;
+      }
+
+      hasCanonicalTable = false;
+    }
+
+    const operations = [];
+
+    if (hasCanonicalTable && existingCanonical) {
+      operations.push(
+        prisma.costProfile.update({
+          where: { id: existingCanonical.id },
+          data: {
+            insuranceMonthly: roundCurrency(payload.insuranceMonthly),
+            phoneMonthly: roundCurrency(payload.phoneMonthly),
+            accountantMonthly: roundCurrency(payload.accountantMonthly),
+            roadTaxMonthly: roundCurrency(payload.roadTaxMonthly),
+            kteoMonthly: roundCurrency(payload.kteoMonthly),
+            otherMonthly: roundCurrency(payload.otherMonthly),
+            dailyFixedCost,
+          },
+        })
+      );
+    } else if (hasCanonicalTable) {
+      operations.push(
+        prisma.costProfile.create({
+          data: {
+            userId: currentUser.userId,
+            insuranceMonthly: roundCurrency(payload.insuranceMonthly),
+            phoneMonthly: roundCurrency(payload.phoneMonthly),
+            accountantMonthly: roundCurrency(payload.accountantMonthly),
+            roadTaxMonthly: roundCurrency(payload.roadTaxMonthly),
+            kteoMonthly: roundCurrency(payload.kteoMonthly),
+            otherMonthly: roundCurrency(payload.otherMonthly),
+            dailyFixedCost,
+          },
+        })
+      );
+    }
+
+    operations.push(
       existingLegacy
         ? prisma.fixedCost.update({
             where: { id: existingLegacy.id },
@@ -131,8 +162,11 @@ export async function POST(req: NextRequest) {
               kteoMonthly: payload.kteoMonthly,
               otherMonthly: payload.otherMonthly,
             },
-          }),
-    ]);
+          })
+    );
+
+    const results = await prisma.$transaction(operations);
+    const costProfile = results[0];
 
     return NextResponse.json({ ok: true, data: costProfile });
   } catch (error) {
