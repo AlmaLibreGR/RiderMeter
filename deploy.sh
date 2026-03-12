@@ -14,8 +14,13 @@ npm install
 echo "===> Building app"
 npm run build
 
-echo "===> Restarting PM2 process"
-pm2 restart RiderMeter
+if pm2 describe RiderMeter >/dev/null 2>&1; then
+  echo "===> Restarting PM2 process"
+  PORT=3000 pm2 restart RiderMeter --update-env
+else
+  echo "===> Starting PM2 process"
+  PORT=3000 pm2 start npm --name RiderMeter -- start
+fi
 
 echo "===> Saving PM2 state"
 pm2 save
