@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserFromCookie } from "@/lib/auth";
 import { calculateShiftMetrics } from "@/lib/calculations";
 
 export async function GET() {
+  const currentUser = await getCurrentUserFromCookie();
+
+  if (!currentUser) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   const shifts = await prisma.shift.findMany({
+    where: {
+      userId: currentUser.userId,
+    },
     orderBy: {
       date: "desc",
     },
@@ -82,6 +95,7 @@ export async function GET() {
     todayTotals.orders > 0 ? todayTotals.revenue / todayTotals.orders : 0;
 
   return NextResponse.json({
+    ok: true,
     today: {
       revenue: todayTotals.revenue,
       hours: todayTotals.hours,

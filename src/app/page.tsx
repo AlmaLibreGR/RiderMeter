@@ -119,7 +119,7 @@ export default async function HomePage() {
       acc.hours += Number(shift.hours);
       acc.orders += Number(shift.ordersCount);
       acc.kilometers += Number(shift.kilometers);
-      acc.variableCost += metrics.variableCost;
+      acc.totalShiftCost += metrics.totalShiftCost;
       acc.netProfit += metrics.netProfit;
 
       return acc;
@@ -130,7 +130,7 @@ export default async function HomePage() {
       hours: 0,
       orders: 0,
       kilometers: 0,
-      variableCost: 0,
+      totalShiftCost: 0,
       netProfit: 0,
     }
   );
@@ -154,7 +154,7 @@ export default async function HomePage() {
       acc.revenue += metrics.totalRevenue;
       acc.tips += metrics.tipsTotal;
       acc.kilometers += Number(shift.kilometers);
-      acc.variableCost += metrics.variableCost;
+      acc.totalShiftCost += metrics.totalShiftCost;
       acc.netProfit += metrics.netProfit;
 
       return acc;
@@ -163,7 +163,7 @@ export default async function HomePage() {
       revenue: 0,
       tips: 0,
       kilometers: 0,
-      variableCost: 0,
+      totalShiftCost: 0,
       netProfit: 0,
     }
   );
@@ -531,7 +531,7 @@ export default async function HomePage() {
               <div>
                 <p className="text-sm text-slate-500">Σύνολο κόστους με πάγια</p>
                 <p className="mt-1 text-xl font-semibold text-slate-900">
-                  {formatCurrency(overallTotals.variableCost)}
+                  {formatCurrency(overallTotals.totalShiftCost)}
                 </p>
               </div>
 
