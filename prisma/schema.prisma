@@ -8,15 +8,22 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
+  id           Int              @id @default(autoincrement())
+  email        String           @unique
   passwordHash String
-  roleType     String    @default("simple")
-  createdAt    DateTime  @default(now())
+  roleType     String           @default("simple")
+  locale       String           @default("el")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
-  vehicles     Vehicle[]
-  fixedCosts   FixedCost[]
-  shifts       Shift[]
+  vehicles         Vehicle[]
+  fixedCosts       FixedCost[]
+  vehicleProfiles  VehicleProfile[]
+  costProfiles     CostProfile[]
+  platformProfiles PlatformProfile[]
+  expenses         Expense[]
+  appSettings      AppSettings?
+  shifts           Shift[]
 }
 
 model Vehicle {
@@ -30,6 +37,22 @@ model Vehicle {
   tiresPerKm          Float
   depreciationPerKm   Float
   createdAt           DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VehicleProfile {
+  id                      Int      @id @default(autoincrement())
+  userId                  Int
+  vehicleType             String
+  fuelType                String
+  fuelPricePerLiter       Decimal  @default(0) @db.Decimal(10, 2)
+  fuelConsumptionPer100Km Decimal  @default(0) @db.Decimal(10, 2)
+  maintenanceCostPerKm    Decimal  @default(0) @db.Decimal(10, 4)
+  tiresCostPerKm          Decimal  @default(0) @db.Decimal(10, 4)
+  depreciationCostPerKm   Decimal  @default(0) @db.Decimal(10, 4)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -48,21 +71,94 @@ model FixedCost {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model CostProfile {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  insuranceMonthly  Decimal  @default(0) @db.Decimal(10, 2)
+  phoneMonthly      Decimal  @default(0) @db.Decimal(10, 2)
+  accountantMonthly Decimal  @default(0) @db.Decimal(10, 2)
+  roadTaxMonthly    Decimal  @default(0) @db.Decimal(10, 2)
+  kteoMonthly       Decimal  @default(0) @db.Decimal(10, 2)
+  otherMonthly      Decimal  @default(0) @db.Decimal(10, 2)
+  dailyFixedCost    Decimal? @db.Decimal(10, 2)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlatformProfile {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  platformKey    String
+  feePercent     Decimal? @db.Decimal(5, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  date        DateTime
+  category    String
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AppSettings {
+  id                       Int      @id @default(autoincrement())
+  userId                   Int      @unique
+  fuelPricePerLiter        Decimal? @db.Decimal(10, 2)
+  fuelConsumptionPer100Km  Decimal? @db.Decimal(10, 2)
+  maintenanceCostPerKm     Decimal? @db.Decimal(10, 4)
+  depreciationCostPerKm    Decimal? @db.Decimal(10, 4)
+  dailyFixedCost           Decimal? @db.Decimal(10, 2)
+  platformFeePercent       Decimal  @default(0) @db.Decimal(5, 2)
+  taxReservePercent        Decimal  @default(0) @db.Decimal(5, 2)
+  currency                 String   @default("EUR")
+  timezone                 String   @default("Europe/Athens")
+  locale                   String   @default("el")
+  preferredDashboardPeriod String   @default("week")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model Shift {
   id               Int      @id @default(autoincrement())
   userId           Int
   date             DateTime
+  shiftDate        DateTime?
+  startTime        String?
+  endTime          String?
   platform         String
   area             String
   hours            Float
+  hoursWorked      Float?
   ordersCount      Int
+  ordersCompleted  Int?
   kilometers       Float
+  kilometersDriven Float?
   platformEarnings Float
+  baseEarnings     Decimal? @db.Decimal(10, 2)
   tipsCard         Float    @default(0)
   tipsCash         Float    @default(0)
+  tipsAmount       Decimal? @db.Decimal(10, 2)
   bonus            Float    @default(0)
+  bonusAmount      Decimal? @db.Decimal(10, 2)
+  fuelExpenseDirect Decimal? @db.Decimal(10, 2)
+  tollsOrParking   Decimal? @default(0) @db.Decimal(10, 2)
   notes            String?
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

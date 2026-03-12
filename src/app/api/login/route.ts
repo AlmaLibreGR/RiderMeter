@@ -1,38 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ZodError } from "zod";
 import { comparePassword, createToken } from "@/lib/auth";
+import { localeCookieName } from "@/lib/i18n";
+import { prisma } from "@/lib/prisma";
+import { loginSchema } from "@/lib/validators/auth";
 
 export async function POST(req: NextRequest) {
-  // Handles user login, validates credentials, and sets authentication cookie
   try {
-    const body = await req.json();
-
-    const email = String(body.email || "").trim().toLowerCase();
-    const password = String(body.password || "").trim();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { ok: false, error: "Email και κωδικός είναι υποχρεωτικά." },
-        { status: 400 }
-      );
-    }
+    const payload = loginSchema.parse(await req.json());
+    const email = payload.email.trim().toLowerCase();
 
     const user = await prisma.user.findUnique({
       where: { email },
+      include: { appSettings: true },
     });
 
     if (!user) {
       return NextResponse.json(
-        { ok: false, error: "Λάθος στοιχεία σύνδεσης." },
+        { ok: false, error: "Invalid email or password." },
         { status: 400 }
       );
     }
 
-    const isValid = await comparePassword(password, user.passwordHash);
+    const isValid = await comparePassword(payload.password, user.passwordHash);
 
     if (!isValid) {
       return NextResponse.json(
-        { ok: false, error: "Λάθος στοιχεία σύνδεσης." },
+        { ok: false, error: "Invalid email or password." },
         { status: 400 }
       );
     }
@@ -42,11 +36,13 @@ export async function POST(req: NextRequest) {
       email: user.email,
     });
 
+    const locale = (user.appSettings?.locale ?? user.locale ?? "el") as "en" | "el";
     const response = NextResponse.json({
       ok: true,
-      user: {
+      data: {
         id: user.id,
         email: user.email,
+        locale,
       },
     });
 
@@ -57,13 +53,23 @@ export async function POST(req: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
+    response.cookies.set(localeCookieName, locale, {
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
 
     return response;
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { ok: false, error: error.issues[0]?.message ?? "Invalid login payload." },
+        { status: 400 }
+      );
+    }
+
     console.error(error);
-    return NextResponse.json(
-      { ok: false, error: "Failed to login" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: "Failed to login" }, { status: 500 });
   }
 }

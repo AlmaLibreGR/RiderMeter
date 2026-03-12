@@ -1,130 +1,28 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserFromCookie } from "@/lib/auth";
-import { calculateShiftMetrics } from "@/lib/calculations";
+import { getDashboardDataset } from "@/services/dashboard-service";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const currentUser = await getCurrentUserFromCookie();
 
   if (!currentUser) {
-    return NextResponse.json(
-      { ok: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const shifts = await prisma.shift.findMany({
-    where: {
-      userId: currentUser.userId,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-  type ShiftRecord = (typeof shifts)[number];
+  const searchParams = req.nextUrl.searchParams;
+  const period = searchParams.get("period");
+  const from = searchParams.get("from") ?? undefined;
+  const to = searchParams.get("to") ?? undefined;
 
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
-
-  const todayShifts = shifts.filter((shift: ShiftRecord) => {
-    const shiftDate = new Date(shift.date).toISOString().slice(0, 10);
-    return shiftDate === todayStr;
+  const data = await getDashboardDataset({
+    userId: currentUser.userId,
+    period:
+      period === "today" || period === "week" || period === "month" || period === "custom"
+        ? period
+        : undefined,
+    from,
+    to,
   });
 
-  const totals = shifts.reduce(
-    (
-      acc: {
-        totalRevenue: number;
-        totalTips: number;
-        totalHours: number;
-        totalOrders: number;
-        totalKilometers: number;
-      },
-      shift: ShiftRecord
-    ) => {
-      const metrics = calculateShiftMetrics({
-        platformEarnings: shift.platformEarnings,
-        tipsCard: shift.tipsCard,
-        tipsCash: shift.tipsCash,
-        bonus: shift.bonus,
-        hours: shift.hours,
-        ordersCount: shift.ordersCount,
-        kilometers: shift.kilometers,
-      });
-
-      acc.totalRevenue += metrics.totalRevenue;
-      acc.totalTips += metrics.tipsTotal;
-      acc.totalHours += Number(shift.hours);
-      acc.totalOrders += Number(shift.ordersCount);
-      acc.totalKilometers += Number(shift.kilometers);
-
-      return acc;
-    },
-    {
-      totalRevenue: 0,
-      totalTips: 0,
-      totalHours: 0,
-      totalOrders: 0,
-      totalKilometers: 0,
-    }
-  );
-
-  const todayTotals = todayShifts.reduce(
-    (
-      acc: {
-        revenue: number;
-        hours: number;
-        orders: number;
-        kilometers: number;
-        tips: number;
-      },
-      shift: ShiftRecord
-    ) => {
-      const metrics = calculateShiftMetrics({
-        platformEarnings: shift.platformEarnings,
-        tipsCard: shift.tipsCard,
-        tipsCash: shift.tipsCash,
-        bonus: shift.bonus,
-        hours: shift.hours,
-        ordersCount: shift.ordersCount,
-        kilometers: shift.kilometers,
-      });
-
-      acc.revenue += metrics.totalRevenue;
-      acc.hours += Number(shift.hours);
-      acc.orders += Number(shift.ordersCount);
-      acc.kilometers += Number(shift.kilometers);
-      acc.tips += metrics.tipsTotal;
-
-      return acc;
-    },
-    {
-      revenue: 0,
-      hours: 0,
-      orders: 0,
-      kilometers: 0,
-      tips: 0,
-    }
-  );
-
-  const grossPerHour =
-    todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
-
-  const revenuePerOrder =
-    todayTotals.orders > 0 ? todayTotals.revenue / todayTotals.orders : 0;
-
-  return NextResponse.json({
-    ok: true,
-    today: {
-      revenue: todayTotals.revenue,
-      hours: todayTotals.hours,
-      orders: todayTotals.orders,
-      kilometers: todayTotals.kilometers,
-      tips: todayTotals.tips,
-      grossPerHour,
-      revenuePerOrder,
-    },
-    overall: totals,
-    shiftsCount: shifts.length,
-  });
+  return NextResponse.json({ ok: true, data });
 }

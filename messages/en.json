@@ -1,0 +1,245 @@
+{
+  "common": {
+    "appName": "RiderMeter",
+    "loading": "Loading...",
+    "login": "Log in",
+    "register": "Create account",
+    "dashboard": "Dashboard",
+    "history": "History",
+    "newShift": "New shift",
+    "vehicle": "Vehicle",
+    "fixedCosts": "Cost profile",
+    "logout": "Log out",
+    "save": "Save",
+    "saving": "Saving...",
+    "unauthorizedTitle": "Session required",
+    "unauthorizedBody": "You need to sign in to continue.",
+    "backToDashboard": "Back to dashboard",
+    "viewHistory": "View history",
+    "language": "Language",
+    "english": "English",
+    "greek": "Greek",
+    "setupReady": "Ready",
+    "setupNeeded": "Needs setup",
+    "empty": "No data yet",
+    "cancel": "Cancel",
+    "optional": "Optional",
+    "hour": "hour",
+    "shift": "shift",
+    "cost": "cost"
+  },
+  "nav": {
+    "cockpit": "Analytics cockpit for professional riders"
+  },
+  "auth": {
+    "loginTitle": "Sign in to your rider cockpit",
+    "loginBody": "Track shifts, profitability, and operating costs in one place.",
+    "registerTitle": "Create your rider cockpit",
+    "registerBody": "Set up a bilingual analytics workspace for every shift you work.",
+    "email": "Email",
+    "password": "Password",
+    "locale": "Preferred language",
+    "submitLogin": "Log in",
+    "submitRegister": "Create account",
+    "switchToRegister": "Need an account?",
+    "switchToLogin": "Already have an account?",
+    "registerSuccess": "Account created successfully.",
+    "loginSuccess": "Logged in successfully."
+  },
+  "dashboard": {
+    "eyebrow": "Operations cockpit",
+    "title": "Know whether your shifts are actually profitable",
+    "body": "Track real revenue, true costs, and operational rhythm with a dashboard built for a working courier.",
+    "hero": {
+      "revenue": "Total revenue",
+      "netProfit": "Net profit",
+      "orders": "Orders",
+      "hours": "Hours",
+      "kilometers": "Kilometers",
+      "margin": "Profit margin"
+    },
+    "period": {
+      "today": "Today",
+      "week": "Week",
+      "month": "Month"
+    },
+    "sections": {
+      "today": "Today",
+      "week": "Week",
+      "month": "Month",
+      "insights": "Insights",
+      "trends": "Revenue and profit trends",
+      "costs": "Cost breakdown",
+      "operations": "Operational metrics",
+      "performance": "Shift performance",
+      "setup": "Data quality setup"
+    },
+    "cards": {
+      "netPerHour": "Net / hour",
+      "revenuePerOrder": "Revenue / order",
+      "ordersPerHour": "Orders / hour",
+      "kmPerOrder": "Km / order",
+      "fixedCost": "Fixed cost / shift",
+      "costPerKm": "Cost / km"
+    },
+    "empty": {
+      "title": "No shifts yet",
+      "body": "Start with your first shift to unlock profitability tracking and trend analysis.",
+      "cta": "Add your first shift"
+    },
+    "setup": {
+      "vehicleTitle": "Vehicle profile",
+      "vehicleBody": "Fuel, maintenance, and depreciation make net profit trustworthy.",
+      "costTitle": "Cost profile",
+      "costBody": "Fixed costs let the dashboard reflect real operating margin."
+    },
+    "charts": {
+      "trendTitle": "Revenue vs costs by day",
+      "trendBody": "Follow the shape of your period and spot expensive days early.",
+      "weekdayTitle": "Weekday profitability",
+      "weekdayBody": "See which weekdays return the strongest net profit per hour.",
+      "revenueCompositionTitle": "Revenue composition",
+      "revenueCompositionBody": "Understand how much of your income comes from base pay, tips, and bonuses.",
+      "costCompositionTitle": "Cost composition",
+      "costCompositionBody": "See what is consuming your margin."
+    },
+    "composition": {
+      "base": "Base earnings",
+      "tips": "Tips",
+      "bonus": "Bonuses",
+      "fuel": "Fuel",
+      "maintenance": "Maintenance & tires",
+      "depreciation": "Depreciation",
+      "fixed": "Fixed costs",
+      "reserve": "Fees & reserve"
+    },
+    "table": {
+      "title": "Shift performance table",
+      "date": "Date",
+      "platform": "Platform",
+      "area": "Area",
+      "revenue": "Revenue",
+      "cost": "Cost",
+      "netProfit": "Net profit",
+      "netPerHour": "Net / hour"
+    }
+  },
+  "insights": {
+    "bestWeekday": {
+      "title": "Strongest weekday",
+      "body": "{weekday} is currently your best weekday at {value} net per hour."
+    },
+    "weekUp": {
+      "title": "Weekly pace improved",
+      "body": "Net profit per hour is up by {delta}% versus the previous week."
+    },
+    "weekDown": {
+      "title": "Weekly pace slowed",
+      "body": "Net profit per hour is down by {delta}% versus the previous week."
+    },
+    "highKm": {
+      "title": "Long-distance shifts need attention",
+      "body": "High-kilometer shifts are returning only {margin}% margin in this period."
+    },
+    "tips": {
+      "title": "Tips matter",
+      "body": "Tips represent {share}% of your revenue in this period."
+    }
+  },
+  "shiftForm": {
+    "eyebrow": "Fast entry",
+    "title": "Capture a shift without slowing down",
+    "body": "Enter the essentials first, then add any extra cost details when you have them.",
+    "groups": {
+      "schedule": "Schedule and route",
+      "performance": "Performance",
+      "earnings": "Earnings",
+      "extras": "Extras and notes",
+      "preview": "Live preview"
+    },
+    "fields": {
+      "date": "Date",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "platform": "Platform",
+      "area": "Area",
+      "hoursWorked": "Hours worked",
+      "ordersCompleted": "Orders completed",
+      "kilometersDriven": "Kilometers driven",
+      "baseEarnings": "Base earnings",
+      "tipsAmount": "Tips",
+      "bonusAmount": "Bonus",
+      "fuelExpenseDirect": "Fuel override",
+      "tollsOrParking": "Tolls / parking",
+      "notes": "Notes"
+    },
+    "help": {
+      "area": "Use a recognizable zone so you can compare areas later.",
+      "fuelExpenseDirect": "Use only when you want to override estimated fuel cost.",
+      "notes": "Weather, demand, delays, or anything worth remembering."
+    },
+    "preview": {
+      "grossRevenue": "Gross revenue",
+      "grossPerHour": "Gross per hour",
+      "validationTitle": "Before saving",
+      "validationArea": "Area is filled in clearly.",
+      "validationHours": "Worked hours are valid.",
+      "validationNumbers": "All numeric values are non-negative."
+    },
+    "submit": "Save shift",
+    "success": "Shift saved successfully.",
+    "errors": {
+      "generic": "Something went wrong while saving the shift.",
+      "invalid": "Please correct the highlighted fields before saving.",
+      "date": "Shift date is required.",
+      "area": "Area is required.",
+      "hoursWorked": "Hours worked must be greater than zero.",
+      "nonNegative": "Value must be zero or greater."
+    }
+  },
+  "history": {
+    "eyebrow": "Shift history",
+    "title": "Review every shift with less noise",
+    "body": "Filter by date and platform, then compare revenue, costs, and shift notes cleanly.",
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "platform": "Platform",
+      "allPlatforms": "All platforms",
+      "clear": "Clear filters"
+    },
+    "summary": {
+      "shifts": "Shifts",
+      "revenue": "Revenue",
+      "netProfit": "Net profit",
+      "hours": "Hours"
+    },
+    "emptyTitle": "No shifts match these filters",
+    "emptyBody": "Try a wider date range or create your first shift."
+  },
+  "settings": {
+    "vehicleTitle": "Vehicle profile",
+    "vehicleBody": "Configure cost-per-kilometer assumptions once and reuse them everywhere.",
+    "costTitle": "Cost profile",
+    "costBody": "Capture recurring operating costs so net profit stays honest.",
+    "saved": "Settings saved successfully.",
+    "fields": {
+      "vehicleType": "Vehicle type",
+      "fuelType": "Fuel type",
+      "fuelConsumptionPer100Km": "Fuel consumption per 100 km",
+      "fuelPricePerLiter": "Fuel price per liter",
+      "maintenanceCostPerKm": "Maintenance cost per km",
+      "tiresCostPerKm": "Tires cost per km",
+      "depreciationCostPerKm": "Depreciation cost per km",
+      "totalCostPerKm": "Total cost per km",
+      "insuranceMonthly": "Insurance per month",
+      "phoneMonthly": "Phone / data per month",
+      "accountantMonthly": "Accountant per month",
+      "roadTaxMonthly": "Road tax per month",
+      "kteoMonthly": "Inspection / KTEO per month",
+      "otherMonthly": "Other recurring costs per month",
+      "totalMonthlyCost": "Total monthly cost",
+      "dailyFixedCost": "Daily fixed cost"
+    }
+  }
+}

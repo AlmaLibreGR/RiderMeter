@@ -1,28 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { createToken, hashPassword } from "@/lib/auth";
+import { localeCookieName } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, createToken } from "@/lib/auth";
+import { registerSchema } from "@/lib/validators/auth";
 
 export async function POST(req: NextRequest) {
-  // Handles user registration, validates input, hashes password, and sets authentication cookie
   try {
-    const body = await req.json();
-
-    const email = String(body.email || "").trim().toLowerCase();
-    const password = String(body.password || "").trim();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { ok: false, error: "Email και κωδικός είναι υποχρεωτικά." },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { ok: false, error: "Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες." },
-        { status: 400 }
-      );
-    }
+    const payload = registerSchema.parse(await req.json());
+    const email = payload.email.trim().toLowerCase();
+    const locale = payload.locale === "en" ? "en" : "el";
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -30,18 +17,27 @@ export async function POST(req: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { ok: false, error: "Υπάρχει ήδη λογαριασμός με αυτό το email." },
+        { ok: false, error: "An account with this email already exists." },
         { status: 400 }
       );
     }
 
-    const passwordHash = await hashPassword(password);
+    const passwordHash = await hashPassword(payload.password);
 
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         roleType: "simple",
+        locale,
+        appSettings: {
+          create: {
+            locale,
+          },
+        },
+      },
+      include: {
+        appSettings: true,
       },
     });
 
@@ -52,9 +48,10 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       ok: true,
-      user: {
+      data: {
         id: user.id,
         email: user.email,
+        locale,
       },
     });
 
@@ -65,9 +62,22 @@ export async function POST(req: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
+    response.cookies.set(localeCookieName, locale, {
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
 
     return response;
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { ok: false, error: error.issues[0]?.message ?? "Invalid registration payload." },
+        { status: 400 }
+      );
+    }
+
     console.error(error);
     return NextResponse.json(
       { ok: false, error: "Failed to register user" },

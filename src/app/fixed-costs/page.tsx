@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/ui/language-switcher";
+import { formatCurrency } from "@/lib/formatters";
 
-type FixedCostsForm = {
+type CostForm = {
   insuranceMonthly: string;
   phoneMonthly: string;
   accountantMonthly: string;
@@ -12,7 +15,7 @@ type FixedCostsForm = {
   otherMonthly: string;
 };
 
-const initialForm: FixedCostsForm = {
+const initialForm: CostForm = {
   insuranceMonthly: "",
   phoneMonthly: "",
   accountantMonthly: "",
@@ -22,50 +25,63 @@ const initialForm: FixedCostsForm = {
 };
 
 export default function FixedCostsPage() {
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [form, setForm] = useState<FixedCostsForm>(initialForm);
+  const t = useTranslations();
+  const locale = useLocale() as "en" | "el";
+  const [form, setForm] = useState<CostForm>(initialForm);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function init() {
-      const meRes = await fetch("/api/me");
-      if (!meRes.ok) {
-        setAuthorized(false);
+    async function loadCosts() {
+      const response = await fetch("/api/fixed-costs");
+      const payload = (await response.json()) as {
+        ok: boolean;
+        data: {
+          insuranceMonthly: number;
+          phoneMonthly: number;
+          accountantMonthly: number;
+          roadTaxMonthly: number;
+          kteoMonthly: number;
+          otherMonthly: number;
+        } | null;
+      };
+
+      if (!response.ok || !payload.ok || !payload.data) {
         return;
       }
 
-      setAuthorized(true);
-
-      const res = await fetch("/api/fixed-costs");
-      const data = await res.json();
-
-      if (data) {
-        setForm({
-          insuranceMonthly: String(data.insuranceMonthly ?? ""),
-          phoneMonthly: String(data.phoneMonthly ?? ""),
-          accountantMonthly: String(data.accountantMonthly ?? ""),
-          roadTaxMonthly: String(data.roadTaxMonthly ?? ""),
-          kteoMonthly: String(data.kteoMonthly ?? ""),
-          otherMonthly: String(data.otherMonthly ?? ""),
-        });
-      }
+      setForm({
+        insuranceMonthly: String(payload.data.insuranceMonthly ?? ""),
+        phoneMonthly: String(payload.data.phoneMonthly ?? ""),
+        accountantMonthly: String(payload.data.accountantMonthly ?? ""),
+        roadTaxMonthly: String(payload.data.roadTaxMonthly ?? ""),
+        kteoMonthly: String(payload.data.kteoMonthly ?? ""),
+        otherMonthly: String(payload.data.otherMonthly ?? ""),
+      });
     }
 
-    init();
+    void loadCosts();
   }, []);
 
-  function updateField(name: keyof FixedCostsForm, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
+  const monthlyTotal = useMemo(() => {
+    return (
+      Number(form.insuranceMonthly || 0) +
+      Number(form.phoneMonthly || 0) +
+      Number(form.accountantMonthly || 0) +
+      Number(form.roadTaxMonthly || 0) +
+      Number(form.kteoMonthly || 0) +
+      Number(form.otherMonthly || 0)
+    );
+  }, [form]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage("Αποθήκευση...");
+  const dailyFixedCost = monthlyTotal / 30;
 
-    const res = await fetch("/api/fixed-costs", {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    const response = await fetch("/api/fixed-costs", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,105 +89,66 @@ export default function FixedCostsPage() {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
-
-    if (data.ok) {
-      setMessage("Τα πάγια έξοδα αποθηκεύτηκαν.");
-    } else {
-      setMessage(data.error || "Κάτι πήγε στραβά.");
-    }
-  }
-
-  const monthlyTotal =
-    Number(form.insuranceMonthly || 0) +
-    Number(form.phoneMonthly || 0) +
-    Number(form.accountantMonthly || 0) +
-    Number(form.roadTaxMonthly || 0) +
-    Number(form.kteoMonthly || 0) +
-    Number(form.otherMonthly || 0);
-
-  const dailyFixedCost = monthlyTotal / 30;
-
-  if (authorized === null) {
-    return <main className="min-h-screen bg-slate-50 p-4 md:p-6">Φόρτωση...</main>;
-  }
-
-  if (!authorized) {
-    return (
-      <main className="min-h-screen bg-slate-50 p-4 md:p-6">
-        <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Πάγια Έξοδα</h1>
-          <p className="mt-2 text-slate-600">
-            Πρέπει να συνδεθείς για να δεις τα πάγια έξοδα.
-          </p>
-
-          <div className="mt-6 flex gap-3">
-            <Link
-              href="/login"
-              className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
-            >
-              Σύνδεση
-            </Link>
-
-            <Link
-              href="/register"
-              className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900"
-            >
-              Εγγραφή
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+    const payload = (await response.json()) as { ok: boolean; error?: string };
+    setMessage(payload.ok ? t("settings.saved") : payload.error ?? t("shiftForm.errors.generic"));
+    setLoading(false);
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-6">
-      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">Πάγια Έξοδα</h1>
-        <p className="mt-2 text-slate-600">
-          Ρύθμισε τα μηνιαία πάγια ώστε να υπολογίζονται πιο σωστά τα καθαρά.
-        </p>
+    <main className="min-h-screen p-4 md:p-6">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <div className="flex justify-end">
+          <LanguageSwitcher />
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
-          <Field label="Ασφάλεια / μήνα (€)" value={form.insuranceMonthly} onChange={(value) => updateField("insuranceMonthly", value)} />
-          <Field label="Κινητό / data / μήνα (€)" value={form.phoneMonthly} onChange={(value) => updateField("phoneMonthly", value)} />
-          <Field label="Λογιστής / μήνα (€)" value={form.accountantMonthly} onChange={(value) => updateField("accountantMonthly", value)} />
-          <Field label="Τέλη κυκλοφορίας / μήνα (€)" value={form.roadTaxMonthly} onChange={(value) => updateField("roadTaxMonthly", value)} />
-          <Field label="ΚΤΕΟ / μήνα (€)" value={form.kteoMonthly} onChange={(value) => updateField("kteoMonthly", value)} />
-          <Field label="Λοιπά πάγια / μήνα (€)" value={form.otherMonthly} onChange={(value) => updateField("otherMonthly", value)} />
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border p-4">
-              <p className="text-sm text-slate-500">Σύνολο παγίων / μήνα</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
-                €{monthlyTotal.toFixed(2)}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border p-4">
-              <p className="text-sm text-slate-500">Ημερήσιο πάγιο κόστος</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
-                €{dailyFixedCost.toFixed(2)}
-              </p>
-            </div>
+        <section className="rounded-[36px] border border-white/70 bg-white/85 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.08)] backdrop-blur">
+          <div className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+            {t("settings.costTitle")}
           </div>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+            {t("settings.costTitle")}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{t("settings.costBody")}</p>
 
-          <button
-            type="submit"
-            className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
-          >
-            Αποθήκευση παγίων εξόδων
-          </button>
+          <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <NumberField label={t("settings.fields.insuranceMonthly")} value={form.insuranceMonthly} onChange={(value) => setForm((current) => ({ ...current, insuranceMonthly: value }))} />
+              <NumberField label={t("settings.fields.phoneMonthly")} value={form.phoneMonthly} onChange={(value) => setForm((current) => ({ ...current, phoneMonthly: value }))} />
+              <NumberField label={t("settings.fields.accountantMonthly")} value={form.accountantMonthly} onChange={(value) => setForm((current) => ({ ...current, accountantMonthly: value }))} />
+              <NumberField label={t("settings.fields.roadTaxMonthly")} value={form.roadTaxMonthly} onChange={(value) => setForm((current) => ({ ...current, roadTaxMonthly: value }))} />
+              <NumberField label={t("settings.fields.kteoMonthly")} value={form.kteoMonthly} onChange={(value) => setForm((current) => ({ ...current, kteoMonthly: value }))} />
+              <NumberField label={t("settings.fields.otherMonthly")} value={form.otherMonthly} onChange={(value) => setForm((current) => ({ ...current, otherMonthly: value }))} />
+            </div>
 
-          {message ? <p className="text-sm text-slate-600">{message}</p> : null}
-        </form>
+            <div className="grid gap-4 md:grid-cols-2">
+              <SummaryCard
+                label={t("settings.fields.totalMonthlyCost")}
+                value={formatCurrency(monthlyTotal, locale, "EUR")}
+              />
+              <SummaryCard
+                label={t("settings.fields.dailyFixedCost")}
+                value={formatCurrency(dailyFixedCost, locale, "EUR")}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={loading} className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60">
+                {loading ? t("common.saving") : t("common.save")}
+              </button>
+              <Link href="/" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900">
+                {t("common.backToDashboard")}
+              </Link>
+            </div>
+
+            {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+          </form>
+        </section>
       </div>
     </main>
   );
 }
 
-function Field({
+function NumberField({
   label,
   value,
   onChange,
@@ -182,16 +159,23 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
       <input
         type="number"
         step="0.01"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none"
       />
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
     </div>
   );
 }

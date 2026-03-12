@@ -1,27 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { roundCurrency, toSafeNumber } from "@/lib/utils";
+import { vehicleProfileSchema } from "@/lib/validators/settings";
 
 export async function GET() {
   const currentUser = await getCurrentUserFromCookie();
 
   if (!currentUser) {
-    return NextResponse.json(
-      { ok: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const vehicle = await prisma.vehicle.findFirst({
-    where: {
-      userId: currentUser.userId,
-    },
-    orderBy: {
-      createdAt: "desc",
+  const vehicle =
+    (await prisma.vehicleProfile.findFirst({
+      where: { userId: currentUser.userId },
+      orderBy: { createdAt: "desc" },
+    })) ??
+    (await prisma.vehicle.findFirst({
+      where: { userId: currentUser.userId },
+      orderBy: { createdAt: "desc" },
+    }));
+
+  if (!vehicle) {
+    return NextResponse.json({ ok: true, data: null });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    data: {
+      vehicleType: vehicle.vehicleType,
+      fuelType: vehicle.fuelType,
+      fuelConsumptionPer100Km: toSafeNumber(
+        "fuelConsumptionPer100Km" in vehicle
+          ? vehicle.fuelConsumptionPer100Km
+          : vehicle.consumptionPer100Km
+      ),
+      fuelPricePerLiter: toSafeNumber(
+        "fuelPricePerLiter" in vehicle ? vehicle.fuelPricePerLiter : vehicle.fuelPrice
+      ),
+      maintenanceCostPerKm: toSafeNumber(
+        "maintenanceCostPerKm" in vehicle
+          ? vehicle.maintenanceCostPerKm
+          : vehicle.maintenancePerKm
+      ),
+      tiresCostPerKm: toSafeNumber(
+        "tiresCostPerKm" in vehicle ? vehicle.tiresCostPerKm : vehicle.tiresPerKm
+      ),
+      depreciationCostPerKm: toSafeNumber(
+        "depreciationCostPerKm" in vehicle
+          ? vehicle.depreciationCostPerKm
+          : vehicle.depreciationPerKm
+      ),
     },
   });
-
-  return NextResponse.json(vehicle);
 }
 
 export async function POST(req: NextRequest) {
@@ -29,60 +61,86 @@ export async function POST(req: NextRequest) {
     const currentUser = await getCurrentUserFromCookie();
 
     if (!currentUser) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const payload = vehicleProfileSchema.parse(await req.json());
+
+    const existingLegacy = await prisma.vehicle.findFirst({
+      where: { userId: currentUser.userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const existingCanonical = await prisma.vehicleProfile.findFirst({
+      where: { userId: currentUser.userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const [vehicleProfile] = await prisma.$transaction([
+      existingCanonical
+        ? prisma.vehicleProfile.update({
+            where: { id: existingCanonical.id },
+            data: {
+              vehicleType: payload.vehicleType,
+              fuelType: payload.fuelType,
+              fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
+              fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
+              maintenanceCostPerKm: payload.maintenanceCostPerKm,
+              tiresCostPerKm: payload.tiresCostPerKm,
+              depreciationCostPerKm: payload.depreciationCostPerKm,
+            },
+          })
+        : prisma.vehicleProfile.create({
+            data: {
+              userId: currentUser.userId,
+              vehicleType: payload.vehicleType,
+              fuelType: payload.fuelType,
+              fuelConsumptionPer100Km: roundCurrency(payload.fuelConsumptionPer100Km),
+              fuelPricePerLiter: roundCurrency(payload.fuelPricePerLiter),
+              maintenanceCostPerKm: payload.maintenanceCostPerKm,
+              tiresCostPerKm: payload.tiresCostPerKm,
+              depreciationCostPerKm: payload.depreciationCostPerKm,
+            },
+          }),
+      existingLegacy
+        ? prisma.vehicle.update({
+            where: { id: existingLegacy.id },
+            data: {
+              vehicleType: payload.vehicleType,
+              fuelType: payload.fuelType,
+              consumptionPer100Km: payload.fuelConsumptionPer100Km,
+              fuelPrice: payload.fuelPricePerLiter,
+              maintenancePerKm: payload.maintenanceCostPerKm,
+              tiresPerKm: payload.tiresCostPerKm,
+              depreciationPerKm: payload.depreciationCostPerKm,
+            },
+          })
+        : prisma.vehicle.create({
+            data: {
+              userId: currentUser.userId,
+              vehicleType: payload.vehicleType,
+              fuelType: payload.fuelType,
+              consumptionPer100Km: payload.fuelConsumptionPer100Km,
+              fuelPrice: payload.fuelPricePerLiter,
+              maintenancePerKm: payload.maintenanceCostPerKm,
+              tiresPerKm: payload.tiresCostPerKm,
+              depreciationPerKm: payload.depreciationCostPerKm,
+            },
+          }),
+    ]);
+
+    return NextResponse.json({ ok: true, data: vehicleProfile });
+  } catch (error) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
+        { ok: false, error: error.issues[0]?.message ?? "Invalid vehicle payload" },
+        { status: 400 }
       );
     }
 
-    const body = await req.json();
-
-    const existingVehicle = await prisma.vehicle.findFirst({
-      where: {
-        userId: currentUser.userId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    let vehicle;
-
-    if (existingVehicle) {
-      vehicle = await prisma.vehicle.update({
-        where: {
-          id: existingVehicle.id,
-        },
-        data: {
-          vehicleType: body.vehicleType,
-          fuelType: body.fuelType,
-          consumptionPer100Km: Number(body.consumptionPer100Km),
-          fuelPrice: Number(body.fuelPrice),
-          maintenancePerKm: Number(body.maintenancePerKm),
-          tiresPerKm: Number(body.tiresPerKm),
-          depreciationPerKm: Number(body.depreciationPerKm),
-        },
-      });
-    } else {
-      vehicle = await prisma.vehicle.create({
-        data: {
-          userId: currentUser.userId,
-          vehicleType: body.vehicleType,
-          fuelType: body.fuelType,
-          consumptionPer100Km: Number(body.consumptionPer100Km),
-          fuelPrice: Number(body.fuelPrice),
-          maintenancePerKm: Number(body.maintenancePerKm),
-          tiresPerKm: Number(body.tiresPerKm),
-          depreciationPerKm: Number(body.depreciationPerKm),
-        },
-      });
-    }
-
-    return NextResponse.json({ ok: true, vehicle });
-  } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { ok: false, error: "Failed to save vehicle" },
+      { ok: false, error: "Failed to save vehicle profile" },
       { status: 500 }
     );
   }

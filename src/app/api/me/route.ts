@@ -7,28 +7,33 @@ export async function GET(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
 
     if (!token) {
-      return NextResponse.json({ ok: false, user: null }, { status: 401 });
+      return NextResponse.json({ ok: false, data: null }, { status: 401 });
     }
 
     const payload = verifyToken(token);
-
     const user = await prisma.user.findUnique({
       where: {
         id: payload.userId,
       },
-      select: {
-        id: true,
-        email: true,
-        roleType: true,
+      include: {
+        appSettings: true,
       },
     });
 
     if (!user) {
-      return NextResponse.json({ ok: false, user: null }, { status: 401 });
+      return NextResponse.json({ ok: false, data: null }, { status: 401 });
     }
 
-    return NextResponse.json({ ok: true, user });
+    return NextResponse.json({
+      ok: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        roleType: user.roleType,
+        locale: user.appSettings?.locale ?? user.locale,
+      },
+    });
   } catch {
-    return NextResponse.json({ ok: false, user: null }, { status: 401 });
+    return NextResponse.json({ ok: false, data: null }, { status: 401 });
   }
 }

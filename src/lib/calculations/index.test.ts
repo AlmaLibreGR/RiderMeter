@@ -1,0 +1,154 @@
+import { describe, expect, it } from "vitest";
+import { aggregateShiftMetrics, calculateShiftMetrics } from "@/lib/calculations";
+import type { CanonicalShift } from "@/types/domain";
+
+const baseShift: CanonicalShift = {
+  id: 1,
+  userId: 1,
+  date: "2026-03-12",
+  startTime: "10:00",
+  endTime: "18:00",
+  hoursWorked: 8,
+  ordersCompleted: 20,
+  kilometersDriven: 60,
+  baseEarnings: 80,
+  tipsAmount: 12,
+  bonusAmount: 8,
+  fuelExpenseDirect: null,
+  tollsOrParking: 0,
+  platform: "efood",
+  area: "Athens Center",
+  notes: null,
+  createdAt: "2026-03-12T10:00:00.000Z",
+  updatedAt: null,
+};
+
+describe("calculateShiftMetrics", () => {
+  it("calculates profitability with safe cost handling", () => {
+    const metrics = calculateShiftMetrics(baseShift, {
+      vehicleProfile: {
+        vehicleType: "scooter",
+        fuelType: "petrol",
+        fuelPricePerLiter: 1.9,
+        fuelConsumptionPer100Km: 3.5,
+        maintenanceCostPerKm: 0.05,
+        depreciationCostPerKm: 0.04,
+        tiresCostPerKm: 0.01,
+      },
+      costProfile: {
+        dailyFixedCost: 5,
+        insuranceMonthly: 50,
+        phoneMonthly: 20,
+        accountantMonthly: 0,
+        roadTaxMonthly: 0,
+        kteoMonthly: 0,
+        otherMonthly: 0,
+      },
+      settings: {
+        currency: "EUR",
+        timezone: "Europe/Athens",
+        locale: "el",
+        preferredDashboardPeriod: "week",
+        platformFeePercent: 2,
+        taxReservePercent: 10,
+      },
+    });
+
+    expect(metrics.totalRevenue).toBe(100);
+    expect(metrics.estimatedFuelCost).toBeCloseTo(3.99, 2);
+    expect(metrics.variableCost).toBeCloseTo(9.99, 2);
+    expect(metrics.totalShiftCost).toBeCloseTo(25.29, 2);
+    expect(metrics.netProfit).toBeCloseTo(74.71, 2);
+    expect(metrics.netPerHour).toBeCloseTo(9.34, 2);
+  });
+
+  it("never returns NaN on zero values", () => {
+    const metrics = calculateShiftMetrics(
+      {
+        ...baseShift,
+        hoursWorked: 0,
+        ordersCompleted: 0,
+        kilometersDriven: 0,
+        baseEarnings: 0,
+        tipsAmount: 0,
+        bonusAmount: 0,
+      },
+      {
+        vehicleProfile: null,
+        costProfile: null,
+        settings: {
+          currency: "EUR",
+          timezone: "Europe/Athens",
+          locale: "el",
+          preferredDashboardPeriod: "week",
+          platformFeePercent: 0,
+          taxReservePercent: 0,
+        },
+      }
+    );
+
+    expect(Number.isNaN(metrics.netPerHour)).toBe(false);
+    expect(Number.isNaN(metrics.kilometersPerOrder)).toBe(false);
+    expect(metrics.netProfit).toBe(0);
+  });
+});
+
+describe("aggregateShiftMetrics", () => {
+  it("aggregates totals and averages consistently", () => {
+    const shifts = [
+      {
+        ...baseShift,
+        metrics: calculateShiftMetrics(baseShift, {
+          vehicleProfile: null,
+          costProfile: null,
+          settings: {
+            currency: "EUR",
+            timezone: "Europe/Athens",
+            locale: "en",
+            preferredDashboardPeriod: "week",
+            platformFeePercent: 0,
+            taxReservePercent: 0,
+          },
+        }),
+      },
+      {
+        ...baseShift,
+        id: 2,
+        date: "2026-03-13",
+        baseEarnings: 60,
+        tipsAmount: 6,
+        bonusAmount: 4,
+        metrics: calculateShiftMetrics(
+          {
+            ...baseShift,
+            id: 2,
+            date: "2026-03-13",
+            baseEarnings: 60,
+            tipsAmount: 6,
+            bonusAmount: 4,
+          },
+          {
+            vehicleProfile: null,
+            costProfile: null,
+            settings: {
+              currency: "EUR",
+              timezone: "Europe/Athens",
+              locale: "en",
+              preferredDashboardPeriod: "week",
+              platformFeePercent: 0,
+              taxReservePercent: 0,
+            },
+          }
+        ),
+      },
+    ];
+
+    const aggregate = aggregateShiftMetrics(shifts);
+
+    expect(aggregate.totalRevenue).toBe(170);
+    expect(aggregate.totalShifts).toBe(2);
+    expect(aggregate.averageRevenuePerShift).toBe(85);
+    expect(aggregate.totalOrders).toBe(40);
+    expect(aggregate.netProfitPerOrder).toBeCloseTo(4.25, 2);
+  });
+});

@@ -1,74 +1,83 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/ui/language-switcher";
+import { formatCurrency } from "@/lib/formatters";
 
 type VehicleForm = {
   vehicleType: string;
   fuelType: string;
-  consumptionPer100Km: string;
-  fuelPrice: string;
-  maintenancePerKm: string;
-  tiresPerKm: string;
-  depreciationPerKm: string;
+  fuelConsumptionPer100Km: string;
+  fuelPricePerLiter: string;
+  maintenanceCostPerKm: string;
+  tiresCostPerKm: string;
+  depreciationCostPerKm: string;
 };
 
 const initialForm: VehicleForm = {
   vehicleType: "scooter",
   fuelType: "petrol",
-  consumptionPer100Km: "",
-  fuelPrice: "",
-  maintenancePerKm: "",
-  tiresPerKm: "",
-  depreciationPerKm: "",
+  fuelConsumptionPer100Km: "",
+  fuelPricePerLiter: "",
+  maintenanceCostPerKm: "",
+  tiresCostPerKm: "",
+  depreciationCostPerKm: "",
 };
 
 export default function VehiclePage() {
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const t = useTranslations();
+  const locale = useLocale() as "en" | "el";
   const [form, setForm] = useState<VehicleForm>(initialForm);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function init() {
-      const meRes = await fetch("/api/me");
-      if (!meRes.ok) {
-        setAuthorized(false);
+    async function loadVehicle() {
+      const response = await fetch("/api/vehicle");
+      const payload = (await response.json()) as {
+        ok: boolean;
+        data: {
+          vehicleType: string;
+          fuelType: string;
+          fuelConsumptionPer100Km: number;
+          fuelPricePerLiter: number;
+          maintenanceCostPerKm: number;
+          tiresCostPerKm: number;
+          depreciationCostPerKm: number;
+        } | null;
+      };
+
+      if (!response.ok || !payload.ok || !payload.data) {
         return;
       }
 
-      setAuthorized(true);
-
-      const res = await fetch("/api/vehicle");
-      const data = await res.json();
-
-      if (data) {
-        setForm({
-          vehicleType: data.vehicleType ?? "scooter",
-          fuelType: data.fuelType ?? "petrol",
-          consumptionPer100Km: String(data.consumptionPer100Km ?? ""),
-          fuelPrice: String(data.fuelPrice ?? ""),
-          maintenancePerKm: String(data.maintenancePerKm ?? ""),
-          tiresPerKm: String(data.tiresPerKm ?? ""),
-          depreciationPerKm: String(data.depreciationPerKm ?? ""),
-        });
-      }
+      setForm({
+        vehicleType: payload.data.vehicleType,
+        fuelType: payload.data.fuelType,
+        fuelConsumptionPer100Km: String(payload.data.fuelConsumptionPer100Km ?? ""),
+        fuelPricePerLiter: String(payload.data.fuelPricePerLiter ?? ""),
+        maintenanceCostPerKm: String(payload.data.maintenanceCostPerKm ?? ""),
+        tiresCostPerKm: String(payload.data.tiresCostPerKm ?? ""),
+        depreciationCostPerKm: String(payload.data.depreciationCostPerKm ?? ""),
+      });
     }
 
-    init();
+    void loadVehicle();
   }, []);
 
-  function updateField(name: keyof VehicleForm, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
+  const costPerKm = useMemo(() => {
+    const fuel = (Number(form.fuelPricePerLiter || 0) * Number(form.fuelConsumptionPer100Km || 0)) / 100;
+    return fuel + Number(form.maintenanceCostPerKm || 0) + Number(form.tiresCostPerKm || 0) + Number(form.depreciationCostPerKm || 0);
+  }, [form]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage("Αποθήκευση...");
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-    const res = await fetch("/api/vehicle", {
+    const response = await fetch("/api/vehicle", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,134 +85,88 @@ export default function VehiclePage() {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
-
-    if (data.ok) {
-      setMessage("Τα στοιχεία οχήματος αποθηκεύτηκαν.");
-    } else {
-      setMessage(data.error || "Κάτι πήγε στραβά.");
-    }
-  }
-
-  const fuelPrice = Number(form.fuelPrice || 0);
-  const consumption = Number(form.consumptionPer100Km || 0);
-  const maintenance = Number(form.maintenancePerKm || 0);
-  const tires = Number(form.tiresPerKm || 0);
-  const depreciation = Number(form.depreciationPerKm || 0);
-
-  const fuelCostPerKm = (fuelPrice * consumption) / 100;
-  const totalCostPerKm = fuelCostPerKm + maintenance + tires + depreciation;
-
-  if (authorized === null) {
-    return <main className="min-h-screen bg-slate-50 p-4 md:p-6">Φόρτωση...</main>;
-  }
-
-  if (!authorized) {
-    return (
-      <main className="min-h-screen bg-slate-50 p-4 md:p-6">
-        <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Όχημα & Κόστη</h1>
-          <p className="mt-2 text-slate-600">
-            Πρέπει να συνδεθείς για να δεις τα στοιχεία οχήματος.
-          </p>
-
-          <div className="mt-6 flex gap-3">
-            <Link
-              href="/login"
-              className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
-            >
-              Σύνδεση
-            </Link>
-
-            <Link
-              href="/register"
-              className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-900"
-            >
-              Εγγραφή
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+    const payload = (await response.json()) as { ok: boolean; error?: string };
+    setMessage(payload.ok ? t("settings.saved") : payload.error ?? t("shiftForm.errors.generic"));
+    setLoading(false);
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-6">
-      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">Όχημα & Κόστη</h1>
-        <p className="mt-2 text-slate-600">
-          Ρύθμισε το όχημά σου ώστε να υπολογίζονται σωστά τα καθαρά.
-        </p>
+    <main className="min-h-screen p-4 md:p-6">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <div className="flex justify-end">
+          <LanguageSwitcher />
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Τύπος οχήματος
-            </label>
-            <select
-              value={form.vehicleType}
-              onChange={(e) => updateField("vehicleType", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
-            >
-              <option value="scooter">Scooter</option>
-              <option value="motorcycle">Μηχανή</option>
-              <option value="car">Αυτοκίνητο</option>
-              <option value="ebike">E-Bike</option>
-            </select>
+        <section className="rounded-[36px] border border-white/70 bg-white/85 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.08)] backdrop-blur">
+          <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            {t("settings.vehicleTitle")}
           </div>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+            {t("settings.vehicleTitle")}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{t("settings.vehicleBody")}</p>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Καύσιμο
-            </label>
-            <select
-              value={form.fuelType}
-              onChange={(e) => updateField("fuelType", e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
-            >
-              <option value="petrol">Βενζίνη</option>
-              <option value="diesel">Πετρέλαιο</option>
-              <option value="electric">Ηλεκτρικό</option>
-            </select>
-          </div>
+          <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label={t("settings.fields.vehicleType")}>
+                <select value={form.vehicleType} onChange={(event) => setForm((current) => ({ ...current, vehicleType: event.target.value }))} className={inputClass()}>
+                  <option value="scooter">Scooter</option>
+                  <option value="motorcycle">{locale === "el" ? "Μηχανή" : "Motorcycle"}</option>
+                  <option value="car">{locale === "el" ? "Αυτοκίνητο" : "Car"}</option>
+                  <option value="ebike">E-Bike</option>
+                </select>
+              </Field>
+              <Field label={t("settings.fields.fuelType")}>
+                <select value={form.fuelType} onChange={(event) => setForm((current) => ({ ...current, fuelType: event.target.value }))} className={inputClass()}>
+                  <option value="petrol">{locale === "el" ? "Βενζίνη" : "Petrol"}</option>
+                  <option value="diesel">{locale === "el" ? "Πετρέλαιο" : "Diesel"}</option>
+                  <option value="electric">{locale === "el" ? "Ηλεκτρικό" : "Electric"}</option>
+                </select>
+              </Field>
+            </div>
 
-          <Field label="Κατανάλωση ανά 100 χλμ" value={form.consumptionPer100Km} onChange={(value) => updateField("consumptionPer100Km", value)} />
-          <Field label="Τιμή καυσίμου ανά λίτρο (€)" value={form.fuelPrice} onChange={(value) => updateField("fuelPrice", value)} />
-          <Field label="Συντήρηση ανά χλμ (€)" value={form.maintenancePerKm} onChange={(value) => updateField("maintenancePerKm", value)} />
-          <Field label="Λάστιχα ανά χλμ (€)" value={form.tiresPerKm} onChange={(value) => updateField("tiresPerKm", value)} />
-          <Field label="Απόσβεση ανά χλμ (€)" value={form.depreciationPerKm} onChange={(value) => updateField("depreciationPerKm", value)} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <NumberField label={t("settings.fields.fuelConsumptionPer100Km")} value={form.fuelConsumptionPer100Km} onChange={(value) => setForm((current) => ({ ...current, fuelConsumptionPer100Km: value }))} />
+              <NumberField label={t("settings.fields.fuelPricePerLiter")} value={form.fuelPricePerLiter} onChange={(value) => setForm((current) => ({ ...current, fuelPricePerLiter: value }))} />
+              <NumberField label={t("settings.fields.maintenanceCostPerKm")} value={form.maintenanceCostPerKm} onChange={(value) => setForm((current) => ({ ...current, maintenanceCostPerKm: value }))} />
+              <NumberField label={t("settings.fields.tiresCostPerKm")} value={form.tiresCostPerKm} onChange={(value) => setForm((current) => ({ ...current, tiresCostPerKm: value }))} />
+              <NumberField label={t("settings.fields.depreciationCostPerKm")} value={form.depreciationCostPerKm} onChange={(value) => setForm((current) => ({ ...current, depreciationCostPerKm: value }))} />
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border p-4">
-              <p className="text-sm text-slate-500">Κόστος καυσίμου / χλμ</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
-                €{fuelCostPerKm.toFixed(3)}
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm text-slate-500">{t("settings.fields.totalCostPerKm")}</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">
+                {formatCurrency(costPerKm, locale, "EUR")}
               </p>
             </div>
 
-            <div className="rounded-2xl border p-4">
-              <p className="text-sm text-slate-500">Συνολικό κόστος / χλμ</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">
-                €{totalCostPerKm.toFixed(3)}
-              </p>
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={loading} className="rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white disabled:opacity-60">
+                {loading ? t("common.saving") : t("common.save")}
+              </button>
+              <Link href="/" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-900">
+                {t("common.backToDashboard")}
+              </Link>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
-          >
-            Αποθήκευση στοιχείων οχήματος
-          </button>
-
-          {message ? <p className="text-sm text-slate-600">{message}</p> : null}
-        </form>
+            {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+          </form>
+        </section>
       </div>
     </main>
   );
 }
 
-function Field({
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function NumberField({
   label,
   value,
   onChange,
@@ -213,17 +176,18 @@ function Field({
   onChange: (value: string) => void;
 }) {
   return (
-    <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+    <Field label={label}>
       <input
         type="number"
-        step="0.001"
+        step="0.01"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base"
+        onChange={(event) => onChange(event.target.value)}
+        className={inputClass()}
       />
-    </div>
+    </Field>
   );
+}
+
+function inputClass() {
+  return "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none";
 }

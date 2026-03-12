@@ -1,27 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
+import { createShift, listUserShifts } from "@/services/shift-service";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const currentUser = await getCurrentUserFromCookie();
 
   if (!currentUser) {
-    return NextResponse.json(
-      { ok: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const shifts = await prisma.shift.findMany({
-    where: {
-      userId: currentUser.userId,
-    },
-    orderBy: {
-      date: "desc",
-    },
+  const data = await listUserShifts(currentUser.userId, {
+    from: req.nextUrl.searchParams.get("from") ?? undefined,
+    to: req.nextUrl.searchParams.get("to") ?? undefined,
+    platform: req.nextUrl.searchParams.get("platform") ?? undefined,
   });
 
-  return NextResponse.json(shifts);
+  return NextResponse.json({ ok: true, data });
 }
 
 export async function POST(req: NextRequest) {
@@ -29,33 +24,21 @@ export async function POST(req: NextRequest) {
     const currentUser = await getCurrentUserFromCookie();
 
     if (!currentUser) {
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
+    const shift = await createShift(currentUser.userId, body);
 
-    const shift = await prisma.shift.create({
-      data: {
-        userId: currentUser.userId,
-        date: new Date(body.date),
-        platform: body.platform,
-        area: body.area,
-        hours: Number(body.hours),
-        ordersCount: Number(body.ordersCount),
-        kilometers: Number(body.kilometers),
-        platformEarnings: Number(body.platformEarnings),
-        tipsCard: Number(body.tipsCard ?? 0),
-        tipsCash: Number(body.tipsCash ?? 0),
-        bonus: Number(body.bonus ?? 0),
-        notes: body.notes ?? null,
-      },
-    });
-
-    return NextResponse.json({ ok: true, shift });
+    return NextResponse.json({ ok: true, data: shift });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { ok: false, error: error.issues[0]?.message ?? "Invalid shift payload" },
+        { status: 400 }
+      );
+    }
+
     console.error(error);
     return NextResponse.json(
       { ok: false, error: "Failed to create shift" },
