@@ -81,6 +81,19 @@ export default async function HomePage() {
     return shiftDate === todayStr;
   });
 
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? 6 : day - 1;
+
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - diffToMonday);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const weeklyShifts = shifts.filter((shift) => {
+    const shiftDate = new Date(shift.date);
+    return shiftDate >= startOfWeek;
+  });
+
   const todayTotals = todayShifts.reduce(
     (acc, shift) => {
       const metrics = calculateShiftMetrics(
@@ -149,6 +162,42 @@ export default async function HomePage() {
       netProfit: 0,
     }
   );
+
+    const weeklyTotals = weeklyShifts.reduce(
+    (acc, shift) => {
+      const metrics = calculateShiftMetrics(
+        {
+          platformEarnings: Number(shift.platformEarnings),
+          tipsCard: Number(shift.tipsCard),
+          tipsCash: Number(shift.tipsCash),
+          bonus: Number(shift.bonus),
+          hours: Number(shift.hours),
+          ordersCount: Number(shift.ordersCount),
+          kilometers: Number(shift.kilometers),
+        },
+        vehicle,
+        fixedCosts
+      );
+
+      acc.revenue += metrics.totalRevenue;
+      acc.netProfit += metrics.netProfit;
+      acc.hours += Number(shift.hours);
+      acc.kilometers += Number(shift.kilometers);
+      acc.orders += Number(shift.ordersCount);
+
+      return acc;
+    },
+    {
+      revenue: 0,
+      netProfit: 0,
+      hours: 0,
+      kilometers: 0,
+      orders: 0,
+    }
+  );
+
+  const weeklyNetPerHour =
+    weeklyTotals.hours > 0 ? weeklyTotals.netProfit / weeklyTotals.hours : 0;
 
   const grossPerHour =
     todayTotals.hours > 0 ? todayTotals.revenue / todayTotals.hours : 0;
@@ -303,6 +352,49 @@ export default async function HomePage() {
             <h2 className="text-lg font-semibold text-slate-900">
               Συνολικά μέχρι τώρα
             </h2>
+
+                      <div className="mt-8 rounded-2xl border p-5">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Αυτή η εβδομάδα
+            </h2>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-5">
+              <div>
+                <p className="text-sm text-slate-500">Μικτά εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyTotals.revenue)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Καθαρά εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyTotals.netProfit)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Ώρες εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatNumber(weeklyTotals.hours)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Χλμ εβδομάδας</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatNumber(weeklyTotals.kilometers)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Καθαρά / ώρα</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">
+                  {formatCurrency(weeklyNetPerHour)}
+                </p>
+              </div>
+            </div>
+          </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-4">
               <div>
