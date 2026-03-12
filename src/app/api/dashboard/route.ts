@@ -21,17 +21,27 @@ export async function GET() {
       date: "desc",
     },
   });
+  type ShiftRecord = (typeof shifts)[number];
 
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
 
-  const todayShifts = shifts.filter((shift) => {
+  const todayShifts = shifts.filter((shift: ShiftRecord) => {
     const shiftDate = new Date(shift.date).toISOString().slice(0, 10);
     return shiftDate === todayStr;
   });
 
   const totals = shifts.reduce(
-    (acc, shift) => {
+    (
+      acc: {
+        totalRevenue: number;
+        totalTips: number;
+        totalHours: number;
+        totalOrders: number;
+        totalKilometers: number;
+      },
+      shift: ShiftRecord
+    ) => {
       const metrics = calculateShiftMetrics({
         platformEarnings: shift.platformEarnings,
         tipsCard: shift.tipsCard,
@@ -60,7 +70,16 @@ export async function GET() {
   );
 
   const todayTotals = todayShifts.reduce(
-    (acc, shift) => {
+    (
+      acc: {
+        revenue: number;
+        hours: number;
+        orders: number;
+        kilometers: number;
+        tips: number;
+      },
+      shift: ShiftRecord
+    ) => {
       const metrics = calculateShiftMetrics({
         platformEarnings: shift.platformEarnings,
         tipsCard: shift.tipsCard,

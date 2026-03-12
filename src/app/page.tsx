@@ -59,6 +59,7 @@ export default async function HomePage() {
       date: "desc",
     },
   });
+  type ShiftRecord = (typeof shifts)[number];
 
   const vehicle = await prisma.vehicle.findFirst({
     where: {
@@ -80,7 +81,7 @@ export default async function HomePage() {
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  const todayShifts = shifts.filter((shift) => {
+  const todayShifts = shifts.filter((shift: ShiftRecord) => {
     const shiftDate = new Date(shift.date).toISOString().slice(0, 10);
     return shiftDate === todayStr;
   });
@@ -93,13 +94,24 @@ export default async function HomePage() {
   startOfWeek.setDate(now.getDate() - diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
 
-  const weeklyShifts = shifts.filter((shift) => {
+  const weeklyShifts = shifts.filter((shift: ShiftRecord) => {
     const shiftDate = new Date(shift.date);
     return shiftDate >= startOfWeek;
   });
 
   const todayTotals = todayShifts.reduce(
-    (acc, shift) => {
+    (
+      acc: {
+        revenue: number;
+        tips: number;
+        hours: number;
+        orders: number;
+        kilometers: number;
+        totalShiftCost: number;
+        netProfit: number;
+      },
+      shift: ShiftRecord
+    ) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -136,7 +148,16 @@ export default async function HomePage() {
   );
 
   const overallTotals = shifts.reduce(
-    (acc, shift) => {
+    (
+      acc: {
+        revenue: number;
+        tips: number;
+        kilometers: number;
+        totalShiftCost: number;
+        netProfit: number;
+      },
+      shift: ShiftRecord
+    ) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -169,7 +190,16 @@ export default async function HomePage() {
   );
 
   const weeklyTotals = weeklyShifts.reduce(
-    (acc, shift) => {
+    (
+      acc: {
+        revenue: number;
+        netProfit: number;
+        hours: number;
+        kilometers: number;
+        orders: number;
+      },
+      shift: ShiftRecord
+    ) => {
       const metrics = calculateShiftMetrics(
         {
           platformEarnings: Number(shift.platformEarnings),
@@ -204,7 +234,7 @@ export default async function HomePage() {
   const weeklyNetPerHour =
     weeklyTotals.hours > 0 ? weeklyTotals.netProfit / weeklyTotals.hours : 0;
 
-  const shiftsWithMetrics = shifts.map((shift) => {
+  const shiftsWithMetrics = shifts.map((shift: ShiftRecord) => {
     const metrics = calculateShiftMetrics(
       {
         platformEarnings: Number(shift.platformEarnings),
@@ -224,10 +254,11 @@ export default async function HomePage() {
       metrics,
     };
   });
+  type ShiftWithMetricsRecord = (typeof shiftsWithMetrics)[number];
 
   const bestShift = shiftsWithMetrics.reduce<
     ((typeof shiftsWithMetrics)[number]) | null
-  >((best, current) => {
+  >((best: ShiftWithMetricsRecord | null, current: ShiftWithMetricsRecord) => {
     if (!best) return current;
     return current.metrics.netPerHour > best.metrics.netPerHour ? current : best;
   }, null);
@@ -242,7 +273,7 @@ export default async function HomePage() {
     }
   >();
 
-  shiftsWithMetrics.forEach((shift) => {
+  shiftsWithMetrics.forEach((shift: ShiftWithMetricsRecord) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -282,7 +313,7 @@ export default async function HomePage() {
 
   const weeklyDayMap = new Map<string, number>();
 
-  weeklyShifts.forEach((shift) => {
+  weeklyShifts.forEach((shift: ShiftRecord) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });
@@ -323,7 +354,7 @@ export default async function HomePage() {
     }
   >();
 
-  shiftsWithMetrics.forEach((shift) => {
+  shiftsWithMetrics.forEach((shift: ShiftWithMetricsRecord) => {
     const dayName = new Date(shift.date).toLocaleDateString("el-GR", {
       weekday: "long",
     });

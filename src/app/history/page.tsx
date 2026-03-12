@@ -49,6 +49,7 @@ export default async function HistoryPage() {
       date: "desc",
     },
   });
+  type ShiftRecord = (typeof shifts)[number];
 
   return (
     <main className="min-h-screen bg-slate-50 p-6">
@@ -65,7 +66,7 @@ export default async function HistoryPage() {
                 Δεν υπάρχουν ακόμα βάρδιες.
               </div>
             ) : (
-              shifts.map((shift) => {
+              shifts.map((shift: ShiftRecord) => {
                 const tipsTotal = Number(shift.tipsCard) + Number(shift.tipsCash);
                 const totalRevenue =
                   Number(shift.platformEarnings) +
