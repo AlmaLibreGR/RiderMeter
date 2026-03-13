@@ -17,7 +17,7 @@ export default function MobileTabBar({ isAdmin = false }: MobileTabBarProps) {
     { href: "/", label: t("common.dashboard"), icon: Compass },
     { href: "/history", label: t("common.history"), icon: History },
     { href: "/new-shift", label: t("common.newShift"), icon: PlusCircle, primary: true },
-    { href: "/setup", label: t("dashboard.sections.setup"), icon: Settings2 },
+    { href: "/setup", label: t("common.settings"), icon: Settings2 },
     ...(isAdmin ? [{ href: "/admin", label: t("common.admin"), icon: Radar }] : []),
   ];
 

@@ -191,6 +191,23 @@ export async function saveSetupSnapshot(userId: number, payload: SaveSetupArgs) 
         },
       });
     }
+
+    try {
+      await tx.appSettings.upsert({
+        where: { userId },
+        update: {
+          onboardingCompleted: true,
+        },
+        create: {
+          userId,
+          onboardingCompleted: true,
+        },
+      });
+    } catch (error) {
+      if (!isPrismaSchemaMismatchError(error)) {
+        throw error;
+      }
+    }
   });
 
   const savedCategories = await replaceExpenseCategories(userId, categories);

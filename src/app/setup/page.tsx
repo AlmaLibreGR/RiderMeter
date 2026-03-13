@@ -7,10 +7,17 @@ import { getCurrentLocale, getMessages, translateMessage } from "@/lib/i18n";
 import { getUserSettingsSnapshot } from "@/services/settings-service";
 import { getSetupSnapshot } from "@/services/setup-service";
 
-export default async function SetupPage() {
+type SetupPageProps = {
+  searchParams?: Promise<{
+    onboarding?: string;
+  }>;
+};
+
+export default async function SetupPage({ searchParams }: SetupPageProps) {
   const currentUser = await getCurrentUserFromCookie();
   const locale = await getCurrentLocale();
   const messages = getMessages(locale);
+  const params = searchParams ? await searchParams : undefined;
 
   if (!currentUser) {
     return null;
@@ -21,6 +28,7 @@ export default async function SetupPage() {
     getSetupSnapshot(currentUser.userId),
   ]);
   const t = (key: string) => translateMessage(messages, key);
+  const isOnboarding = params?.onboarding === "1" || !settings.onboardingCompleted;
 
   return (
     <main className="rm-page-shell">
@@ -28,12 +36,14 @@ export default async function SetupPage() {
         <section className="rm-spotlight">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-3xl">
-              <div className="rm-pill">{t("setupWorkspace.eyebrow")}</div>
+              <div className="rm-pill">
+                {isOnboarding ? t("setupWorkspace.eyebrow") : t("common.settings")}
+              </div>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
-                {t("setupWorkspace.title")}
+                {isOnboarding ? t("setupWorkspace.title") : t("setupWorkspace.settingsTitle")}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                {t("setupWorkspace.body")}
+                {isOnboarding ? t("setupWorkspace.body") : t("setupWorkspace.settingsBody")}
               </p>
             </div>
 
@@ -48,6 +58,7 @@ export default async function SetupPage() {
           initialData={setup}
           currency={settings.currency}
           timezone={settings.timezone}
+          isOnboarding={isOnboarding}
         />
       </div>
       <MobileTabBar isAdmin={currentUser.roleType === "admin"} />

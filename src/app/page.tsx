@@ -69,7 +69,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <RailLink href="/" label={t("common.dashboard")} icon={<Compass size={16} />} />
                 <RailLink href="/new-shift" label={t("common.newShift")} icon={<PlusCircle size={16} />} />
                 <RailLink href="/history" label={t("common.viewHistory")} icon={<History size={16} />} />
-                <RailLink href="/setup" label={t("dashboard.sections.setup")} icon={<Settings2 size={16} />} />
+                <RailLink href="/setup" label={t("common.settings")} icon={<Settings2 size={16} />} />
                 {currentUser.roleType === "admin" ? (
                   <RailLink href="/admin" label={t("common.admin")} icon={<Radar size={16} />} />
                 ) : null}
@@ -110,7 +110,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <div className={`grid gap-3 sm:grid-cols-2 ${currentUser.roleType === "admin" ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
                     <QuickLinkCard href="/new-shift" title={t("common.newShift")} body={t("shiftForm.body")} />
                     <QuickLinkCard href="/history" title={t("common.viewHistory")} body={t("history.body")} />
-                    <QuickLinkCard href="/setup" title={t("dashboard.sections.setup")} body={t("dashboard.setup.vehicleBody")} />
+                    <QuickLinkCard href="/setup" title={t("common.settings")} body={t("dashboard.settingsCardBody")} />
                     {currentUser.roleType === "admin" ? (
                       <QuickLinkCard href="/admin" title={t("common.admin")} body={t("admin.body")} />
                     ) : null}
@@ -240,7 +240,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                         <QuickLinkCard href="/history" title={t("common.viewHistory")} body={t("history.body")} />
                       </div>
 
-                      {(!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile) && (
+                      {(!dataset.settings.onboardingCompleted &&
+                        (!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile)) && (
                         <div className="mt-5 flex items-start gap-3 rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
                           <CircleAlert className="mt-0.5 shrink-0" size={18} />
                           <p>{`${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}</p>
@@ -286,22 +287,34 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                       </div>
                     </Panel>
 
-                    <Panel eyebrow={t("dashboard.sections.setup")} title={t("dashboard.sections.setup")} description={t("dashboard.body")}>
+                    <Panel eyebrow={t("common.settings")} title={t("common.settings")} description={t("dashboard.body")}>
                       <div className="space-y-3">
-                        <SetupItem
-                          href="/setup"
-                          status={dataset.setup.hasVehicleProfile ? t("common.setupReady") : t("common.setupNeeded")}
-                          statusReady={dataset.setup.hasVehicleProfile}
-                          title={t("dashboard.setup.vehicleTitle")}
-                          body={t("dashboard.setup.vehicleBody")}
-                        />
-                        <SetupItem
-                          href="/setup"
-                          status={dataset.setup.hasCostProfile ? t("common.setupReady") : t("common.setupNeeded")}
-                          statusReady={dataset.setup.hasCostProfile}
-                          title={t("dashboard.setup.costTitle")}
-                          body={t("dashboard.setup.costBody")}
-                        />
+                        {!dataset.settings.onboardingCompleted ? (
+                          <>
+                            <SetupItem
+                              href="/setup?onboarding=1"
+                              status={dataset.setup.hasVehicleProfile ? t("common.setupReady") : t("common.setupNeeded")}
+                              statusReady={dataset.setup.hasVehicleProfile}
+                              title={t("dashboard.setup.vehicleTitle")}
+                              body={t("dashboard.setup.vehicleBody")}
+                            />
+                            <SetupItem
+                              href="/setup?onboarding=1"
+                              status={dataset.setup.hasCostProfile ? t("common.setupReady") : t("common.setupNeeded")}
+                              statusReady={dataset.setup.hasCostProfile}
+                              title={t("dashboard.setup.costTitle")}
+                              body={t("dashboard.setup.costBody")}
+                            />
+                          </>
+                        ) : (
+                          <SetupItem
+                            href="/setup"
+                            status={t("common.setupReady")}
+                            statusReady
+                            title={t("common.settings")}
+                            body={t("dashboard.settingsCardBody")}
+                          />
+                        )}
                       </div>
                     </Panel>
 

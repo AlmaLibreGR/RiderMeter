@@ -151,6 +151,7 @@ export type AppSettingsSnapshot = {
   currency: CurrencyCode;
   timezone: string;
   locale: AppLocale;
+  onboardingCompleted: boolean;
   preferredDashboardPeriod: DashboardPeriod;
   platformFeePercent: number;
   taxReservePercent: number;

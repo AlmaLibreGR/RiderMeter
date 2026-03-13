@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId: user.id,
           locale: user.locale === "en" ? "en" : "el",
+          onboardingCompleted: false,
         },
       });
     }
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         roleType: resolvedRoleType,
         locale,
+        onboardingRequired: !(user.appSettings?.onboardingCompleted ?? false),
       },
     });
 

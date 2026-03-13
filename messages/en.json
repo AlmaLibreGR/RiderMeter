@@ -7,6 +7,7 @@
     "dashboard": "Dashboard",
     "history": "History",
     "newShift": "New shift",
+    "settings": "Settings",
     "admin": "Admin",
     "vehicle": "Vehicle",
     "fixedCosts": "Cost profile",
@@ -47,6 +48,7 @@
     "registerBody": "Set up a bilingual analytics workspace for every shift you work.",
     "email": "Email",
     "password": "Password",
+    "birthDate": "Birth date",
     "locale": "Preferred language",
     "submitLogin": "Log in",
     "submitRegister": "Create account",
@@ -115,6 +117,7 @@
       "costTitle": "Expense categories",
       "costBody": "Build your own business and personal budget categories and keep fixed costs honest."
     },
+    "settingsCardBody": "Open vehicle assumptions, budgets, security, and the rest of your RiderMeter settings.",
     "weather": {
       "title": "Profitability by weather",
       "body": "See how different weather conditions change your net per hour and the shape of each shift.",
@@ -414,7 +417,8 @@
     "saved": "Settings saved successfully.",
     "fields": {
       "vehicleType": "Vehicle type",
-      "fuelType": "Energy type",
+      "fuelType": "Fuel type",
+      "fuelKind": "Fuel kind",
       "fuelConsumptionPer100Km": "Fuel consumption per 100 km",
       "fuelPricePerLiter": "Fuel price per liter",
       "maintenanceCostPerKm": "Maintenance cost per km",
@@ -435,10 +439,12 @@
     "eyebrow": "First setup",
     "title": "Turn your rider profile into a real profit model",
     "body": "Pick your vehicle, define cost assumptions from real maintenance intervals, and build your own business and personal expense categories.",
+    "settingsTitle": "Settings that keep your numbers honest",
+    "settingsBody": "Update vehicle assumptions, budgets, manual expenses, and account security any time from one place.",
     "sections": {
       "vehicleEyebrow": "Vehicle assumptions",
       "vehicleTitle": "Vehicle cost engine",
-      "vehicleBody": "Choose car, scooter, or e-bike and enter the maintenance rules you already know. RiderMeter turns them into cost-per-kilometer automatically.",
+      "vehicleBody": "Choose car, scooter, or e-bike, including electric car or scooter setups, and enter the maintenance rules you already know. RiderMeter turns them into cost-per-kilometer automatically.",
       "budgetEyebrow": "Recurring budgets",
       "budgetTitle": "Business and personal categories",
       "budgetBody": "Create your own expense categories such as insurance, mobile, snacks, gas, or anything else you want to track regularly.",
@@ -452,7 +458,19 @@
     "messages": {
       "save": "Save setup",
       "saved": "Setup saved successfully.",
+      "onboardingSaved": "Startup guide completed. Taking you to your dashboard.",
       "error": "Failed to save the setup workspace."
+    },
+    "account": {
+      "eyebrow": "Account security",
+      "title": "Password and account access",
+      "body": "Keep your RiderMeter account secure and update your password whenever you need to.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Update password",
+      "passwordSaved": "Password updated successfully.",
+      "passwordError": "Failed to update password."
     },
     "vehicle": {
       "types": {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CarFront, Plus, ReceiptText, Trash2, WalletCards } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { calculateVehicleDerivedCosts, normalizeCadenceToDailyAmount } from "@/lib/calculations";
@@ -21,6 +22,7 @@ type SetupWorkspaceProps = {
   initialData: SetupSnapshot;
   currency: CurrencyCode;
   timezone: string;
+  isOnboarding: boolean;
 };
 
 type VehicleFormState = {
@@ -80,9 +82,11 @@ export default function SetupWorkspace({
   initialData,
   currency,
   timezone,
+  isOnboarding,
 }: SetupWorkspaceProps) {
   const t = useTranslations();
   const locale = useLocale() as "en" | "el";
+  const router = useRouter();
   const [activeStep, setActiveStep] = useState<SetupStepId>("vehicle");
   const [vehicle, setVehicle] = useState<VehicleFormState>(
     mapVehicleToForm(initialData.vehicleProfile)
@@ -109,6 +113,14 @@ export default function SetupWorkspace({
     error: false,
   });
   const [expenseState, setExpenseState] = useState({
+    loading: false,
+    message: null as string | null,
+    error: false,
+  });
+  const [passwordState, setPasswordState] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
     loading: false,
     message: null as string | null,
     error: false,
@@ -159,7 +171,7 @@ export default function SetupWorkspace({
   const selectedExpenseCategory = availableExpenseCategories.find(
     (category) => String(category.id ?? category.localId) === expenseForm.categoryLocalId
   );
-  const vehicleContent = getVehicleCopy(vehicle.vehicleType, t);
+  const vehicleContent = getVehicleCopy(vehicle.vehicleType, vehicle.fuelType, t);
   const recurringCategoryCount = categories.filter((category) => category.name.trim()).length;
   const steps = [
     {
@@ -244,9 +256,18 @@ export default function SetupWorkspace({
     }));
     setSaveState({
       loading: false,
-      message: t("setupWorkspace.messages.saved"),
+      message: t(
+        isOnboarding
+          ? "setupWorkspace.messages.onboardingSaved"
+          : "setupWorkspace.messages.saved"
+      ),
       error: false,
     });
+
+    if (isOnboarding) {
+      router.push("/");
+      router.refresh();
+    }
   }
 
   async function handleCreateExpense(event: React.FormEvent<HTMLFormElement>) {
@@ -303,6 +324,42 @@ export default function SetupWorkspace({
     setActiveStep(steps[nextIndex].id);
   }
 
+  async function handlePasswordChange(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordState((current) => ({ ...current, loading: true, message: null, error: false }));
+
+    const response = await fetch("/api/account/password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: passwordState.currentPassword,
+        newPassword: passwordState.newPassword,
+        confirmPassword: passwordState.confirmPassword,
+      }),
+    });
+
+    const payload = (await response.json()) as { ok: boolean; error?: string };
+
+    if (!response.ok || !payload.ok) {
+      setPasswordState((current) => ({
+        ...current,
+        loading: false,
+        message: payload.error ?? t("setupWorkspace.account.passwordError"),
+        error: true,
+      }));
+      return;
+    }
+
+    setPasswordState({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      loading: false,
+      message: t("setupWorkspace.account.passwordSaved"),
+      error: false,
+    });
+  }
+
   return (
     <div className="grid gap-5 pb-28 xl:grid-cols-[minmax(0,1.3fr)_22rem] xl:pb-0">
       <div className="space-y-4">
@@ -310,12 +367,14 @@ export default function SetupWorkspace({
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="rm-pill">{t("setupWorkspace.eyebrow")}</div>
+                <div className="rm-pill">
+                  {isOnboarding ? t("setupWorkspace.eyebrow") : t("common.settings")}
+                </div>
                 <h2 className="mt-3 text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
-                  {t("setupWorkspace.title")}
+                  {isOnboarding ? t("setupWorkspace.title") : t("setupWorkspace.settingsTitle")}
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                  {t("setupWorkspace.body")}
+                  {isOnboarding ? t("setupWorkspace.body") : t("setupWorkspace.settingsBody")}
                 </p>
               </div>
               <div className="hidden rounded-[22px] border border-orange-100 bg-white px-4 py-3 text-right sm:block">
@@ -390,12 +449,7 @@ export default function SetupWorkspace({
                     setVehicle((current) => ({
                       ...current,
                       vehicleType: type,
-                      fuelType:
-                        type === "ebike"
-                          ? "electric"
-                          : current.fuelType === "electric"
-                            ? "petrol"
-                            : current.fuelType,
+                      fuelType: type === "ebike" ? "electric" : current.fuelType,
                     }))
                   }
                   className={`rounded-[24px] border px-4 py-4 text-left transition ${
@@ -417,7 +471,7 @@ export default function SetupWorkspace({
 
             <div className="grid gap-4 xl:grid-cols-3">
               <div className="rm-subtle-card p-4">
-                <p className="rm-pill">{t("settings.fields.fuelType")}</p>
+                <p className="rm-pill">{t("settings.fields.fuelKind")}</p>
                 <div className="mt-4 space-y-4">
                   <InputField label={vehicleContent.fuelTypeLabel}>
                     <select
@@ -437,6 +491,9 @@ export default function SetupWorkspace({
                         </option>
                       ) : (
                         <>
+                          <option value="electric">
+                            {t("setupWorkspace.vehicle.energyModes.electric")}
+                          </option>
                           <option value="petrol">
                             {t("setupWorkspace.vehicle.energyModes.petrol")}
                           </option>
@@ -865,6 +922,70 @@ export default function SetupWorkspace({
             />
           </div>
         </WorkspaceSection>
+
+        <WorkspaceSection
+          eyebrow={t("setupWorkspace.account.eyebrow")}
+          title={t("setupWorkspace.account.title")}
+          description={t("setupWorkspace.account.body")}
+          icon={<WalletCards size={18} />}
+        >
+          <form onSubmit={handlePasswordChange} className="grid gap-4 md:grid-cols-3">
+            <InputField label={t("setupWorkspace.account.currentPassword")}>
+              <input
+                type="password"
+                value={passwordState.currentPassword}
+                onChange={(event) =>
+                  setPasswordState((current) => ({
+                    ...current,
+                    currentPassword: event.target.value,
+                  }))
+                }
+                className="rm-input"
+              />
+            </InputField>
+            <InputField label={t("setupWorkspace.account.newPassword")}>
+              <input
+                type="password"
+                value={passwordState.newPassword}
+                onChange={(event) =>
+                  setPasswordState((current) => ({
+                    ...current,
+                    newPassword: event.target.value,
+                  }))
+                }
+                className="rm-input"
+              />
+            </InputField>
+            <InputField label={t("setupWorkspace.account.confirmPassword")}>
+              <input
+                type="password"
+                value={passwordState.confirmPassword}
+                onChange={(event) =>
+                  setPasswordState((current) => ({
+                    ...current,
+                    confirmPassword: event.target.value,
+                  }))
+                }
+                className="rm-input"
+              />
+            </InputField>
+
+            <div className="md:col-span-3 flex flex-wrap items-center gap-3">
+              <button
+                type="submit"
+                disabled={passwordState.loading}
+                className="rm-button-secondary disabled:opacity-60"
+              >
+                {passwordState.loading ? t("common.saving") : t("setupWorkspace.account.submit")}
+              </button>
+              {passwordState.message ? (
+                <div className="min-w-[16rem] flex-1">
+                  <InlineNotice error={passwordState.error}>{passwordState.message}</InlineNotice>
+                </div>
+              ) : null}
+            </div>
+          </form>
+        </WorkspaceSection>
       </div>
 
       <aside className="hidden space-y-4 xl:block xl:sticky xl:top-5 xl:self-start">
@@ -1253,14 +1374,34 @@ function nullableNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function getVehicleCopy(vehicleType: VehicleType, t: ReturnType<typeof useTranslations>) {
+function getVehicleCopy(
+  vehicleType: VehicleType,
+  fuelType: string,
+  t: ReturnType<typeof useTranslations>
+) {
+  const usesElectricEnergyLabels = vehicleType === "ebike" || fuelType === "electric";
+
   if (vehicleType === "car") {
     return {
-      fuelTypeLabel: t("settings.fields.fuelType"),
-      energyConsumptionLabel: t("setupWorkspace.vehicle.fuelConsumption"),
-      energyConsumptionHelp: t("setupWorkspace.vehicle.fuelConsumptionHelp"),
-      energyPriceLabel: t("setupWorkspace.vehicle.fuelPrice"),
-      energyPriceHelp: t("setupWorkspace.vehicle.fuelPriceHelp"),
+      fuelTypeLabel: t("settings.fields.fuelKind"),
+      energyConsumptionLabel: t(
+        usesElectricEnergyLabels
+          ? "setupWorkspace.vehicle.ebikeConsumption"
+          : "setupWorkspace.vehicle.fuelConsumption"
+      ),
+      energyConsumptionHelp: t(
+        usesElectricEnergyLabels
+          ? "setupWorkspace.vehicle.ebikeConsumptionHelp"
+          : "setupWorkspace.vehicle.fuelConsumptionHelp"
+      ),
+      energyPriceLabel: t(
+        usesElectricEnergyLabels ? "setupWorkspace.vehicle.ebikePrice" : "setupWorkspace.vehicle.fuelPrice"
+      ),
+      energyPriceHelp: t(
+        usesElectricEnergyLabels
+          ? "setupWorkspace.vehicle.ebikePriceHelp"
+          : "setupWorkspace.vehicle.fuelPriceHelp"
+      ),
       routineIntervalLabel: t("setupWorkspace.vehicle.carRoutineInterval"),
       routineCostLabel: t("setupWorkspace.vehicle.carRoutineCost"),
       majorIntervalLabel: t("setupWorkspace.vehicle.carMajorInterval"),
@@ -1272,7 +1413,7 @@ function getVehicleCopy(vehicleType: VehicleType, t: ReturnType<typeof useTransl
 
   if (vehicleType === "ebike") {
     return {
-      fuelTypeLabel: t("settings.fields.fuelType"),
+      fuelTypeLabel: t("settings.fields.fuelKind"),
       energyConsumptionLabel: t("setupWorkspace.vehicle.ebikeConsumption"),
       energyConsumptionHelp: t("setupWorkspace.vehicle.ebikeConsumptionHelp"),
       energyPriceLabel: t("setupWorkspace.vehicle.ebikePrice"),
@@ -1287,11 +1428,25 @@ function getVehicleCopy(vehicleType: VehicleType, t: ReturnType<typeof useTransl
   }
 
   return {
-    fuelTypeLabel: t("settings.fields.fuelType"),
-    energyConsumptionLabel: t("setupWorkspace.vehicle.fuelConsumption"),
-    energyConsumptionHelp: t("setupWorkspace.vehicle.fuelConsumptionHelp"),
-    energyPriceLabel: t("setupWorkspace.vehicle.fuelPrice"),
-    energyPriceHelp: t("setupWorkspace.vehicle.fuelPriceHelp"),
+    fuelTypeLabel: t("settings.fields.fuelKind"),
+    energyConsumptionLabel: t(
+      usesElectricEnergyLabels
+        ? "setupWorkspace.vehicle.ebikeConsumption"
+        : "setupWorkspace.vehicle.fuelConsumption"
+    ),
+    energyConsumptionHelp: t(
+      usesElectricEnergyLabels
+        ? "setupWorkspace.vehicle.ebikeConsumptionHelp"
+        : "setupWorkspace.vehicle.fuelConsumptionHelp"
+    ),
+    energyPriceLabel: t(
+      usesElectricEnergyLabels ? "setupWorkspace.vehicle.ebikePrice" : "setupWorkspace.vehicle.fuelPrice"
+    ),
+    energyPriceHelp: t(
+      usesElectricEnergyLabels
+        ? "setupWorkspace.vehicle.ebikePriceHelp"
+        : "setupWorkspace.vehicle.fuelPriceHelp"
+    ),
     routineIntervalLabel: t("setupWorkspace.vehicle.scooterRoutineInterval"),
     routineCostLabel: t("setupWorkspace.vehicle.scooterRoutineCost"),
     majorIntervalLabel: t("setupWorkspace.vehicle.scooterMajorInterval"),

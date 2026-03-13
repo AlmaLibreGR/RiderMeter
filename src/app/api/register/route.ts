@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     const payload = registerSchema.parse(await req.json());
     const email = payload.email.trim().toLowerCase();
     const locale = payload.locale === "en" ? "en" : "el";
+    const birthDate = new Date(`${payload.birthDate}T00:00:00.000Z`);
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -29,11 +30,13 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         passwordHash,
+        birthDate,
         roleType,
         locale,
         appSettings: {
           create: {
             locale,
+            onboardingCompleted: false,
           },
         },
         billingProfile: {
@@ -61,6 +64,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         roleType,
         locale,
+        onboardingRequired: true,
       },
     });
 

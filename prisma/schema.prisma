@@ -11,6 +11,7 @@ model User {
   id           Int              @id @default(autoincrement())
   email        String           @unique
   passwordHash String
+  birthDate    DateTime?
   roleType     String           @default("simple")
   locale       String           @default("el")
   createdAt    DateTime         @default(now())
@@ -153,6 +154,7 @@ model AppSettings {
   currency                 String   @default("EUR")
   timezone                 String   @default("Europe/Athens")
   locale                   String   @default("el")
+  onboardingCompleted      Boolean  @default(false)
   preferredDashboardPeriod String   @default("week")
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt

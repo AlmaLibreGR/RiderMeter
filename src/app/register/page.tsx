@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [selectedLocale, setSelectedLocale] = useState(locale);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,13 +25,17 @@ export default function RegisterPage() {
     const response = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, locale: selectedLocale }),
+      body: JSON.stringify({ email, password, birthDate, locale: selectedLocale }),
     });
 
-    const payload = (await response.json()) as { ok: boolean; error?: string };
+    const payload = (await response.json()) as {
+      ok: boolean;
+      error?: string;
+      data?: { onboardingRequired?: boolean };
+    };
 
     if (response.ok && payload.ok) {
-      router.push("/");
+      router.push(payload.data?.onboardingRequired ? "/setup?onboarding=1" : "/");
       router.refresh();
       return;
     }
@@ -85,6 +90,14 @@ export default function RegisterPage() {
                   onChange={(event) => setPassword(event.target.value)}
                   className="rm-input"
                   placeholder={locale === "el" ? "Τουλάχιστον 8 χαρακτήρες" : "At least 8 characters"}
+                />
+              </Field>
+              <Field label={t("auth.birthDate")}>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(event) => setBirthDate(event.target.value)}
+                  className="rm-input"
                 />
               </Field>
               <Field label={t("auth.locale")}>

@@ -26,10 +26,14 @@ export default function LoginPage() {
       body: JSON.stringify({ email, password }),
     });
 
-    const payload = (await response.json()) as { ok: boolean; error?: string };
+    const payload = (await response.json()) as {
+      ok: boolean;
+      error?: string;
+      data?: { onboardingRequired?: boolean };
+    };
 
     if (response.ok && payload.ok) {
-      router.push("/");
+      router.push(payload.data?.onboardingRequired ? "/setup?onboarding=1" : "/");
       router.refresh();
       return;
     }

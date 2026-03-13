@@ -14,6 +14,7 @@ const defaultSettings: AppSettingsSnapshot = {
   currency: "EUR",
   timezone: "Europe/Athens",
   locale: "el",
+  onboardingCompleted: false,
   preferredDashboardPeriod: "week",
   platformFeePercent: 0,
   taxReservePercent: 0,
@@ -41,6 +42,7 @@ export async function getUserSettingsSnapshot(userId: number): Promise<AppSettin
     currency: settings.currency as AppSettingsSnapshot["currency"],
     timezone: settings.timezone,
     locale: settings.locale as AppLocale,
+    onboardingCompleted: settings.onboardingCompleted ?? false,
     preferredDashboardPeriod: settings.preferredDashboardPeriod as DashboardPeriod,
     platformFeePercent: toSafeNumber(settings.platformFeePercent),
     taxReservePercent: toSafeNumber(settings.taxReservePercent),
@@ -233,6 +235,7 @@ export async function upsertUserLocale(userId: number, locale: AppLocale) {
       create: {
         userId,
         locale,
+        onboardingCompleted: false,
       },
     });
   } catch (error) {
