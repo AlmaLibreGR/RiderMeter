@@ -5,6 +5,7 @@ import TrendChart from "@/components/charts/trend-chart";
 import WeekdayPerformanceChart from "@/components/charts/weekday-performance-chart";
 import DashboardControls from "@/components/dashboard/dashboard-controls";
 import HeroKpiCard from "@/components/dashboard/hero-kpi-card";
+import QuickExpenseLauncher from "@/components/dashboard/quick-expense-launcher";
 import LogoutButton from "@/components/logout-button";
 import ShiftPerformanceTable from "@/components/tables/shift-performance-table";
 import LanguageSwitcher from "@/components/ui/language-switcher";
@@ -111,10 +112,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     <QuickLinkCard href="/new-shift" title={t("common.newShift")} body={t("shiftForm.body")} />
                     <QuickLinkCard href="/history" title={t("common.viewHistory")} body={t("history.body")} />
                     {dataset.settings.onboardingCompleted ? (
-                      <QuickLinkCard
-                        href="/setup?step=expenses"
+                      <QuickExpenseLauncher
+                        currency={currency}
+                        timezone={dataset.settings.timezone}
                         title={t("dashboard.addExpenseTitle")}
-                        body={t("setupWorkspace.sections.expensesBody")}
+                        body={t("dashboard.quickExpense.launchBody")}
                       />
                     ) : (
                       <QuickLinkCard
@@ -335,12 +337,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                             />
                           </>
                         ) : (
-                          <SetupItem
-                            href="/setup?step=expenses"
-                            status={t("common.setupReady")}
-                            statusReady
+                          <QuickExpenseLauncher
+                            currency={currency}
+                            timezone={dataset.settings.timezone}
+                            variant="panel"
                             title={t("dashboard.addExpenseTitle")}
-                            body={t("setupWorkspace.sections.expensesBody")}
+                            body={t("dashboard.quickExpense.panelBody")}
                           />
                         )}
                       </div>
@@ -616,13 +618,15 @@ function QuickLinkCard({
   return (
     <Link
       href={href}
-      className="rm-subtle-card flex items-start justify-between gap-3 p-4 hover:-translate-y-0.5 hover:border-blue-200"
+      className="rm-quick-link-card"
     >
       <div className="min-w-0">
         <p className="text-sm font-semibold text-slate-950">{title}</p>
         <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
       </div>
-      <ArrowRight className="mt-1 shrink-0 text-stone-400" size={18} />
+      <span className="rm-quick-link-icon">
+        <ArrowRight className="text-stone-400" size={18} />
+      </span>
     </Link>
   );
 }
