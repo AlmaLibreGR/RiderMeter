@@ -69,44 +69,53 @@ export default function HistoryBrowser({
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rm-surface p-5">
-        <div className="grid gap-4 md:grid-cols-4">
-          <Field label={t("history.filters.platform")}>
-            <select
-              value={platform}
-              onChange={(event) => setPlatform(event.target.value)}
-              className="rm-input"
-            >
-              <option value="all">{t("history.filters.allPlatforms")}</option>
-              <option value="efood">efood</option>
-              <option value="wolt">Wolt</option>
-              <option value="freelance">Freelance</option>
-              <option value="other">{t("table.other")}</option>
-            </select>
-          </Field>
-          <Field label={t("history.filters.from")}>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(event) => setDateFrom(event.target.value)}
-              className="rm-input"
-            />
-          </Field>
-          <Field label={t("history.filters.to")}>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(event) => setDateTo(event.target.value)}
-              className="rm-input"
-            />
-          </Field>
-          <div className="flex items-end">
+    <div className="space-y-4">
+      <section className="rm-surface p-4 md:p-5">
+        <div className="space-y-4">
+          <div>
+            <label className="rm-field-label">{t("history.filters.platform")}</label>
+            <div className="rm-inline-chip-row">
+              {[
+                { value: "all", label: t("history.filters.allPlatforms") },
+                { value: "efood", label: "efood" },
+                { value: "wolt", label: "Wolt" },
+                { value: "freelance", label: "Freelance" },
+                { value: "other", label: t("table.other") },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setPlatform(option.value)}
+                  className={`rm-inline-chip ${platform === option.value ? "rm-inline-chip-active" : ""}`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+            <Field label={t("history.filters.from")}>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(event) => setDateFrom(event.target.value)}
+                className="rm-input"
+              />
+            </Field>
+            <Field label={t("history.filters.to")}>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(event) => setDateTo(event.target.value)}
+                className="rm-input"
+              />
+            </Field>
             <button
               type="button"
               onClick={resetFilters}
               disabled={!hasActiveFilters}
-              className="rm-button-secondary w-full disabled:opacity-50"
+              className="rm-button-secondary disabled:opacity-50"
             >
               {t("history.filters.clear")}
             </button>
@@ -149,9 +158,9 @@ export default function HistoryBrowser({
       ) : (
         <section className="space-y-4">
           {filteredShifts.map((shift) => (
-            <article key={shift.id} className="rm-surface p-5">
+            <article key={shift.id} className="rm-surface p-4 md:p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-orange-100 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
                       {shift.platform}
@@ -160,12 +169,14 @@ export default function HistoryBrowser({
                       {formatDate(shift.date, locale, timezone)}
                     </span>
                   </div>
-                  <h3 className="mt-3 text-xl font-semibold text-slate-950">{shift.area}</h3>
+                  <h3 className="mt-3 text-lg font-semibold text-slate-950 md:text-xl">
+                    {shift.area}
+                  </h3>
                   <p className="mt-1 text-sm text-slate-600">
                     {formatNumber(shift.ordersCompleted, locale, 0)}{" "}
-                    {t("dashboard.hero.orders").toLowerCase()} ·{" "}
+                    {t("dashboard.hero.orders").toLowerCase()} {" · "}
                     {formatNumber(shift.kilometersDriven, locale)}{" "}
-                    {t("dashboard.hero.kilometers").toLowerCase()} ·{" "}
+                    {t("dashboard.hero.kilometers").toLowerCase()} {" · "}
                     {formatNumber(shift.hoursWorked, locale)}{" "}
                     {t("dashboard.hero.hours").toLowerCase()}
                   </p>
@@ -187,8 +198,19 @@ export default function HistoryBrowser({
                 </div>
               </div>
 
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <MetricPill
+                  label={t("dashboard.table.cost")}
+                  value={formatCurrency(shift.metrics.totalShiftCost, locale, currency)}
+                />
+                <MetricPill
+                  label={t("dashboard.table.margin")}
+                  value={`${formatNumber(shift.metrics.profitMarginPercent, locale, 1)}%`}
+                />
+              </div>
+
               {shift.notes ? (
-                <div className="mt-4 rounded-3xl border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-slate-600">
+                <div className="mt-4 rounded-[24px] border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-slate-600">
                   {shift.notes}
                 </div>
               ) : null}
@@ -218,16 +240,16 @@ function Field({
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rm-surface p-4">
-      <p className="text-sm text-stone-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+      <p className="rm-stat-kicker">{label}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
     </div>
   );
 }
 
 function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-stone-200 bg-white p-4">
-      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{label}</p>
+    <div className="rounded-[22px] border border-stone-200 bg-white p-4">
+      <p className="rm-stat-kicker">{label}</p>
       <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
     </div>
   );

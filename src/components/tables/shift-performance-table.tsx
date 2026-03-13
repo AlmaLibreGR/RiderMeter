@@ -125,9 +125,63 @@ export default function ShiftPerformanceTable({
   }
 
   return (
-    <section className="rm-surface-strong p-5 md:p-6">
-      <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
-      <div className="mt-5 overflow-x-auto">
+    <section className="rm-surface p-5 md:p-6">
+      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
+        </div>
+        {feedback ? (
+          <div className="rounded-[18px] border border-stone-200 bg-white px-4 py-2 text-sm text-slate-700">
+            {feedback}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-5 space-y-3 md:hidden">
+        {shifts.map((shift) => (
+          <article key={shift.id} className="rounded-[24px] border border-stone-200 bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-950">
+                  {formatDate(shift.date, locale, timezone)}
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  {shift.platform} {" · "} {shift.area}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => beginEdit(shift)}
+                  className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
+                  aria-label={t("common.edit")}
+                >
+                  <Pencil size={15} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(shift.id)}
+                  className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
+                  aria-label={t("common.delete")}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <MobileMetric label={columns.revenue} value={formatCurrency(shift.metrics.totalRevenue, locale, currency)} />
+              <MobileMetric label={columns.netProfit} value={formatCurrency(shift.metrics.netProfit, locale, currency)} />
+              <MobileMetric label={columns.hours} value={formatNumber(shift.hoursWorked, locale)} />
+              <MobileMetric label={columns.orders} value={String(shift.ordersCompleted)} />
+              <MobileMetric label={columns.kilometers} value={formatNumber(shift.kilometersDriven, locale, 1)} />
+              <MobileMetric label={columns.margin} value={formatPercent(shift.metrics.profitMarginPercent, locale)} />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 hidden overflow-x-auto md:block">
         <table className="min-w-full text-left">
           <thead>
             <tr className="border-b border-stone-200 text-xs uppercase tracking-[0.14em] text-stone-500">
@@ -407,11 +461,6 @@ export default function ShiftPerformanceTable({
         </div>
       ) : null}
 
-      {feedback ? (
-        <div className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-slate-700">
-          {feedback}
-        </div>
-      ) : null}
     </section>
   );
 }
@@ -421,6 +470,15 @@ function EditorField({ label, children }: { label: string; children: React.React
     <div>
       <label className="rm-field-label">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function MobileMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[20px] border border-stone-200 bg-stone-50 px-4 py-3">
+      <p className="rm-stat-kicker">{label}</p>
+      <p className="mt-2 text-base font-semibold text-slate-950">{value}</p>
     </div>
   );
 }

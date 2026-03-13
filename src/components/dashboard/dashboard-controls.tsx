@@ -47,8 +47,8 @@ export default function DashboardControls({
   const exportHref = `/api/shifts/export?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`;
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <div className="rm-inline-chip-row">
         {periods.map((value) => (
           <button
             key={value}
@@ -72,8 +72,8 @@ export default function DashboardControls({
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
           <input
             type="date"
             value={range.from}
@@ -86,7 +86,7 @@ export default function DashboardControls({
             }
             className="rm-input px-4 py-2.5 text-sm"
           />
-            <span className="px-1 text-sm text-stone-400">-</span>
+          <span className="justify-self-center px-1 text-sm text-stone-400">-</span>
           <input
             type="date"
             value={range.to}
@@ -101,21 +101,17 @@ export default function DashboardControls({
           />
         </div>
 
-        <a
-          href={exportHref}
-          className="rm-button-secondary"
-        >
-          <Download size={15} />
-          {t("common.exportCsv")}
-        </a>
+        <div className="flex flex-wrap gap-3">
+          <a href={exportHref} className="rm-button-secondary">
+            <Download size={15} />
+            {t("common.exportCsv")}
+          </a>
 
-        <Link
-          href="/new-shift"
-          className="rm-button-primary"
-        >
-          <Plus size={15} />
-          {t("common.newShift")}
-        </Link>
+          <Link href="/new-shift" className="rm-button-primary">
+            <Plus size={15} />
+            {t("common.newShift")}
+          </Link>
+        </div>
       </div>
     </div>
   );

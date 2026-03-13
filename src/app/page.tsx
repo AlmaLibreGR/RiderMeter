@@ -55,53 +55,74 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <main className="rm-page-shell">
-      <div className="rm-page-container">
-        <section className="rm-hero">
-          <div className="grid gap-8 xl:grid-cols-[1.4fr_0.7fr]">
-            <div>
+      <div className="rm-page-container-compact">
+        <section className="rm-surface p-5 md:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
               <div className="rm-pill">{t("dashboard.eyebrow")}</div>
-              <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
+              <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
                 {t("dashboard.title")}
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 {t("dashboard.body")}
               </p>
+            </div>
 
-              <div className="mt-8">
-                <DashboardControls period={dataset.period} range={dataset.range} />
+            <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+              <LanguageSwitcher />
+              <LogoutButton />
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="space-y-4">
+              <DashboardControls period={dataset.period} range={dataset.range} />
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <QuickLinkCard
+                  href="/new-shift"
+                  title={t("common.newShift")}
+                  body={t("shiftForm.body")}
+                />
+                <QuickLinkCard
+                  href="/history"
+                  title={t("common.viewHistory")}
+                  body={t("history.body")}
+                />
+                <QuickLinkCard
+                  href="/setup"
+                  title={t("dashboard.sections.setup")}
+                  body={t("dashboard.setup.vehicleBody")}
+                />
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 xl:items-stretch">
-              <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-                <LanguageSwitcher />
-                <LogoutButton />
-              </div>
+            <section className="rm-subtle-card p-5">
+              <p className="rm-pill">{t(`dashboard.period.${dataset.period}`)}</p>
+              <p className="mt-4 text-sm text-slate-500">{t("dashboard.hero.netProfit")}</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-950">
+                {formatCurrency(dataset.selected.netProfit, locale, currency)}
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                {formatCurrency(dataset.selected.netProfitPerHour, locale, currency)} /{" "}
+                {t("dashboard.hero.hours").toLowerCase()}
+              </p>
 
-              <div className="rounded-[32px] border border-orange-100 bg-[radial-gradient(circle_at_top_right,rgba(239,90,41,0.12),transparent_28%),linear-gradient(135deg,#fff6ee_0%,#ffffff_62%,#fff1e7_100%)] p-6 shadow-[0_28px_60px_rgba(154,96,54,0.12)]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-600">
-                  {t(`dashboard.period.${dataset.period}`)}
-                </p>
-                <p className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">
-                  {formatCurrency(dataset.selected.netProfit, locale, currency)}
-                </p>
-                <p className="mt-2 text-sm text-slate-600">
-                  {formatCurrency(dataset.selected.netProfitPerHour, locale, currency)} /{" "}
-                  {t("dashboard.hero.hours").toLowerCase()}
-                </p>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <MiniSummary
-                    label={t("dashboard.hero.revenue")}
-                    value={formatCurrency(dataset.selected.totalRevenue, locale, currency)}
-                  />
-                  <MiniSummary
-                    label={t("dashboard.hero.margin")}
-                    value={formatPercent(dataset.selected.marginPercent, locale)}
-                  />
-                </div>
+              <div className="mt-5 grid gap-3">
+                <SummaryPair
+                  label={t("dashboard.hero.revenue")}
+                  value={formatCurrency(dataset.selected.totalRevenue, locale, currency)}
+                />
+                <SummaryPair
+                  label={t("dashboard.hero.orders")}
+                  value={formatNumber(dataset.selected.totalOrders, locale, 0)}
+                />
+                <SummaryPair
+                  label={t("dashboard.hero.margin")}
+                  value={formatPercent(dataset.selected.marginPercent, locale)}
+                />
               </div>
-            </div>
+            </section>
           </div>
         </section>
 
@@ -178,182 +199,201 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </section>
         ) : null}
 
-        <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-          <Panel
-            eyebrow={t("dashboard.sections.trends")}
-            title={t("dashboard.charts.trendTitle")}
-            description={t("dashboard.charts.trendBody")}
-          >
-            <TrendChart data={dataset.trend} currency={currency} />
-          </Panel>
+        {hasShifts ? (
+          <>
+            <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+              <Panel
+                eyebrow={t("dashboard.sections.today")}
+                title={t("dashboard.period.today")}
+                description={t("dashboard.sections.operations")}
+              >
+                <InlineMetrics
+                  items={[
+                    {
+                      label: t("dashboard.hero.revenue"),
+                      value: formatCurrency(dataset.today.totalRevenue, locale, currency),
+                    },
+                    {
+                      label: t("dashboard.hero.netProfit"),
+                      value: formatCurrency(dataset.today.netProfit, locale, currency),
+                    },
+                    {
+                      label: t("dashboard.cards.netPerHour"),
+                      value: formatCurrency(dataset.today.netProfitPerHour, locale, currency),
+                    },
+                    {
+                      label: t("dashboard.cards.costPerKm"),
+                      value: formatCurrency(
+                        dataset.today.totalKilometers > 0
+                          ? dataset.today.totalCost / dataset.today.totalKilometers
+                          : 0,
+                        locale,
+                        currency
+                      ),
+                    },
+                  ]}
+                />
 
-          <div className="space-y-6">
-            <Panel
-              eyebrow={t("dashboard.sections.insights")}
-              title={t("dashboard.sections.insights")}
-              description={t("nav.cockpit")}
-            >
-              <div className="space-y-3">
-                {dataset.insights.map((insight) => (
-                  <div
-                    key={insight.id}
-                    className={`rounded-[24px] border p-4 ${
-                      insight.tone === "positive"
-                        ? "border-emerald-200 bg-emerald-50"
-                        : insight.tone === "caution"
-                          ? "border-amber-200 bg-amber-50"
-                          : "border-stone-200 bg-stone-50"
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-slate-950">{t(insight.titleKey)}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {t(insight.bodyKey, formatInsightValues(insight.values, locale, currency))}
-                    </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <QuickLinkCard
+                    href="/new-shift"
+                    title={t("common.newShift")}
+                    body={t("shiftForm.body")}
+                  />
+                  <QuickLinkCard
+                    href="/history"
+                    title={t("common.viewHistory")}
+                    body={t("history.body")}
+                  />
+                </div>
+
+                {(!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile) && (
+                  <div className="mt-5 flex items-start gap-3 rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                    <CircleAlert className="mt-0.5 shrink-0" size={18} />
+                    <p>{`${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}</p>
                   </div>
-                ))}
+                )}
+              </Panel>
+
+              <div className="space-y-4">
+                <Panel
+                  eyebrow={t("dashboard.sections.insights")}
+                  title={t("dashboard.sections.insights")}
+                  description={t("nav.cockpit")}
+                >
+                  <div className="space-y-3">
+                    {dataset.insights.map((insight) => (
+                      <InsightCard
+                        key={insight.id}
+                        tone={insight.tone}
+                        title={t(insight.titleKey)}
+                        body={t(
+                          insight.bodyKey,
+                          formatInsightValues(insight.values, locale, currency)
+                        )}
+                      />
+                    ))}
+                  </div>
+                </Panel>
+
+                <Panel
+                  eyebrow={t("dashboard.sections.setup")}
+                  title={t("dashboard.sections.setup")}
+                  description={t("dashboard.body")}
+                >
+                  <div className="space-y-3">
+                    <SetupItem
+                      href="/setup"
+                      status={
+                        dataset.setup.hasVehicleProfile
+                          ? t("common.setupReady")
+                          : t("common.setupNeeded")
+                      }
+                      statusReady={dataset.setup.hasVehicleProfile}
+                      title={t("dashboard.setup.vehicleTitle")}
+                      body={t("dashboard.setup.vehicleBody")}
+                    />
+                    <SetupItem
+                      href="/setup"
+                      status={
+                        dataset.setup.hasCostProfile
+                          ? t("common.setupReady")
+                          : t("common.setupNeeded")
+                      }
+                      statusReady={dataset.setup.hasCostProfile}
+                      title={t("dashboard.setup.costTitle")}
+                      body={t("dashboard.setup.costBody")}
+                    />
+                  </div>
+                </Panel>
               </div>
-            </Panel>
+            </section>
 
-            <Panel
-              eyebrow={t("dashboard.sections.setup")}
-              title={t("dashboard.sections.setup")}
-              description={t("dashboard.body")}
-            >
-              <div className="space-y-3">
-                <SetupItem
-                  href="/setup"
-                  status={dataset.setup.hasVehicleProfile ? t("common.setupReady") : t("common.setupNeeded")}
-                  statusReady={dataset.setup.hasVehicleProfile}
-                  title={t("dashboard.setup.vehicleTitle")}
-                  body={t("dashboard.setup.vehicleBody")}
-                />
-                <SetupItem
-                  href="/setup"
-                  status={dataset.setup.hasCostProfile ? t("common.setupReady") : t("common.setupNeeded")}
-                  statusReady={dataset.setup.hasCostProfile}
-                  title={t("dashboard.setup.costTitle")}
-                  body={t("dashboard.setup.costBody")}
-                />
-              </div>
-            </Panel>
-          </div>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-2">
-          <Panel
-            eyebrow={t("dashboard.sections.operations")}
-            title={t("dashboard.charts.weekdayTitle")}
-            description={t("dashboard.charts.weekdayBody")}
-          >
-            <WeekdayPerformanceChart data={dataset.weekdayPerformance} currency={currency} />
-          </Panel>
-
-          <Panel
-            eyebrow={t("dashboard.sections.costs")}
-            title={t("dashboard.charts.costCompositionTitle")}
-            description={t("dashboard.charts.costCompositionBody")}
-          >
-            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <CompositionChart
-                data={dataset.costComposition.map((slice) => ({
-                  ...slice,
-                  label: t(slice.label),
-                }))}
-                currency={currency}
-              />
-              <LegendList
-                items={dataset.costComposition.map((slice) => ({
-                  label: t(slice.label),
-                  value: formatCurrency(slice.value, locale, currency),
-                }))}
-              />
-            </div>
-          </Panel>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <Panel
-            eyebrow={t("dashboard.sections.today")}
-            title={t("dashboard.period.today")}
-            description={t("dashboard.sections.operations")}
-          >
-            <InlineMetrics
-              items={[
-                {
-                  label: t("dashboard.hero.revenue"),
-                  value: formatCurrency(dataset.today.totalRevenue, locale, currency),
-                },
-                {
-                  label: t("dashboard.hero.netProfit"),
-                  value: formatCurrency(dataset.today.netProfit, locale, currency),
-                },
-                {
-                  label: t("dashboard.cards.netPerHour"),
-                  value: formatCurrency(dataset.today.netProfitPerHour, locale, currency),
-                },
-                {
-                  label: t("dashboard.cards.costPerKm"),
-                  value: formatCurrency(
-                    dataset.today.totalKilometers > 0
-                      ? dataset.today.totalCost / dataset.today.totalKilometers
-                      : 0,
-                    locale,
-                    currency
-                  ),
-                },
-              ]}
+            <ShiftPerformanceTable
+              locale={locale}
+              currency={currency}
+              timezone={dataset.settings.timezone}
+              title={t("dashboard.table.title")}
+              columns={{
+                date: t("dashboard.table.date"),
+                hours: t("dashboard.table.hours"),
+                orders: t("dashboard.table.orders"),
+                kilometers: t("dashboard.table.kilometers"),
+                revenue: t("dashboard.table.revenue"),
+                cost: t("dashboard.table.cost"),
+                netProfit: t("dashboard.table.netProfit"),
+                netPerHour: t("dashboard.table.netPerHour"),
+                margin: t("dashboard.table.margin"),
+                actions: t("dashboard.table.actions"),
+              }}
+              shifts={dataset.shifts.slice(0, 10)}
             />
 
-            {(!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile) && (
-              <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                <CircleAlert className="mt-0.5 shrink-0" size={18} />
-                <p>{`${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}</p>
-              </div>
-            )}
-          </Panel>
+            <section className="grid gap-4 xl:grid-cols-2">
+              <Panel
+                eyebrow={t("dashboard.sections.trends")}
+                title={t("dashboard.charts.trendTitle")}
+                description={t("dashboard.charts.trendBody")}
+              >
+                <TrendChart data={dataset.trend} currency={currency} />
+              </Panel>
 
-          <Panel
-            eyebrow={t("dashboard.sections.costs")}
-            title={t("dashboard.charts.revenueCompositionTitle")}
-            description={t("dashboard.charts.revenueCompositionBody")}
-          >
-            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <CompositionChart
-                data={dataset.revenueComposition.map((slice) => ({
-                  ...slice,
-                  label: t(slice.label),
-                }))}
-                currency={currency}
-              />
-              <LegendList
-                items={dataset.revenueComposition.map((slice) => ({
-                  label: t(slice.label),
-                  value: formatCurrency(slice.value, locale, currency),
-                }))}
-              />
-            </div>
-          </Panel>
-        </section>
+              <Panel
+                eyebrow={t("dashboard.sections.operations")}
+                title={t("dashboard.charts.weekdayTitle")}
+                description={t("dashboard.charts.weekdayBody")}
+              >
+                <WeekdayPerformanceChart data={dataset.weekdayPerformance} currency={currency} />
+              </Panel>
+            </section>
 
-        <ShiftPerformanceTable
-          locale={locale}
-          currency={currency}
-          timezone={dataset.settings.timezone}
-          title={t("dashboard.table.title")}
-          columns={{
-            date: t("dashboard.table.date"),
-            hours: t("dashboard.table.hours"),
-            orders: t("dashboard.table.orders"),
-            kilometers: t("dashboard.table.kilometers"),
-            revenue: t("dashboard.table.revenue"),
-            cost: t("dashboard.table.cost"),
-            netProfit: t("dashboard.table.netProfit"),
-            netPerHour: t("dashboard.table.netPerHour"),
-            margin: t("dashboard.table.margin"),
-            actions: t("dashboard.table.actions"),
-          }}
-          shifts={dataset.shifts.slice(0, 10)}
-        />
+            <section className="grid gap-4 xl:grid-cols-2">
+              <Panel
+                eyebrow={t("dashboard.sections.costs")}
+                title={t("dashboard.charts.revenueCompositionTitle")}
+                description={t("dashboard.charts.revenueCompositionBody")}
+              >
+                <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+                  <CompositionChart
+                    data={dataset.revenueComposition.map((slice) => ({
+                      ...slice,
+                      label: t(slice.label),
+                    }))}
+                    currency={currency}
+                  />
+                  <LegendList
+                    items={dataset.revenueComposition.map((slice) => ({
+                      label: t(slice.label),
+                      value: formatCurrency(slice.value, locale, currency),
+                    }))}
+                  />
+                </div>
+              </Panel>
+
+              <Panel
+                eyebrow={t("dashboard.sections.costs")}
+                title={t("dashboard.charts.costCompositionTitle")}
+                description={t("dashboard.charts.costCompositionBody")}
+              >
+                <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+                  <CompositionChart
+                    data={dataset.costComposition.map((slice) => ({
+                      ...slice,
+                      label: t(slice.label),
+                    }))}
+                    currency={currency}
+                  />
+                  <LegendList
+                    items={dataset.costComposition.map((slice) => ({
+                      label: t(slice.label),
+                      value: formatCurrency(slice.value, locale, currency),
+                    }))}
+                  />
+                </div>
+              </Panel>
+            </section>
+          </>
+        ) : null}
       </div>
     </main>
   );
@@ -401,9 +441,11 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rm-surface-strong p-5 md:p-6">
+    <section className="rm-surface p-5 md:p-6">
       <div className="rm-pill">{eyebrow}</div>
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
+      <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+        {title}
+      </h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
       <div className="mt-6">{children}</div>
     </section>
@@ -475,13 +517,59 @@ function InlineMetrics({ items }: { items: Array<{ label: string; value: string 
   );
 }
 
-function MiniSummary({ label, value }: { label: string; value: string }) {
+function SummaryPair({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-orange-100 bg-white px-4 py-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
+    <div className="rm-summary-pair">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-right text-sm font-semibold text-slate-950">{value}</p>
+    </div>
+  );
+}
+
+function QuickLinkCard({
+  href,
+  title,
+  body,
+}: {
+  href: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rm-subtle-card flex items-start justify-between gap-3 p-4 hover:border-orange-200"
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-slate-950">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+      </div>
+      <ArrowRight className="mt-1 shrink-0 text-stone-400" size={18} />
+    </Link>
+  );
+}
+
+function InsightCard({
+  tone,
+  title,
+  body,
+}: {
+  tone: "positive" | "caution" | "neutral";
+  title: string;
+  body: string;
+}) {
+  return (
+    <div
+      className={`rounded-[24px] border p-4 ${
+        tone === "positive"
+          ? "border-emerald-200 bg-emerald-50"
+          : tone === "caution"
+            ? "border-amber-200 bg-amber-50"
+            : "border-stone-200 bg-stone-50"
+      }`}
+    >
+      <p className="text-sm font-semibold text-slate-950">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
     </div>
   );
 }
