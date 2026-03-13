@@ -29,10 +29,10 @@ export default async function HistoryPage() {
               <div className="rm-pill">
                 {t("history.eyebrow")}
               </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
                 {t("history.title")}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
                 {t("history.body")}
               </p>
             </div>

@@ -26,14 +26,14 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <label className="inline-flex items-center gap-2 rounded-2xl border border-slate-700/70 bg-slate-950/70 px-3 py-2 text-sm font-medium text-slate-200 shadow-[0_14px_34px_rgba(2,6,23,0.28)] backdrop-blur">
-      <Globe size={15} className="text-sky-300" />
+    <label className="inline-flex items-center gap-2 rounded-2xl border border-orange-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(154,96,54,0.08)]">
+      <Globe size={15} className="text-orange-500" />
       <span className="sr-only">{t("language")}</span>
       <select
         value={locale}
         onChange={(event) => handleChange(event.target.value)}
         disabled={isPending}
-        className="min-w-20 bg-transparent pr-1 text-sm text-slate-100 outline-none"
+        className="min-w-20 bg-transparent pr-1 text-sm text-slate-700 outline-none"
       >
         <option value="el">{t("greek")}</option>
         <option value="en">{t("english")}</option>

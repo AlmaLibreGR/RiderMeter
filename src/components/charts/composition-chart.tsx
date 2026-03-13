@@ -5,7 +5,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { formatCurrency } from "@/lib/formatters";
 import type { CompositionSlice } from "@/types/domain";
 
-const colors = ["#38bdf8", "#7dd3fc", "#34d399", "#64748b", "#334155", "#94a3b8"];
+const colors = ["#ef5a29", "#fb923c", "#f59e0b", "#fb7185", "#1f9d76", "#8b6f59"];
 
 type CompositionChartProps = {
   data: CompositionSlice[];
@@ -49,12 +49,12 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
             ]}
             contentStyle={{
               borderRadius: "16px",
-              border: "1px solid rgba(148,163,184,0.16)",
-              boxShadow: "0 24px 60px rgba(2,6,23,0.42)",
-              backgroundColor: "rgba(10,15,28,0.96)",
-              color: "#e2e8f0",
+              border: "1px solid rgba(164,128,97,0.16)",
+              boxShadow: "0 20px 44px rgba(154,96,54,0.12)",
+              backgroundColor: "rgba(255,255,255,0.98)",
+              color: "#18212f",
             }}
-            labelStyle={{ color: "#94a3b8" }}
+            labelStyle={{ color: "#8b6f59" }}
           />
         </PieChart>
       </ResponsiveContainer>

@@ -62,8 +62,8 @@ export default function DashboardControls({
             }
             className={`rounded-full border px-3.5 py-2 text-sm font-medium transition ${
               period === value
-                ? "border-sky-400/40 bg-sky-400/14 text-sky-100 shadow-[0_12px_30px_rgba(14,165,233,0.12)]"
-                : "border-slate-700/80 bg-slate-950/50 text-slate-300 hover:border-slate-500 hover:bg-slate-900/80"
+                ? "border-orange-200 bg-orange-50 text-orange-700 shadow-[0_12px_26px_rgba(239,90,41,0.12)]"
+                : "border-stone-200 bg-white text-slate-700 hover:border-orange-200 hover:bg-orange-50/60"
             }`}
             disabled={isPending}
           >
@@ -86,7 +86,7 @@ export default function DashboardControls({
             }
             className="rm-input px-4 py-2.5 text-sm"
           />
-            <span className="px-1 text-sm text-slate-400">-</span>
+            <span className="px-1 text-sm text-stone-400">-</span>
           <input
             type="date"
             value={range.to}

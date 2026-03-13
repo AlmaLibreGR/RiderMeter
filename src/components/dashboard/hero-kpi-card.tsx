@@ -22,19 +22,19 @@ export default function HeroKpiCard({
     <div className="rm-surface p-5 hover:-translate-y-0.5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
             {label}
           </p>
-          <p className="mt-3 text-[2rem] font-semibold tracking-tight text-white">{value}</p>
+          <p className="mt-3 text-[2rem] font-semibold tracking-tight text-slate-950">{value}</p>
         </div>
         <Sparkline
           values={sparklineValues}
-          stroke={deltaDirection === "down" ? "#fb7185" : "#38bdf8"}
+          stroke={deltaDirection === "down" ? "#e11d48" : "#ef5a29"}
         />
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <DeltaBadge value={delta} direction={deltaDirection} />
-        <p className="text-sm text-slate-300">{helper}</p>
+        <p className="text-sm text-slate-600">{helper}</p>
       </div>
     </div>
   );

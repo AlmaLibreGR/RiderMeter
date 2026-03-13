@@ -36,34 +36,34 @@ export default function WeekdayPerformanceChart({
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(71,85,105,0.28)" vertical={false} />
+          <CartesianGrid stroke="rgba(148,116,89,0.16)" vertical={false} />
           <XAxis
             dataKey="weekday"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#64748b" }}
+            tick={{ fontSize: 12, fill: "#8b6f59" }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#64748b" }}
+            tick={{ fontSize: 12, fill: "#8b6f59" }}
             tickFormatter={(value) => formatCurrency(Number(value), locale, currency)}
           />
           <Tooltip
             contentStyle={{
               borderRadius: "16px",
-              border: "1px solid rgba(148,163,184,0.16)",
-              boxShadow: "0 24px 60px rgba(2,6,23,0.42)",
-              backgroundColor: "rgba(10,15,28,0.96)",
-              color: "#e2e8f0",
+              border: "1px solid rgba(164,128,97,0.16)",
+              boxShadow: "0 20px 44px rgba(154,96,54,0.12)",
+              backgroundColor: "rgba(255,255,255,0.98)",
+              color: "#18212f",
             }}
             formatter={(value) => [
               formatCurrency(Number(value), locale, currency),
               locale === "el" ? "Καθαρά / ώρα" : "Net / hour",
             ]}
-            labelStyle={{ color: "#94a3b8" }}
+            labelStyle={{ color: "#8b6f59" }}
           />
-          <Bar dataKey="netProfitPerHour" radius={[12, 12, 0, 0]} fill="#34d399" />
+          <Bar dataKey="netProfitPerHour" radius={[12, 12, 0, 0]} fill="#ef5a29" />
         </BarChart>
       </ResponsiveContainer>
     </div>

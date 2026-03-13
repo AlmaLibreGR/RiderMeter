@@ -38,45 +38,45 @@ export default function TrendChart({ data, currency }: TrendChartProps) {
         <AreaChart data={data} margin={{ top: 12, right: 10, left: -18, bottom: 0 }}>
           <defs>
             <linearGradient id="trendRevenue" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.32} />
-              <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#ef5a29" stopOpacity={0.28} />
+              <stop offset="100%" stopColor="#ef5a29" stopOpacity={0.02} />
             </linearGradient>
             <linearGradient id="trendCost" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#64748b" stopOpacity={0.24} />
-              <stop offset="100%" stopColor="#64748b" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#8b6f59" stopOpacity={0.18} />
+              <stop offset="100%" stopColor="#8b6f59" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="rgba(71,85,105,0.28)" vertical={false} />
+          <CartesianGrid stroke="rgba(148,116,89,0.16)" vertical={false} />
           <XAxis
             dataKey="label"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#64748b" }}
+            tick={{ fontSize: 12, fill: "#8b6f59" }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#64748b" }}
+            tick={{ fontSize: 12, fill: "#8b6f59" }}
             tickFormatter={(value) => formatCurrency(Number(value), locale, currency)}
           />
           <Tooltip
             contentStyle={{
               borderRadius: "16px",
-              border: "1px solid rgba(148,163,184,0.16)",
-              boxShadow: "0 24px 60px rgba(2,6,23,0.42)",
-              backgroundColor: "rgba(10,15,28,0.96)",
-              color: "#e2e8f0",
+              border: "1px solid rgba(164,128,97,0.16)",
+              boxShadow: "0 20px 44px rgba(154,96,54,0.12)",
+              backgroundColor: "rgba(255,255,255,0.98)",
+              color: "#18212f",
             }}
             formatter={(value, name) => [
               formatCurrency(Number(value), locale, currency),
               String(name),
             ]}
-            labelStyle={{ color: "#94a3b8" }}
+            labelStyle={{ color: "#8b6f59" }}
           />
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="#38bdf8"
+            stroke="#ef5a29"
             fill="url(#trendRevenue)"
             strokeWidth={2}
             name={locale === "el" ? "Έσοδα" : "Revenue"}
@@ -84,7 +84,7 @@ export default function TrendChart({ data, currency }: TrendChartProps) {
           <Area
             type="monotone"
             dataKey="costs"
-            stroke="#64748b"
+            stroke="#8b6f59"
             fill="url(#trendCost)"
             strokeWidth={1.8}
             name={locale === "el" ? "Κόστος" : "Costs"}

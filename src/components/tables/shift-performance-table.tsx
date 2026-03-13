@@ -126,11 +126,11 @@ export default function ShiftPerformanceTable({
 
   return (
     <section className="rm-surface-strong p-5 md:p-6">
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
+      <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
       <div className="mt-5 overflow-x-auto">
         <table className="min-w-full text-left">
           <thead>
-            <tr className="border-b border-slate-800 text-xs uppercase tracking-[0.14em] text-slate-500">
+            <tr className="border-b border-stone-200 text-xs uppercase tracking-[0.14em] text-stone-500">
               <th className="pb-3 pr-4 font-medium">{columns.date}</th>
               <th className="pb-3 pr-4 font-medium">{columns.hours}</th>
               <th className="pb-3 pr-4 font-medium">{columns.orders}</th>
@@ -147,11 +147,11 @@ export default function ShiftPerformanceTable({
             {shifts.map((shift) => (
               <tr
                 key={shift.id}
-                className="border-b border-slate-900 text-sm text-slate-300 last:border-b-0 hover:bg-slate-900/40"
+                className="border-b border-stone-200 text-sm text-slate-700 last:border-b-0 hover:bg-orange-50/70"
               >
                 <td className="py-4 pr-4">
                   <div>
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-slate-950">
                       {formatDate(shift.date, locale, timezone)}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">{shift.platform} · {shift.area}</p>
@@ -166,10 +166,10 @@ export default function ShiftPerformanceTable({
                 <td className="py-4 pr-4">
                   {formatCurrency(shift.metrics.totalShiftCost, locale, currency)}
                 </td>
-                <td className="py-4 pr-4 font-semibold text-white">
+                <td className="py-4 pr-4 font-semibold text-slate-950">
                   {formatCurrency(shift.metrics.netProfit, locale, currency)}
                 </td>
-                <td className="py-4 pr-4 font-medium text-emerald-300">
+                <td className="py-4 pr-4 font-medium text-emerald-700">
                   {formatCurrency(shift.metrics.netPerHour, locale, currency)}
                 </td>
                 <td className="py-4 pr-4">
@@ -180,7 +180,7 @@ export default function ShiftPerformanceTable({
                     <button
                       type="button"
                       onClick={() => beginEdit(shift)}
-                      className="inline-flex rounded-xl border border-slate-800 bg-slate-950/70 p-2 text-slate-300 hover:border-slate-700 hover:bg-slate-900"
+                      className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
                       aria-label={t("common.edit")}
                     >
                       <Pencil size={15} />
@@ -188,7 +188,7 @@ export default function ShiftPerformanceTable({
                     <button
                       type="button"
                       onClick={() => handleDelete(shift.id)}
-                      className="inline-flex rounded-xl border border-slate-800 bg-slate-950/70 p-2 text-slate-300 hover:border-slate-700 hover:bg-slate-900"
+                      className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
                       aria-label={t("common.delete")}
                     >
                       <Trash2 size={15} />
@@ -202,11 +202,11 @@ export default function ShiftPerformanceTable({
       </div>
 
       {editingShift && draft ? (
-        <div className="mt-6 rounded-[28px] border border-slate-800/90 bg-slate-950/75 p-5">
+        <div className="mt-6 rounded-[28px] border border-stone-200 bg-stone-50/90 p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-white">{t("table.editShift")}</h3>
-              <p className="text-sm text-slate-400">{editingShift.area}</p>
+              <h3 className="text-lg font-semibold text-slate-950">{t("table.editShift")}</h3>
+              <p className="text-sm text-slate-500">{editingShift.area}</p>
             </div>
             <button
               type="button"
@@ -408,7 +408,7 @@ export default function ShiftPerformanceTable({
       ) : null}
 
       {feedback ? (
-        <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-3 text-sm text-slate-300">
+        <div className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-slate-700">
           {feedback}
         </div>
       ) : null}

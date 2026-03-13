@@ -428,7 +428,7 @@ export default function ShiftEntryForm({
           </div>
 
           {feedback ? (
-            <div className="mt-5 rounded-3xl border border-slate-800 bg-slate-950/80 p-4 text-sm text-slate-300">
+            <div className="mt-5 rounded-3xl border border-stone-200 bg-white p-4 text-sm text-slate-700">
               {feedback}
             </div>
           ) : null}
@@ -469,8 +469,8 @@ function FormGroup({
   return (
     <section className="rm-surface-strong p-5 md:p-6">
       <div className="rm-pill">{eyebrow}</div>
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">{title}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{description}</p>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
       <div className="mt-5 space-y-4">{children}</div>
     </section>
   );
@@ -491,7 +491,7 @@ function Field({
     <div>
       <label className="rm-field-label">{label}</label>
       {children}
-      <p className={`rm-field-helper ${error ? "text-rose-300" : "text-slate-400"}`}>
+      <p className={`rm-field-helper ${error ? "text-rose-600" : "text-slate-500"}`}>
         {error || helper || " "}
       </p>
     </div>
@@ -551,12 +551,12 @@ function DurationCard({
     <div className="rm-subtle-card p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="rm-field-label !mb-0">{title}</p>
-        <div className="inline-flex rounded-full border border-slate-800 bg-slate-950/90 p-1">
+        <div className="inline-flex rounded-full border border-stone-200 bg-white p-1">
           <button
             type="button"
             onClick={() => onModeChange("auto")}
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              mode === "auto" ? "bg-sky-500/20 text-sky-200" : "text-slate-400"
+              mode === "auto" ? "bg-orange-50 text-orange-700" : "text-slate-500"
             }`}
           >
             {t("shiftForm.duration.auto")}
@@ -565,7 +565,7 @@ function DurationCard({
             type="button"
             onClick={() => onModeChange("manual")}
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              mode === "manual" ? "bg-sky-500/20 text-sky-200" : "text-slate-400"
+              mode === "manual" ? "bg-orange-50 text-orange-700" : "text-slate-500"
             }`}
           >
             {t("shiftForm.duration.manual")}
@@ -575,8 +575,8 @@ function DurationCard({
 
       {mode === "auto" ? (
         <div className="mt-4">
-          <p className="text-2xl font-semibold text-white">{derivedLabel}</p>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="text-2xl font-semibold text-slate-950">{derivedLabel}</p>
+          <p className="mt-2 text-sm text-slate-500">
             {startTime && endTime
               ? `${startTime} - ${endTime}`
               : t("shiftForm.duration.awaiting")}
@@ -591,7 +591,7 @@ function DurationCard({
             onChange={(event) => onManualChange(event.target.value)}
             className={inputClass(Boolean(error))}
           />
-          <p className={`rm-field-helper ${error ? "text-rose-300" : "text-slate-400"}`}>
+          <p className={`rm-field-helper ${error ? "text-rose-600" : "text-slate-500"}`}>
             {error || t("shiftForm.duration.manualHelp")}
           </p>
         </div>
@@ -611,11 +611,11 @@ function PreviewStat({
 }) {
   return (
     <div
-      className={compact ? "rm-stat-tile" : "rounded-3xl border border-slate-800 bg-slate-950/70 p-4"}
+      className={compact ? "rm-stat-tile" : "rounded-3xl border border-stone-200 bg-white p-4"}
     >
-      <p className={compact ? "rm-stat-kicker" : "text-sm text-slate-400"}>{label}</p>
+      <p className={compact ? "rm-stat-kicker" : "text-sm text-slate-500"}>{label}</p>
       <p
-        className={`text-white ${
+        className={`text-slate-950 ${
           compact ? "mt-2 text-lg font-semibold" : "mt-2 text-2xl font-semibold"
         }`}
       >
@@ -627,17 +627,17 @@ function PreviewStat({
 
 function PreviewMeta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-800/80 bg-slate-950/70 px-4 py-3">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="text-sm font-semibold text-white">{value}</p>
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white px-4 py-3">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-sm font-semibold text-slate-950">{value}</p>
     </div>
   );
 }
 
 function inputClass(hasError: boolean) {
-  return `w-full rounded-2xl border px-4 py-3 text-base text-slate-50 outline-none transition ${
+  return `w-full rounded-2xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
     hasError
-      ? "border-rose-400/60 bg-rose-500/10"
-      : "border-slate-700 bg-slate-950/85 hover:border-slate-600 focus:border-sky-500/60"
+      ? "border-rose-300 bg-rose-50/80"
+      : "border-stone-200 bg-white hover:border-orange-200 focus:border-orange-400"
   }`;
 }

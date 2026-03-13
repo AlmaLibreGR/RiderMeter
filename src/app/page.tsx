@@ -60,10 +60,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="grid gap-8 xl:grid-cols-[1.4fr_0.7fr]">
             <div>
               <div className="rm-pill">{t("dashboard.eyebrow")}</div>
-              <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl">
+              <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
                 {t("dashboard.title")}
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
                 {t("dashboard.body")}
               </p>
 
@@ -78,14 +78,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <LogoutButton />
               </div>
 
-              <div className="rounded-[32px] border border-sky-400/20 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_28%),linear-gradient(180deg,rgba(12,18,34,0.96)_0%,rgba(7,12,24,1)_100%)] p-6 shadow-[0_30px_80px_rgba(2,6,23,0.45)]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-200/80">
+              <div className="rounded-[32px] border border-orange-100 bg-[radial-gradient(circle_at_top_right,rgba(239,90,41,0.12),transparent_28%),linear-gradient(135deg,#fff6ee_0%,#ffffff_62%,#fff1e7_100%)] p-6 shadow-[0_28px_60px_rgba(154,96,54,0.12)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-600">
                   {t(`dashboard.period.${dataset.period}`)}
                 </p>
-                <p className="mt-4 text-4xl font-semibold tracking-tight text-white">
+                <p className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">
                   {formatCurrency(dataset.selected.netProfit, locale, currency)}
                 </p>
-                <p className="mt-2 text-sm text-slate-300">
+                <p className="mt-2 text-sm text-slate-600">
                   {formatCurrency(dataset.selected.netProfitPerHour, locale, currency)} /{" "}
                   {t("dashboard.hero.hours").toLowerCase()}
                 </p>
@@ -170,8 +170,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {!hasShifts ? (
           <section className="rm-empty-state">
-            <h2 className="text-2xl font-semibold text-white">{t("dashboard.empty.title")}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">{t("dashboard.empty.body")}</p>
+            <h2 className="text-2xl font-semibold text-slate-950">{t("dashboard.empty.title")}</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">{t("dashboard.empty.body")}</p>
             <Link href="/new-shift" className="rm-button-primary mt-6">
               {t("dashboard.empty.cta")}
             </Link>
@@ -199,14 +199,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     key={insight.id}
                     className={`rounded-[24px] border p-4 ${
                       insight.tone === "positive"
-                        ? "border-emerald-400/16 bg-emerald-400/8"
+                        ? "border-emerald-200 bg-emerald-50"
                         : insight.tone === "caution"
-                          ? "border-amber-400/18 bg-amber-400/10"
-                          : "border-slate-700/70 bg-slate-900/60"
+                          ? "border-amber-200 bg-amber-50"
+                          : "border-stone-200 bg-stone-50"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-white">{t(insight.titleKey)}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="text-sm font-semibold text-slate-950">{t(insight.titleKey)}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
                       {t(insight.bodyKey, formatInsightValues(insight.values, locale, currency))}
                     </p>
                   </div>
@@ -305,7 +305,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             />
 
             {(!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile) && (
-              <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-400/18 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
+              <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
                 <CircleAlert className="mt-0.5 shrink-0" size={18} />
                 <p>{`${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}</p>
               </div>
@@ -403,8 +403,8 @@ function Panel({
   return (
     <section className="rm-surface-strong p-5 md:p-6">
       <div className="rm-pill">{eyebrow}</div>
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">{title}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{description}</p>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -426,22 +426,22 @@ function SetupItem({
   return (
     <Link
       href={href}
-      className="flex items-start justify-between rounded-[24px] border border-slate-700/70 bg-slate-950/55 p-4 hover:border-slate-500"
+      className="flex items-start justify-between rounded-[24px] border border-stone-200 bg-white p-4 hover:border-orange-200 hover:bg-orange-50/50"
     >
       <div className="pr-4">
         <span
           className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
             statusReady
-              ? "bg-emerald-400/12 text-emerald-300"
-              : "bg-amber-400/12 text-amber-200"
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-700"
           }`}
         >
           {status}
         </span>
-        <p className="mt-3 font-semibold text-white">{title}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-300">{body}</p>
+        <p className="mt-3 font-semibold text-slate-950">{title}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
       </div>
-          <ArrowRight className="mt-1 shrink-0 text-slate-400" size={18} />
+      <ArrowRight className="mt-1 shrink-0 text-stone-400" size={18} />
     </Link>
   );
 }
@@ -452,7 +452,7 @@ function LegendList({ items }: { items: Array<{ label: string; value: string }> 
       {items.map((item) => (
         <div key={item.label} className="rm-stat-tile min-w-[15rem]">
           <p className="rm-stat-kicker">{item.label}</p>
-          <p className="mt-2 font-semibold text-white">{item.value}</p>
+          <p className="mt-2 font-semibold text-slate-950">{item.value}</p>
         </div>
       ))}
     </div>
@@ -465,10 +465,10 @@ function InlineMetrics({ items }: { items: Array<{ label: string; value: string 
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-center justify-between rounded-[24px] border border-slate-700/60 bg-slate-950/55 px-4 py-4"
+          className="flex items-center justify-between rounded-[24px] border border-stone-200 bg-white px-4 py-4"
         >
-          <p className="text-sm text-slate-300">{item.label}</p>
-          <p className="text-lg font-semibold text-white">{item.value}</p>
+          <p className="text-sm text-slate-600">{item.label}</p>
+          <p className="text-lg font-semibold text-slate-950">{item.value}</p>
         </div>
       ))}
     </div>
@@ -477,11 +477,11 @@ function InlineMetrics({ items }: { items: Array<{ label: string; value: string 
 
 function MiniSummary({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-slate-700/70 bg-slate-950/55 px-4 py-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+    <div className="rounded-[24px] border border-orange-100 bg-white px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
         {label}
       </p>
-      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
     </div>
   );
 }
