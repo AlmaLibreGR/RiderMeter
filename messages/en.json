@@ -118,6 +118,8 @@
       "costBody": "Build your own business and personal budget categories and keep fixed costs honest."
     },
     "addExpenseTitle": "Add expense",
+    "quickActionsTitle": "Quick actions",
+    "quickActionsBody": "Keep the daily tools close: add spending fast or jump back into your operating flow.",
     "settingsCardBody": "Open vehicle assumptions, budgets, security, and the rest of your RiderMeter settings.",
     "weather": {
       "title": "Profitability by weather",

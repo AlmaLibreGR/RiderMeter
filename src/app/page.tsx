@@ -299,7 +299,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                       </div>
                     </Panel>
 
-                    <Panel eyebrow={t("common.settings")} title={t("common.settings")} description={t("dashboard.body")}>
+                    <Panel
+                      eyebrow={
+                        dataset.settings.onboardingCompleted
+                          ? t("dashboard.sections.operations")
+                          : t("common.settings")
+                      }
+                      title={
+                        dataset.settings.onboardingCompleted
+                          ? t("dashboard.quickActionsTitle")
+                          : t("common.settings")
+                      }
+                      description={
+                        dataset.settings.onboardingCompleted
+                          ? t("dashboard.quickActionsBody")
+                          : t("dashboard.body")
+                      }
+                    >
                       <div className="space-y-3">
                         {!dataset.settings.onboardingCompleted ? (
                           <>
@@ -320,11 +336,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                           </>
                         ) : (
                           <SetupItem
-                            href="/setup"
+                            href="/setup?step=expenses"
                             status={t("common.setupReady")}
                             statusReady
-                            title={t("common.settings")}
-                            body={t("dashboard.settingsCardBody")}
+                            title={t("dashboard.addExpenseTitle")}
+                            body={t("setupWorkspace.sections.expensesBody")}
                           />
                         )}
                       </div>
