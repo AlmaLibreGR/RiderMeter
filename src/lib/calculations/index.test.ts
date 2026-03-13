@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { describe, expect, it } from "vitest";
 import { aggregateShiftMetrics, calculateShiftMetrics } from "@/lib/calculations";
-import { mapShiftRecordToCanonical } from "@/services/shift-service";
+import { mapShiftRecordToCanonical, normalizeShiftPayload } from "@/services/shift-service";
 import type { CanonicalShift } from "@/types/domain";
 
 const baseShift: CanonicalShift = {
@@ -19,7 +19,8 @@ const baseShift: CanonicalShift = {
   fuelExpenseDirect: null,
   tollsOrParking: 0,
   platform: "efood",
-  area: "Athens Center",
+  weatherCondition: "sunny",
+  area: null,
   notes: null,
   createdAt: "2026-03-12T10:00:00.000Z",
   updatedAt: null,
@@ -165,7 +166,8 @@ describe("mapShiftRecordToCanonical", () => {
       startTime: "09:00",
       endTime: "15:00",
       platform: "efood",
-      area: "Athens",
+      weatherCondition: "rain",
+      area: null,
       hours: 6,
       hoursWorked: 6,
       ordersCount: 12,
@@ -191,5 +193,28 @@ describe("mapShiftRecordToCanonical", () => {
     expect(shift.bonusAmount).toBe(4.5);
     expect(shift.fuelExpenseDirect).toBe(3.2);
     expect(shift.tollsOrParking).toBe(1.8);
+    expect(shift.weatherCondition).toBe("rain");
+  });
+});
+
+describe("normalizeShiftPayload", () => {
+  it("accepts canonical payloads without area when timer times are provided", () => {
+    const payload = normalizeShiftPayload({
+      date: "2026-03-13",
+      startTime: "10:00",
+      endTime: "14:00",
+      ordersCompleted: 8,
+      kilometersDriven: 42,
+      baseEarnings: 90,
+      tipsAmount: 5,
+      bonusAmount: 0,
+      platform: "efood",
+      weatherCondition: "rain",
+      notes: "Weather shift",
+    });
+
+    expect(payload.hoursWorked).toBe(4);
+    expect(payload.area).toBeNull();
+    expect(payload.weatherCondition).toBe("rain");
   });
 });

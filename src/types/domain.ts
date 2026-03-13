@@ -10,6 +10,17 @@ export type RoleType = (typeof supportedRoleTypes)[number];
 export const supportedPlatforms = ["efood", "wolt", "freelance", "other"] as const;
 export type PlatformKey = (typeof supportedPlatforms)[number];
 
+export const supportedWeatherConditions = [
+  "unknown",
+  "sunny",
+  "cloudy",
+  "rain",
+  "heatwave",
+  "cold",
+  "windy",
+] as const;
+export type WeatherCondition = (typeof supportedWeatherConditions)[number];
+
 export const supportedVehicleTypes = ["car", "scooter", "ebike"] as const;
 export type VehicleType = (typeof supportedVehicleTypes)[number];
 
@@ -54,10 +65,31 @@ export type CanonicalShift = {
   fuelExpenseDirect: Money | null;
   tollsOrParking: Money;
   platform: PlatformKey;
-  area: string;
+  weatherCondition: WeatherCondition;
+  area: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string | null;
+};
+
+export type ShiftDraftMode = "quick" | "timer";
+
+export type ShiftDraft = {
+  mode: ShiftDraftMode;
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  hoursWorked: number | null;
+  ordersCompleted: number;
+  kilometersDriven: number;
+  baseEarnings: number;
+  tipsAmount: number;
+  bonusAmount: number;
+  fuelExpenseDirect: number | null;
+  tollsOrParking: number;
+  platform: PlatformKey;
+  weatherCondition: WeatherCondition;
+  notes: string | null;
 };
 
 export type VehicleProfileSnapshot = {
@@ -215,6 +247,15 @@ export type WeekdayPerformancePoint = {
   netProfitPerHour: Money;
 };
 
+export type WeatherPerformancePoint = {
+  weatherCondition: WeatherCondition;
+  label: string;
+  revenue: Money;
+  netProfit: Money;
+  netProfitPerHour: Money;
+  shifts: number;
+};
+
 export type CompositionSlice = {
   key: string;
   label: string;
@@ -235,6 +276,20 @@ export type DashboardComparisons = {
   hours: MetricDelta;
   kilometers: MetricDelta;
   margin: MetricDelta;
+};
+
+export type BenchmarkCard = {
+  id: string;
+  titleKey: string;
+  bodyKey: string;
+  sampleSize: number;
+  values?: Record<string, string | number>;
+};
+
+export type NetworkBenchmarkDataset = {
+  sampleSize: number;
+  enoughData: boolean;
+  cards: BenchmarkCard[];
 };
 
 export type Insight = {
@@ -266,9 +321,11 @@ export type DashboardDataset = {
   trend: TimeSeriesPoint[];
   previousTrend: TimeSeriesPoint[];
   weekdayPerformance: WeekdayPerformancePoint[];
+  weatherPerformance: WeatherPerformancePoint[];
   revenueComposition: CompositionSlice[];
   costComposition: CompositionSlice[];
   insights: Insight[];
+  benchmarks: NetworkBenchmarkDataset;
   topShift: ShiftWithMetrics | null;
   topDay: TimeSeriesPoint | null;
   setup: {

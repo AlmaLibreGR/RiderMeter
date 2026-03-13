@@ -124,22 +124,10 @@ export default function HistoryBrowser({
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard
-          label={t("history.summary.shifts")}
-          value={formatNumber(summary.shifts, locale, 0)}
-        />
-        <SummaryCard
-          label={t("history.summary.revenue")}
-          value={formatCurrency(summary.revenue, locale, currency)}
-        />
-        <SummaryCard
-          label={t("history.summary.netProfit")}
-          value={formatCurrency(summary.netProfit, locale, currency)}
-        />
-        <SummaryCard
-          label={t("history.summary.hours")}
-          value={formatNumber(summary.hours, locale)}
-        />
+        <SummaryCard label={t("history.summary.shifts")} value={formatNumber(summary.shifts, locale, 0)} />
+        <SummaryCard label={t("history.summary.revenue")} value={formatCurrency(summary.revenue, locale, currency)} />
+        <SummaryCard label={t("history.summary.netProfit")} value={formatCurrency(summary.netProfit, locale, currency)} />
+        <SummaryCard label={t("history.summary.hours")} value={formatNumber(summary.hours, locale)} />
       </section>
 
       {filteredShifts.length === 0 ? (
@@ -165,20 +153,20 @@ export default function HistoryBrowser({
                     <span className="rounded-full border border-orange-100 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
                       {shift.platform}
                     </span>
+                    <span className="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
+                      {t(`shiftForm.weather.${shift.weatherCondition}`)}
+                    </span>
                     <span className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
                       {formatDate(shift.date, locale, timezone)}
                     </span>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-slate-950 md:text-xl">
-                    {shift.area}
+                    {formatCurrency(shift.metrics.netProfit, locale, currency)}
                   </h3>
                   <p className="mt-1 text-sm text-slate-600">
-                    {formatNumber(shift.ordersCompleted, locale, 0)}{" "}
-                    {t("dashboard.hero.orders").toLowerCase()} {" · "}
-                    {formatNumber(shift.kilometersDriven, locale)}{" "}
-                    {t("dashboard.hero.kilometers").toLowerCase()} {" · "}
-                    {formatNumber(shift.hoursWorked, locale)}{" "}
-                    {t("dashboard.hero.hours").toLowerCase()}
+                    {formatNumber(shift.ordersCompleted, locale, 0)} {t("dashboard.hero.orders").toLowerCase()} {" · "}
+                    {formatNumber(shift.kilometersDriven, locale)} {t("dashboard.hero.kilometers").toLowerCase()} {" · "}
+                    {formatNumber(shift.hoursWorked, locale)} {t("dashboard.hero.hours").toLowerCase()}
                   </p>
                 </div>
 
@@ -198,7 +186,7 @@ export default function HistoryBrowser({
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
                 <MetricPill
                   label={t("dashboard.table.cost")}
                   value={formatCurrency(shift.metrics.totalShiftCost, locale, currency)}
@@ -206,6 +194,10 @@ export default function HistoryBrowser({
                 <MetricPill
                   label={t("dashboard.table.margin")}
                   value={`${formatNumber(shift.metrics.profitMarginPercent, locale, 1)}%`}
+                />
+                <MetricPill
+                  label={t("shiftForm.fields.weatherCondition")}
+                  value={t(`shiftForm.weather.${shift.weatherCondition}`)}
                 />
               </div>
 
@@ -222,13 +214,7 @@ export default function HistoryBrowser({
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="rm-field-label">{label}</label>

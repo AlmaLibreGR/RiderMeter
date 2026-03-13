@@ -189,7 +189,8 @@ model Shift {
   startTime        String?
   endTime          String?
   platform         String
-  area             String
+  weatherCondition String?  @default("unknown")
+  area             String?
   hours            Float
   hoursWorked      Float?
   ordersCount      Int

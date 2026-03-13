@@ -32,7 +32,7 @@ type ShiftEditorState = {
   startTime: string;
   endTime: string;
   platform: string;
-  area: string;
+  weatherCondition: string;
   hoursWorked: string;
   ordersCompleted: string;
   kilometersDriven: string;
@@ -65,9 +65,7 @@ export default function ShiftPerformanceTable({
       return;
     }
 
-    const response = await fetch(`/api/shifts/${shiftId}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(`/api/shifts/${shiftId}`, { method: "DELETE" });
 
     if (!response.ok) {
       setFeedback(t("table.deleteError"));
@@ -85,7 +83,7 @@ export default function ShiftPerformanceTable({
       startTime: shift.startTime ?? "",
       endTime: shift.endTime ?? "",
       platform: shift.platform,
-      area: shift.area,
+      weatherCondition: shift.weatherCondition,
       hoursWorked: String(shift.hoursWorked),
       ordersCompleted: String(shift.ordersCompleted),
       kilometersDriven: String(shift.kilometersDriven),
@@ -106,9 +104,7 @@ export default function ShiftPerformanceTable({
     setSubmitting(true);
     const response = await fetch(`/api/shifts/${editingShift.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(draft),
     });
     setSubmitting(false);
@@ -146,36 +142,38 @@ export default function ShiftPerformanceTable({
                   {formatDate(shift.date, locale, timezone)}
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
-                  {shift.platform} {" · "} {shift.area}
+                  {shift.platform} {" · "} {t(`shiftForm.weather.${shift.weatherCondition}`)}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => beginEdit(shift)}
-                  className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
-                  aria-label={t("common.edit")}
-                >
+                <IconButton label={t("common.edit")} onClick={() => beginEdit(shift)}>
                   <Pencil size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(shift.id)}
-                  className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
-                  aria-label={t("common.delete")}
-                >
+                </IconButton>
+                <IconButton label={t("common.delete")} onClick={() => handleDelete(shift.id)}>
                   <Trash2 size={15} />
-                </button>
+                </IconButton>
               </div>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <MobileMetric label={columns.revenue} value={formatCurrency(shift.metrics.totalRevenue, locale, currency)} />
-              <MobileMetric label={columns.netProfit} value={formatCurrency(shift.metrics.netProfit, locale, currency)} />
+              <MobileMetric
+                label={columns.revenue}
+                value={formatCurrency(shift.metrics.totalRevenue, locale, currency)}
+              />
+              <MobileMetric
+                label={columns.netProfit}
+                value={formatCurrency(shift.metrics.netProfit, locale, currency)}
+              />
               <MobileMetric label={columns.hours} value={formatNumber(shift.hoursWorked, locale)} />
               <MobileMetric label={columns.orders} value={String(shift.ordersCompleted)} />
-              <MobileMetric label={columns.kilometers} value={formatNumber(shift.kilometersDriven, locale, 1)} />
-              <MobileMetric label={columns.margin} value={formatPercent(shift.metrics.profitMarginPercent, locale)} />
+              <MobileMetric
+                label={columns.kilometers}
+                value={formatNumber(shift.kilometersDriven, locale, 1)}
+              />
+              <MobileMetric
+                label={columns.margin}
+                value={formatPercent(shift.metrics.profitMarginPercent, locale)}
+              />
             </div>
           </article>
         ))}
@@ -208,7 +206,9 @@ export default function ShiftPerformanceTable({
                     <p className="font-medium text-slate-950">
                       {formatDate(shift.date, locale, timezone)}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">{shift.platform} · {shift.area}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {shift.platform} {" · "} {t(`shiftForm.weather.${shift.weatherCondition}`)}
+                    </p>
                   </div>
                 </td>
                 <td className="py-4 pr-4">{formatNumber(shift.hoursWorked, locale)}</td>
@@ -231,22 +231,12 @@ export default function ShiftPerformanceTable({
                 </td>
                 <td className="py-4">
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => beginEdit(shift)}
-                      className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
-                      aria-label={t("common.edit")}
-                    >
+                    <IconButton label={t("common.edit")} onClick={() => beginEdit(shift)}>
                       <Pencil size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(shift.id)}
-                      className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
-                      aria-label={t("common.delete")}
-                    >
+                    </IconButton>
+                    <IconButton label={t("common.delete")} onClick={() => handleDelete(shift.id)}>
                       <Trash2 size={15} />
-                    </button>
+                    </IconButton>
                   </div>
                 </td>
               </tr>
@@ -260,7 +250,7 @@ export default function ShiftPerformanceTable({
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold text-slate-950">{t("table.editShift")}</h3>
-              <p className="text-sm text-slate-500">{editingShift.area}</p>
+              <p className="text-sm text-slate-500">{t(`shiftForm.weather.${editingShift.weatherCondition}`)}</p>
             </div>
             <button
               type="button"
@@ -279,9 +269,7 @@ export default function ShiftPerformanceTable({
               <input
                 type="date"
                 value={draft.date}
-                onChange={(event) =>
-                  setDraft((current) => (current ? { ...current, date: event.target.value } : current))
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, date: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -289,11 +277,7 @@ export default function ShiftPerformanceTable({
               <input
                 type="time"
                 value={draft.startTime}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, startTime: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, startTime: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -301,18 +285,14 @@ export default function ShiftPerformanceTable({
               <input
                 type="time"
                 value={draft.endTime}
-                onChange={(event) =>
-                  setDraft((current) => (current ? { ...current, endTime: event.target.value } : current))
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, endTime: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
             <EditorField label={t("shiftForm.fields.platform")}>
               <select
                 value={draft.platform}
-                onChange={(event) =>
-                  setDraft((current) => (current ? { ...current, platform: event.target.value } : current))
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, platform: event.target.value } : current))}
                 className="rm-input"
               >
                 <option value="efood">efood</option>
@@ -321,26 +301,27 @@ export default function ShiftPerformanceTable({
                 <option value="other">{t("table.other")}</option>
               </select>
             </EditorField>
-            <EditorField label={t("shiftForm.fields.area")}>
-              <input
-                type="text"
-                value={draft.area}
-                onChange={(event) =>
-                  setDraft((current) => (current ? { ...current, area: event.target.value } : current))
-                }
+            <EditorField label={t("shiftForm.fields.weatherCondition")}>
+              <select
+                value={draft.weatherCondition}
+                onChange={(event) => setDraft((current) => (current ? { ...current, weatherCondition: event.target.value } : current))}
                 className="rm-input"
-              />
+              >
+                <option value="unknown">{t("shiftForm.weather.unknown")}</option>
+                <option value="sunny">{t("shiftForm.weather.sunny")}</option>
+                <option value="cloudy">{t("shiftForm.weather.cloudy")}</option>
+                <option value="rain">{t("shiftForm.weather.rain")}</option>
+                <option value="heatwave">{t("shiftForm.weather.heatwave")}</option>
+                <option value="cold">{t("shiftForm.weather.cold")}</option>
+                <option value="windy">{t("shiftForm.weather.windy")}</option>
+              </select>
             </EditorField>
             <EditorField label={t("shiftForm.fields.hoursWorked")}>
               <input
                 type="number"
                 step="0.01"
                 value={draft.hoursWorked}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, hoursWorked: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, hoursWorked: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -349,11 +330,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="1"
                 value={draft.ordersCompleted}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, ordersCompleted: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, ordersCompleted: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -362,11 +339,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.kilometersDriven}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, kilometersDriven: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, kilometersDriven: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -375,11 +348,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.baseEarnings}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, baseEarnings: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, baseEarnings: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -388,11 +357,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.tipsAmount}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, tipsAmount: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, tipsAmount: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -401,11 +366,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.bonusAmount}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, bonusAmount: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, bonusAmount: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -414,11 +375,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.fuelExpenseDirect}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, fuelExpenseDirect: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, fuelExpenseDirect: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -427,11 +384,7 @@ export default function ShiftPerformanceTable({
                 type="number"
                 step="0.01"
                 value={draft.tollsOrParking}
-                onChange={(event) =>
-                  setDraft((current) =>
-                    current ? { ...current, tollsOrParking: event.target.value } : current
-                  )
-                }
+                onChange={(event) => setDraft((current) => (current ? { ...current, tollsOrParking: event.target.value } : current))}
                 className="rm-input"
               />
             </EditorField>
@@ -439,9 +392,7 @@ export default function ShiftPerformanceTable({
               <EditorField label={t("shiftForm.fields.notes")}>
                 <textarea
                   value={draft.notes}
-                  onChange={(event) =>
-                    setDraft((current) => (current ? { ...current, notes: event.target.value } : current))
-                  }
+                  onChange={(event) => setDraft((current) => (current ? { ...current, notes: event.target.value } : current))}
                   className="rm-input min-h-[110px]"
                 />
               </EditorField>
@@ -449,18 +400,12 @@ export default function ShiftPerformanceTable({
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={saveEdit}
-              disabled={submitting}
-              className="rm-button-primary disabled:opacity-60"
-            >
+            <button type="button" onClick={saveEdit} disabled={submitting} className="rm-button-primary disabled:opacity-60">
               {submitting ? t("common.saving") : t("common.update")}
             </button>
           </div>
         </div>
       ) : null}
-
     </section>
   );
 }
@@ -480,5 +425,26 @@ function MobileMetric({ label, value }: { label: string; value: string }) {
       <p className="rm-stat-kicker">{label}</p>
       <p className="mt-2 text-base font-semibold text-slate-950">{value}</p>
     </div>
+  );
+}
+
+function IconButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex rounded-xl border border-stone-200 bg-white p-2 text-slate-600 hover:border-orange-200 hover:bg-orange-50"
+      aria-label={label}
+    >
+      {children}
+    </button>
   );
 }

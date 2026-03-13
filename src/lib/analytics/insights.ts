@@ -1,10 +1,17 @@
-import type { Insight, ShiftWithMetrics, TimeSeriesPoint, WeekdayPerformancePoint } from "@/types/domain";
+import type {
+  Insight,
+  ShiftWithMetrics,
+  TimeSeriesPoint,
+  WeatherPerformancePoint,
+  WeekdayPerformancePoint,
+} from "@/types/domain";
 import { roundCurrency, safeDivide } from "@/lib/utils";
 
 export function buildInsights(args: {
   shifts: ShiftWithMetrics[];
   trend: TimeSeriesPoint[];
   weekdayPerformance: WeekdayPerformancePoint[];
+  weatherPerformance: WeatherPerformancePoint[];
   previousPeriodNetProfitPerHour: number;
   currentPeriodNetProfitPerHour: number;
 }): Insight[] {
@@ -48,6 +55,23 @@ export function buildInsights(args: {
   }
 
   if (args.shifts.length > 0) {
+    const strongestWeather = [...args.weatherPerformance]
+      .filter((item) => item.weatherCondition !== "unknown" && item.shifts > 0)
+      .sort((left, right) => right.netProfitPerHour - left.netProfitPerHour)[0];
+
+    if (strongestWeather && strongestWeather.netProfitPerHour > 0) {
+      insights.push({
+        id: "best-weather",
+        titleKey: "insights.weather.title",
+        bodyKey: "insights.weather.body",
+        tone: strongestWeather.weatherCondition === "rain" ? "positive" : "neutral",
+        values: {
+          weather: strongestWeather.label,
+          value: roundCurrency(strongestWeather.netProfitPerHour),
+        },
+      });
+    }
+
     const highKmShifts = args.shifts.filter((shift) => shift.kilometersDriven >= 40);
     if (highKmShifts.length > 0) {
       const highKmMargin = safeDivide(

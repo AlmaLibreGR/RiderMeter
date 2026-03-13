@@ -3,7 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getDurationHoursFromTimes } from "@/lib/dates";
 import { canonicalShiftSchema, historyQuerySchema, shiftPayloadSchema } from "@/lib/validators/shift";
 import { asNullableString, roundCurrency, toSafeNumber } from "@/lib/utils";
-import type { CanonicalShift, PlatformKey } from "@/types/domain";
+import type {
+  CanonicalShift,
+  PlatformKey,
+  ShiftDraft,
+  ShiftDraftMode,
+  WeatherCondition,
+} from "@/types/domain";
 import { nowIsoDate } from "@/lib/dates";
 
 function normalizePlatform(value: string | null | undefined): PlatformKey {
@@ -12,6 +18,21 @@ function normalizePlatform(value: string | null | undefined): PlatformKey {
   }
 
   return "other";
+}
+
+function normalizeWeatherCondition(value: string | null | undefined): WeatherCondition {
+  if (
+    value === "sunny" ||
+    value === "cloudy" ||
+    value === "rain" ||
+    value === "heatwave" ||
+    value === "cold" ||
+    value === "windy"
+  ) {
+    return value;
+  }
+
+  return "unknown";
 }
 
 export function mapShiftRecordToCanonical(shift: Shift): CanonicalShift {
@@ -40,7 +61,8 @@ export function mapShiftRecordToCanonical(shift: Shift): CanonicalShift {
       shift.fuelExpenseDirect == null ? null : roundCurrency(toSafeNumber(shift.fuelExpenseDirect)),
     tollsOrParking: roundCurrency(toSafeNumber(shift.tollsOrParking)),
     platform: normalizePlatform(shift.platform),
-    area: shift.area,
+    weatherCondition: normalizeWeatherCondition(shift.weatherCondition),
+    area: shift.area ?? null,
     notes: shift.notes ?? null,
     createdAt: shift.createdAt.toISOString(),
     updatedAt: shift.updatedAt?.toISOString() ?? null,
@@ -73,11 +95,23 @@ export async function listUserShifts(userId: number, query?: unknown) {
 export function normalizeShiftPayload(input: unknown) {
   const parsed = shiftPayloadSchema.parse(input);
 
-  if ("hoursWorked" in parsed) {
-    const derivedHoursWorked = getDurationHoursFromTimes(parsed.startTime, parsed.endTime);
+  if (
+    "hoursWorked" in parsed ||
+    "startTime" in parsed ||
+    "endTime" in parsed ||
+    "ordersCompleted" in parsed
+  ) {
+    const derivedHoursWorked =
+      parsed.startTime && parsed.endTime
+        ? getDurationHoursFromTimes(parsed.startTime, parsed.endTime)
+        : null;
+
     return canonicalShiftSchema.parse({
       ...parsed,
+      fuelExpenseDirect: parsed.fuelExpenseDirect ?? parsed.fuelExpenseOverride ?? null,
       hoursWorked: derivedHoursWorked ?? parsed.hoursWorked,
+      area: parsed.area ?? null,
+      weatherCondition: parsed.weatherCondition ?? "unknown",
     });
   }
 
@@ -87,7 +121,6 @@ export function normalizeShiftPayload(input: unknown) {
       parsed.platform === "efood" || parsed.platform === "wolt"
         ? parsed.platform
         : "other",
-    area: parsed.area,
     hoursWorked: "hours" in parsed ? parsed.hours : 0,
     ordersCompleted: "ordersCount" in parsed ? parsed.ordersCount : 0,
     kilometersDriven: "kilometers" in parsed ? parsed.kilometers : 0,
@@ -96,12 +129,47 @@ export function normalizeShiftPayload(input: unknown) {
       ("tipsCard" in parsed ? toSafeNumber(parsed.tipsCard) : 0) +
       ("tipsCash" in parsed ? toSafeNumber(parsed.tipsCash) : 0),
     bonusAmount: "bonus" in parsed ? parsed.bonus : 0,
+    weatherCondition:
+      "weatherCondition" in parsed ? parsed.weatherCondition ?? "unknown" : "unknown",
     notes: "notes" in parsed ? parsed.notes : null,
     startTime: null,
     endTime: null,
     fuelExpenseDirect: null,
     tollsOrParking: 0,
+    area: "area" in parsed ? parsed.area ?? null : null,
   });
+}
+
+export async function getLatestShiftDraft(userId: number): Promise<ShiftDraft | null> {
+  const latestShift = await prisma.shift.findFirst({
+    where: { userId },
+    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+  });
+
+  if (!latestShift) {
+    return null;
+  }
+
+  const shift = mapShiftRecordToCanonical(latestShift);
+  const mode: ShiftDraftMode = shift.startTime && shift.endTime ? "timer" : "quick";
+
+  return {
+    mode,
+    date: shift.date,
+    startTime: shift.startTime,
+    endTime: shift.endTime,
+    hoursWorked: shift.hoursWorked || null,
+    ordersCompleted: shift.ordersCompleted,
+    kilometersDriven: shift.kilometersDriven,
+    baseEarnings: shift.baseEarnings,
+    tipsAmount: shift.tipsAmount,
+    bonusAmount: shift.bonusAmount,
+    fuelExpenseDirect: shift.fuelExpenseDirect,
+    tollsOrParking: shift.tollsOrParking,
+    platform: shift.platform,
+    weatherCondition: shift.weatherCondition,
+    notes: shift.notes,
+  };
 }
 
 export async function createShift(userId: number, input: unknown) {
@@ -118,7 +186,8 @@ export async function createShift(userId: number, input: unknown) {
       startTime: asNullableString(payload.startTime),
       endTime: asNullableString(payload.endTime),
       platform: payload.platform ?? "other",
-      area: payload.area,
+      weatherCondition: payload.weatherCondition ?? "unknown",
+      area: asNullableString(payload.area),
       hours: hoursWorked,
       hoursWorked,
       ordersCount: Math.round(toSafeNumber(payload.ordersCompleted)),
@@ -170,7 +239,8 @@ export async function updateShift(userId: number, shiftId: number, input: unknow
       startTime: asNullableString(payload.startTime),
       endTime: asNullableString(payload.endTime),
       platform: payload.platform ?? "other",
-      area: payload.area,
+      weatherCondition: payload.weatherCondition ?? "unknown",
+      area: asNullableString(payload.area),
       hours: hoursWorked,
       hoursWorked,
       ordersCount: Math.round(toSafeNumber(payload.ordersCompleted)),

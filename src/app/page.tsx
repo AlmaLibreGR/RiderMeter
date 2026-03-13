@@ -280,6 +280,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                         )}
                       />
                     ))}
+                    {dataset.insights.length === 0 ? (
+                      <InsightCard
+                        tone="neutral"
+                        title={t("dashboard.insights.emptyTitle")}
+                        body={t("dashboard.insights.emptyBody")}
+                      />
+                    ) : null}
                   </div>
                 </Panel>
 
@@ -351,6 +358,59 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 description={t("dashboard.charts.weekdayBody")}
               >
                 <WeekdayPerformanceChart data={dataset.weekdayPerformance} currency={currency} />
+              </Panel>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+              <Panel
+                eyebrow={t("dashboard.sections.performance")}
+                title={t("dashboard.weather.title")}
+                description={t("dashboard.weather.body")}
+              >
+                <div className="grid gap-3 md:grid-cols-2">
+                  {dataset.weatherPerformance.length > 0 ? (
+                    dataset.weatherPerformance.map((item) => (
+                      <div key={item.weatherCondition} className="rm-stat-tile">
+                        <p className="rm-stat-kicker">{item.label}</p>
+                        <p className="mt-2 text-lg font-semibold text-slate-950">
+                          {formatCurrency(item.netProfitPerHour, locale, currency)} / {t("common.hour")}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {formatNumber(item.shifts, locale, 0)} {t("common.shift")} · {formatCurrency(item.revenue, locale, currency)}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rm-empty-state min-h-[12rem]">
+                      <h3 className="text-lg font-semibold text-slate-950">{t("dashboard.weather.emptyTitle")}</h3>
+                      <p className="mt-2 text-sm text-slate-600">{t("dashboard.weather.emptyBody")}</p>
+                    </div>
+                  )}
+                </div>
+              </Panel>
+
+              <Panel
+                eyebrow={t("dashboard.sections.insights")}
+                title={t("dashboard.benchmarks.title")}
+                description={t("dashboard.benchmarks.body")}
+              >
+                {dataset.benchmarks.enoughData ? (
+                  <div className="grid gap-3">
+                    {dataset.benchmarks.cards.map((card) => (
+                      <InsightCard
+                        key={card.id}
+                        tone="neutral"
+                        title={t(card.titleKey)}
+                        body={t(card.bodyKey, formatInsightValues(card.values, locale, currency))}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rm-empty-state min-h-[12rem]">
+                    <h3 className="text-lg font-semibold text-slate-950">{t("dashboard.benchmarks.emptyTitle")}</h3>
+                    <p className="mt-2 text-sm text-slate-600">{t("dashboard.benchmarks.emptyBody")}</p>
+                  </div>
+                )}
               </Panel>
             </section>
 
@@ -427,7 +487,7 @@ function formatInsightValues(
         return [key, value];
       }
 
-      if (key === "value") {
+      if (key === "value" || key === "revenueValue" || key === "netValue") {
         return [key, formatCurrency(value, locale, currency)];
       }
 

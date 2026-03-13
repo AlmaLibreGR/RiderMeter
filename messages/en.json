@@ -103,6 +103,22 @@
       "costTitle": "Expense categories",
       "costBody": "Build your own business and personal budget categories and keep fixed costs honest."
     },
+    "weather": {
+      "title": "Profitability by weather",
+      "body": "See how different weather conditions change your net per hour and the shape of each shift.",
+      "emptyTitle": "Weather insights need more shifts",
+      "emptyBody": "Log a few shifts with weather selected to unlock weather-aware profitability."
+    },
+    "benchmarks": {
+      "title": "Network benchmarks",
+      "body": "Anonymous rider aggregates show where the network tends to be strongest.",
+      "emptyTitle": "Not enough benchmark data yet",
+      "emptyBody": "Benchmark cards appear automatically once the anonymous network sample is large enough."
+    },
+    "insights": {
+      "emptyTitle": "Your next useful insight is loading",
+      "emptyBody": "Add a few more clean shifts and RiderMeter will start surfacing stronger patterns."
+    },
     "charts": {
       "trendTitle": "Revenue vs costs by day",
       "trendBody": "Follow the shape of your period and spot expensive days early.",
@@ -166,14 +182,52 @@
     "tips": {
       "title": "Tips matter",
       "body": "Tips represent {share}% of your revenue in this period."
+    },
+    "weather": {
+      "title": "Weather is changing the outcome",
+      "body": "{weather} currently returns {value} net per hour for you."
+    }
+  },
+  "benchmarks": {
+    "bestWeekday": {
+      "title": "Best weekday across riders",
+      "body": "Across the network, {weekday} is currently strongest at {revenueValue} revenue per hour."
+    },
+    "bestWindow": {
+      "title": "Strongest time window",
+      "body": "The network is strongest around {window}, with {revenueValue} revenue per hour."
+    },
+    "revenuePerHour": {
+      "title": "Network revenue benchmark",
+      "body": "Anonymous rider data is averaging {revenueValue} revenue per hour."
+    },
+    "ordersPerHour": {
+      "title": "Network order benchmark",
+      "body": "Anonymous rider data is averaging {ordersValue} orders per hour."
     }
   },
   "shiftForm": {
     "eyebrow": "Fast entry",
     "title": "Capture a shift without slowing down",
-    "body": "Set your start and end time once and let RiderMeter calculate the working duration automatically.",
+    "body": "Choose a fast entry style, capture weather, and save a complete shift from your phone without friction.",
+    "quickTitle": "Quick entry for after the shift",
+    "timerTitle": "Live timer for active riding",
+    "performanceTitle": "Operational output",
+    "earningsTitle": "Revenue and extras",
+    "quickHelp": "Use this when you know the total duration and want the fastest possible entry.",
+    "toggleAdvanced": "Show extra costs and notes",
+    "useLastShift": "Duplicate last shift",
+    "restoreDraft": "Restore draft",
+    "saveDraft": "Save draft",
+    "clearDraft": "Clear draft",
+    "draftSaved": "Draft saved on this device.",
+    "draftCleared": "Draft cleared from this device.",
+    "modes": {
+      "quick": "Quick Entry",
+      "timer": "Live Timer"
+    },
     "groups": {
-      "schedule": "Schedule and route",
+      "schedule": "Schedule",
       "performance": "Performance",
       "earnings": "Earnings",
       "extras": "Extras and notes",
@@ -184,7 +238,7 @@
       "startTime": "Start time",
       "endTime": "End time",
       "platform": "Platform",
-      "area": "Area",
+      "weatherCondition": "Weather",
       "hoursWorked": "Hours worked",
       "ordersCompleted": "Orders completed",
       "kilometersDriven": "Kilometers driven",
@@ -196,9 +250,17 @@
       "notes": "Notes"
     },
     "help": {
-      "area": "Use a recognizable zone so you can compare areas later.",
       "fuelExpenseDirect": "Use only when you want to override estimated fuel cost.",
       "notes": "Weather, demand, delays, or anything worth remembering."
+    },
+    "weather": {
+      "unknown": "No weather",
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rain": "Rain",
+      "heatwave": "Heatwave",
+      "cold": "Cold",
+      "windy": "Windy"
     },
     "duration": {
       "title": "Working duration",
@@ -211,7 +273,6 @@
       "grossRevenue": "Gross revenue",
       "grossPerHour": "Gross per hour",
       "validationTitle": "Before saving",
-      "validationArea": "Area is filled in clearly.",
       "validationHours": "Worked hours are valid.",
       "validationNumbers": "All numeric values are non-negative."
     },
@@ -221,7 +282,6 @@
       "generic": "Something went wrong while saving the shift.",
       "invalid": "Please correct the highlighted fields before saving.",
       "date": "Shift date is required.",
-      "area": "Area is required.",
       "hoursWorked": "Hours worked must be greater than zero.",
       "nonNegative": "Value must be zero or greater."
     }

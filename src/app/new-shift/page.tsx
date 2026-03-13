@@ -5,6 +5,7 @@ import { getCurrentUserFromCookie } from "@/lib/auth";
 import { nowIsoDate } from "@/lib/dates";
 import { getCurrentLocale, getMessages, translateMessage } from "@/lib/i18n";
 import { getUserSettingsSnapshot } from "@/services/settings-service";
+import { getLatestShiftDraft } from "@/services/shift-service";
 
 export default async function NewShiftPage() {
   const currentUser = await getCurrentUserFromCookie();
@@ -16,6 +17,7 @@ export default async function NewShiftPage() {
   }
 
   const settings = await getUserSettingsSnapshot(currentUser.userId);
+  const latestDraft = await getLatestShiftDraft(currentUser.userId);
   const t = (key: string) => translateMessage(messages, key);
 
   return (
@@ -44,6 +46,7 @@ export default async function NewShiftPage() {
           initialDate={nowIsoDate(settings.timezone)}
           currency={settings.currency}
           timezone={settings.timezone}
+          initialDraft={latestDraft}
         />
       </div>
     </main>

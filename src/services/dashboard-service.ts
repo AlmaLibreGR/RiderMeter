@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import { getNetworkBenchmarkDataset } from "@/lib/analytics/benchmarks";
 import { buildInsights } from "@/lib/analytics/insights";
 import { aggregateShiftMetrics, createEmptyAggregate, withShiftMetrics } from "@/lib/calculations";
 import { nowIsoDate, previousRangeStrings, toDateLabel, toRangeStrings, toWeekdayLabel } from "@/lib/dates";
@@ -12,6 +13,7 @@ import type {
   MetricDelta,
   ShiftWithMetrics,
   TimeSeriesPoint,
+  WeatherPerformancePoint,
 } from "@/types/domain";
 
 export async function getDashboardDataset(args: {
@@ -60,8 +62,10 @@ export async function getDashboardDataset(args: {
   const trend = buildTrend(selectedShifts, settings.locale, settings.timezone);
   const previousTrend = buildTrend(previousShifts, settings.locale, settings.timezone);
   const weekdayPerformance = buildWeekdayPerformance(selectedShifts, settings.locale, settings.timezone);
+  const weatherPerformance = buildWeatherPerformance(selectedShifts, settings.locale);
   const previousAggregate = aggregateShiftMetrics(previousShifts);
   const selectedAggregate = aggregateShiftMetrics(selectedShifts);
+  const benchmarks = await getNetworkBenchmarkDataset(settings.locale);
 
   return {
     period: selectedPeriod,
@@ -78,6 +82,7 @@ export async function getDashboardDataset(args: {
     trend,
     previousTrend,
     weekdayPerformance,
+    weatherPerformance,
     revenueComposition: [
       { key: "base", label: "dashboard.composition.base", value: selectedShifts.reduce((sum, shift) => sum + shift.baseEarnings, 0) },
       { key: "tips", label: "dashboard.composition.tips", value: selectedShifts.reduce((sum, shift) => sum + shift.tipsAmount, 0) },
@@ -94,9 +99,11 @@ export async function getDashboardDataset(args: {
       shifts: selectedShifts,
       trend,
       weekdayPerformance,
+      weatherPerformance,
       previousPeriodNetProfitPerHour: previousAggregate.netProfitPerHour,
       currentPeriodNetProfitPerHour: selectedAggregate.netProfitPerHour,
     }),
+    benchmarks,
     topShift: [...selectedShifts].sort(
       (left, right) => right.metrics.netPerHour - left.metrics.netPerHour
     )[0] ?? null,
@@ -183,4 +190,53 @@ function buildWeekdayPerformance(
       (left, right) =>
         weekdayOrder.indexOf(left.weekday) - weekdayOrder.indexOf(right.weekday)
     );
+}
+
+function buildWeatherPerformance(
+  shifts: ShiftWithMetrics[],
+  locale: "en" | "el"
+): WeatherPerformancePoint[] {
+  const grouped = groupBy(shifts, (shift) => shift.weatherCondition);
+
+  return Object.entries(grouped)
+    .map(([weatherCondition, weatherShifts]) => {
+      const aggregate = weatherShifts.length
+        ? aggregateShiftMetrics(weatherShifts)
+        : createEmptyAggregate();
+
+      return {
+        weatherCondition: weatherCondition as WeatherPerformancePoint["weatherCondition"],
+        label: toWeatherLabel(weatherCondition, locale),
+        revenue: aggregate.totalRevenue,
+        netProfit: aggregate.netProfit,
+        netProfitPerHour: aggregate.netProfitPerHour,
+        shifts: weatherShifts.length,
+      };
+    })
+    .sort((left, right) => right.netProfitPerHour - left.netProfitPerHour);
+}
+
+function toWeatherLabel(weatherCondition: string, locale: "en" | "el") {
+  const labels =
+    locale === "el"
+      ? {
+          unknown: "Χωρίς καιρό",
+          sunny: "Ήλιος",
+          cloudy: "Συννεφιά",
+          rain: "Βροχή",
+          heatwave: "Καύσωνας",
+          cold: "Κρύο",
+          windy: "Αέρας",
+        }
+      : {
+          unknown: "No weather",
+          sunny: "Sunny",
+          cloudy: "Cloudy",
+          rain: "Rain",
+          heatwave: "Heatwave",
+          cold: "Cold",
+          windy: "Windy",
+        };
+
+  return labels[weatherCondition as keyof typeof labels] ?? labels.unknown;
 }

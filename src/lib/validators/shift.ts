@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { getDurationHoursFromTimes } from "@/lib/dates";
+import { supportedPlatforms, supportedWeatherConditions } from "@/types/domain";
 
 const numericString = z.union([z.number(), z.string(), z.null(), z.undefined()]);
 
 const legacyShiftSchema = z.object({
   date: z.string().min(1),
   platform: z.string().min(1).default("other"),
-  area: z.string().trim().min(1).max(100),
+  area: z.string().trim().max(100).optional(),
   hours: numericString.optional(),
   ordersCount: numericString.optional(),
   kilometers: numericString.optional(),
@@ -14,6 +15,7 @@ const legacyShiftSchema = z.object({
   tipsCard: numericString.optional(),
   tipsCash: numericString.optional(),
   bonus: numericString.optional(),
+  weatherCondition: z.enum(supportedWeatherConditions).optional(),
   notes: z.string().max(2000).optional().default(""),
 });
 
@@ -29,9 +31,11 @@ export const canonicalShiftSchema = z
     tipsAmount: numericString.optional(),
     bonusAmount: numericString.optional(),
     fuelExpenseDirect: numericString.optional(),
+    fuelExpenseOverride: numericString.optional(),
     tollsOrParking: numericString.optional(),
-    platform: z.enum(["efood", "wolt", "freelance", "other"]).optional(),
-    area: z.string().trim().min(1).max(100),
+    platform: z.enum(supportedPlatforms).optional(),
+    weatherCondition: z.enum(supportedWeatherConditions).optional(),
+    area: z.string().trim().max(100).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
   })
   .superRefine((value, context) => {
