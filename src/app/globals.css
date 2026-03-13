@@ -123,6 +123,8 @@ textarea:focus-visible {
 .rm-input {
   @apply w-full rounded-2xl border bg-white px-4 py-3 text-[15px] text-slate-900 outline-none;
   border-color: rgba(148, 163, 184, 0.4);
+  min-height: 48px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .rm-input:hover {
@@ -131,6 +133,10 @@ textarea:focus-visible {
 
 .rm-input:focus-visible {
   border-color: rgba(15, 23, 42, 0.2);
+}
+
+.rm-input::placeholder {
+  color: rgba(100, 116, 139, 0.76);
 }
 
 .rm-button-primary {
@@ -150,6 +156,39 @@ textarea:focus-visible {
 .rm-button-secondary:hover {
   border-color: rgba(100, 116, 139, 0.32);
   background: #f8fafc;
+}
+
+.rm-field-label {
+  @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500;
+}
+
+.rm-field-helper {
+  @apply mt-2 text-sm leading-5 text-slate-500;
+}
+
+.rm-subtle-card {
+  @apply rounded-[28px] border bg-slate-50/84;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.rm-stat-tile {
+  @apply rounded-[24px] border bg-white px-4 py-4;
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.03);
+}
+
+.rm-stat-kicker {
+  @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+}
+
+.rm-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.2) 0%,
+    rgba(226, 232, 240, 0.9) 50%,
+    rgba(226, 232, 240, 0.2) 100%
+  );
 }
 
 .rm-empty-state {

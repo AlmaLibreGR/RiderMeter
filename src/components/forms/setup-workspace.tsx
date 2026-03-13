@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { calculateVehicleDerivedCosts, normalizeCadenceToDailyAmount } from "@/lib/calculations";
 import { nowIsoDate } from "@/lib/dates";
-import { formatCurrency, formatDate } from "@/lib/formatters";
+import { formatCurrency, formatDate, formatNumber } from "@/lib/formatters";
 import type {
   CurrencyCode,
   ExpenseCadence,
@@ -157,6 +157,7 @@ export default function SetupWorkspace({
     (category) => String(category.id ?? category.localId) === expenseForm.categoryLocalId
   );
   const vehicleContent = getVehicleCopy(vehicle.vehicleType, t);
+  const recurringCategoryCount = categories.filter((category) => category.name.trim()).length;
 
   async function handleSaveSetup() {
     setSaveState({ loading: true, message: null, error: false });
@@ -288,6 +289,27 @@ export default function SetupWorkspace({
           title={t("setupWorkspace.sections.vehicleTitle")}
           description={t("setupWorkspace.sections.vehicleBody")}
         >
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <CompactStat
+              label={t("settings.fields.vehicleType")}
+              value={t(`setupWorkspace.vehicle.types.${vehicle.vehicleType}`)}
+            />
+            <CompactStat
+              label={t("setupWorkspace.vehicle.totalPerKm")}
+              value={formatCurrency(derivedCosts.totalCostPerKm, locale, currency)}
+            />
+            <CompactStat
+              label={t("setupWorkspace.categories.dailyBudget")}
+              value={formatCurrency(recurringSummary.dailyBudget, locale, currency)}
+            />
+            <CompactStat
+              label={t("setupWorkspace.sections.recentTitle")}
+              value={formatNumber(recentExpenses.length, locale, 0)}
+            />
+          </div>
+
+          <div className="rm-section-divider mt-6" />
+
           <div className="grid gap-3 md:grid-cols-3">
             {(["car", "scooter", "ebike"] as VehicleType[]).map((type) => (
               <button
@@ -307,11 +329,16 @@ export default function SetupWorkspace({
                 }}
                 className={`rounded-[24px] border px-4 py-4 text-left transition ${
                   vehicle.vehicleType === type
-                    ? "border-slate-900 bg-slate-950 text-white shadow-[0_18px_40px_rgba(15,23,42,0.16)]"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                    ? "border-slate-900 bg-slate-950 text-white shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                    : "border-slate-200 bg-white text-slate-700 hover:-translate-y-[1px] hover:border-slate-300"
                 }`}
               >
-                <p className="text-sm font-semibold">{t(`setupWorkspace.vehicle.types.${type}`)}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-current/60">
+                  {t("settings.fields.vehicleType")}
+                </p>
+                <p className="mt-2 text-base font-semibold">
+                  {t(`setupWorkspace.vehicle.types.${type}`)}
+                </p>
                 <p className={`mt-2 text-sm leading-6 ${vehicle.vehicleType === type ? "text-white/75" : "text-slate-500"}`}>
                   {t(`setupWorkspace.vehicle.typeBodies.${type}`)}
                 </p>
@@ -437,8 +464,28 @@ export default function SetupWorkspace({
             {categories.map((category) => (
               <div
                 key={category.localId}
-                className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-4"
+                className="rm-subtle-card p-4"
               >
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="rm-stat-kicker">{t("setupWorkspace.categories.scope")}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                      {category.name.trim() || t(`setupWorkspace.categories.scopes.${category.scope}`)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCategories((current) =>
+                        current.filter((item) => item.localId !== category.localId)
+                      )
+                    }
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+
                 <div className="grid gap-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_auto] lg:items-end">
                   <InputField label={t("setupWorkspace.categories.name")}>
                     <input
@@ -495,7 +542,7 @@ export default function SetupWorkspace({
                     }
                   />
                   <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-medium text-slate-600">
+                    <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600">
                       <input
                         type="checkbox"
                         checked={category.isActive}
@@ -507,17 +554,6 @@ export default function SetupWorkspace({
                       />
                       {t("setupWorkspace.categories.active")}
                     </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCategories((current) =>
-                          current.filter((item) => item.localId !== category.localId)
-                        )
-                      }
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -574,13 +610,44 @@ export default function SetupWorkspace({
         </SectionCard>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 xl:sticky xl:top-6 xl:self-start">
+        <SectionCard
+          eyebrow={t("setupWorkspace.eyebrow")}
+          title={t("setupWorkspace.title")}
+          description={t("setupWorkspace.body")}
+        >
+          <div className="grid gap-3">
+            <CompactStat
+              label={t("setupWorkspace.vehicle.totalPerKm")}
+              value={formatCurrency(derivedCosts.totalCostPerKm, locale, currency)}
+            />
+            <CompactStat
+              label={t("setupWorkspace.categories.dailyBudget")}
+              value={formatCurrency(recurringSummary.dailyBudget, locale, currency)}
+            />
+            <CompactStat
+              label={t("setupWorkspace.categories.amount")}
+              value={formatNumber(recurringCategoryCount, locale, 0)}
+              helper={t("setupWorkspace.sections.budgetTitle")}
+            />
+            <CompactStat
+              label={t("setupWorkspace.expenses.amount")}
+              value={formatNumber(recentExpenses.length, locale, 0)}
+              helper={t("setupWorkspace.sections.recentTitle")}
+            />
+          </div>
+        </SectionCard>
+
         <SectionCard
           eyebrow={t("setupWorkspace.sections.expensesEyebrow")}
           title={t("setupWorkspace.sections.expensesTitle")}
           description={t("setupWorkspace.sections.expensesBody")}
         >
           <form onSubmit={handleCreateExpense} className="space-y-4">
+            {availableExpenseCategories.length === 0 ? (
+              <InlineNotice error>{t("setupWorkspace.expenses.unsavedCategory")}</InlineNotice>
+            ) : null}
+
             <InputField label={t("setupWorkspace.expenses.date")}>
               <input
                 type="date"
@@ -647,7 +714,7 @@ export default function SetupWorkspace({
 
             <button
               type="submit"
-              disabled={expenseState.loading}
+              disabled={expenseState.loading || availableExpenseCategories.length === 0}
               className="rm-button-primary w-full disabled:opacity-60"
             >
               {expenseState.loading
@@ -675,7 +742,7 @@ export default function SetupWorkspace({
               {recentExpenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="rounded-[24px] border border-slate-200 bg-white p-4"
+                  className="rm-stat-tile"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -690,11 +757,11 @@ export default function SetupWorkspace({
                       ) : null}
                     </div>
                     <div className="text-right">
+                      <p className="rm-stat-kicker">
+                        {t(`setupWorkspace.categories.scopes.${expense.scope}`)}
+                      </p>
                       <p className="text-lg font-semibold text-slate-950">
                         {formatCurrency(expense.amount, locale, currency)}
-                      </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
-                        {t(`setupWorkspace.categories.scopes.${expense.scope}`)}
                       </p>
                     </div>
                   </div>
@@ -740,9 +807,9 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="rm-field-label">{label}</label>
       {children}
-      {helper ? <p className="mt-2 text-sm text-slate-500">{helper}</p> : null}
+      {helper ? <p className="rm-field-helper">{helper}</p> : null}
     </div>
   );
 }
@@ -790,6 +857,24 @@ function SummaryTile({
     >
       <p className={`text-sm ${emphasis ? "text-white/65" : "text-slate-500"}`}>{label}</p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function CompactStat({
+  label,
+  value,
+  helper,
+}: {
+  label: string;
+  value: string;
+  helper?: string;
+}) {
+  return (
+    <div className="rm-stat-tile">
+      <p className="rm-stat-kicker">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
+      {helper ? <p className="mt-1 text-sm text-slate-500">{helper}</p> : null}
     </div>
   );
 }

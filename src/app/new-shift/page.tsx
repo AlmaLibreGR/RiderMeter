@@ -42,7 +42,11 @@ export default async function NewShiftPage() {
           </div>
         </section>
 
-        <ShiftEntryForm initialDate={nowIsoDate(settings.timezone)} currency={settings.currency} />
+        <ShiftEntryForm
+          initialDate={nowIsoDate(settings.timezone)}
+          currency={settings.currency}
+          timezone={settings.timezone}
+        />
       </div>
     </main>
   );

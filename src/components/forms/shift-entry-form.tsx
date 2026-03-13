@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { getDurationHoursFromTimes, formatDurationLabel } from "@/lib/dates";
-import { formatCurrency } from "@/lib/formatters";
+import { formatDurationLabel, getDurationHoursFromTimes } from "@/lib/dates";
+import { formatCurrency, formatDate, formatNumber } from "@/lib/formatters";
 import { supportedPlatforms } from "@/types/domain";
 
 type ShiftEntryFormProps = {
   initialDate: string;
   currency: "EUR";
+  timezone: string;
 };
 
 type FormState = {
@@ -48,7 +49,11 @@ function toNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 }
 
-export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryFormProps) {
+export default function ShiftEntryForm({
+  initialDate,
+  currency,
+  timezone,
+}: ShiftEntryFormProps) {
   const t = useTranslations();
   const locale = useLocale() as "en" | "el";
   const [loading, setLoading] = useState(false);
@@ -83,7 +88,9 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
 
   const grossRevenue = useMemo(
     () =>
-      toNumber(form.baseEarnings) + toNumber(form.tipsAmount) + toNumber(form.bonusAmount),
+      toNumber(form.baseEarnings) +
+      toNumber(form.tipsAmount) +
+      toNumber(form.bonusAmount),
     [form.baseEarnings, form.tipsAmount, form.bonusAmount]
   );
   const grossPerHour = useMemo(() => {
@@ -91,6 +98,12 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
       ? grossRevenue / resolvedHoursWorked
       : 0;
   }, [grossRevenue, resolvedHoursWorked]);
+
+  const durationLabel =
+    derivedHoursWorked && durationMode === "auto"
+      ? formatDurationLabel(derivedHoursWorked, locale)
+      : t("shiftForm.duration.awaiting");
+  const platformLabel = form.platform === "other" ? t("table.other") : form.platform;
 
   function updateField(name: keyof FormState, value: string) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -196,6 +209,30 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           title={t("shiftForm.title")}
           description={t("shiftForm.body")}
         >
+          <div className="grid gap-3 md:grid-cols-3">
+            <PreviewStat
+              label={t("shiftForm.fields.hoursWorked")}
+              value={
+                Number.isFinite(resolvedHoursWorked) && resolvedHoursWorked > 0
+                  ? `${resolvedHoursWorked.toFixed(2)} h`
+                  : t("shiftForm.duration.awaiting")
+              }
+              compact
+            />
+            <PreviewStat
+              label={t("shiftForm.preview.grossRevenue")}
+              value={formatCurrency(grossRevenue, locale, currency)}
+              compact
+            />
+            <PreviewStat
+              label={t("shiftForm.preview.grossPerHour")}
+              value={formatCurrency(grossPerHour, locale, currency)}
+              compact
+            />
+          </div>
+
+          <div className="rm-section-divider mt-5" />
+
           <div className="grid gap-4 md:grid-cols-2">
             <Field label={t("shiftForm.fields.date")} error={errors.date}>
               <input
@@ -236,7 +273,11 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <Field label={t("shiftForm.fields.area")} helper={t("shiftForm.help.area")} error={errors.area}>
+            <Field
+              label={t("shiftForm.fields.area")}
+              helper={t("shiftForm.help.area")}
+              error={errors.area}
+            >
               <input
                 type="text"
                 value={form.area}
@@ -249,14 +290,12 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
               title={t("shiftForm.duration.title")}
               mode={durationMode}
               onModeChange={setDurationMode}
-              derivedLabel={
-                derivedHoursWorked
-                  ? formatDurationLabel(derivedHoursWorked, locale)
-                  : t("shiftForm.duration.awaiting")
-              }
+              derivedLabel={durationLabel}
               manualValue={form.manualHoursWorked}
               onManualChange={(value) => updateField("manualHoursWorked", value)}
               error={errors.manualHoursWorked}
+              startTime={form.startTime}
+              endTime={form.endTime}
               t={t}
             />
           </div>
@@ -297,10 +336,31 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           description={t("dashboard.charts.revenueCompositionBody")}
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <NumberField label={t("shiftForm.fields.baseEarnings")} value={form.baseEarnings} error={errors.baseEarnings} onChange={(value) => updateField("baseEarnings", value)} />
-            <NumberField label={t("shiftForm.fields.tipsAmount")} value={form.tipsAmount} error={errors.tipsAmount} onChange={(value) => updateField("tipsAmount", value)} />
-            <NumberField label={t("shiftForm.fields.bonusAmount")} value={form.bonusAmount} error={errors.bonusAmount} onChange={(value) => updateField("bonusAmount", value)} />
-            <NumberField label={t("shiftForm.fields.fuelExpenseDirect")} value={form.fuelExpenseDirect} error={errors.fuelExpenseDirect} helper={t("shiftForm.help.fuelExpenseDirect")} onChange={(value) => updateField("fuelExpenseDirect", value)} />
+            <NumberField
+              label={t("shiftForm.fields.baseEarnings")}
+              value={form.baseEarnings}
+              error={errors.baseEarnings}
+              onChange={(value) => updateField("baseEarnings", value)}
+            />
+            <NumberField
+              label={t("shiftForm.fields.tipsAmount")}
+              value={form.tipsAmount}
+              error={errors.tipsAmount}
+              onChange={(value) => updateField("tipsAmount", value)}
+            />
+            <NumberField
+              label={t("shiftForm.fields.bonusAmount")}
+              value={form.bonusAmount}
+              error={errors.bonusAmount}
+              onChange={(value) => updateField("bonusAmount", value)}
+            />
+            <NumberField
+              label={t("shiftForm.fields.fuelExpenseDirect")}
+              value={form.fuelExpenseDirect}
+              error={errors.fuelExpenseDirect}
+              helper={t("shiftForm.help.fuelExpenseDirect")}
+              onChange={(value) => updateField("fuelExpenseDirect", value)}
+            />
           </div>
         </FormGroup>
 
@@ -310,7 +370,12 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
           description={t("shiftForm.help.notes")}
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <NumberField label={t("shiftForm.fields.tollsOrParking")} value={form.tollsOrParking} error={errors.tollsOrParking} onChange={(value) => updateField("tollsOrParking", value)} />
+            <NumberField
+              label={t("shiftForm.fields.tollsOrParking")}
+              value={form.tollsOrParking}
+              error={errors.tollsOrParking}
+              onChange={(value) => updateField("tollsOrParking", value)}
+            />
             <Field label={t("shiftForm.fields.notes")}>
               <textarea
                 value={form.notes}
@@ -322,12 +387,44 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
         </FormGroup>
       </div>
 
-      <aside className="space-y-6">
+      <aside className="space-y-6 xl:sticky xl:top-6 xl:self-start">
         <section className="rm-surface-strong p-5">
           <div className="rm-pill">{t("shiftForm.groups.preview")}</div>
-          <div className="mt-4 space-y-4">
-            <PreviewStat label={t("shiftForm.preview.grossRevenue")} value={formatCurrency(grossRevenue, locale, currency)} />
-            <PreviewStat label={t("shiftForm.preview.grossPerHour")} value={formatCurrency(grossPerHour, locale, currency)} />
+
+          <div className="mt-4 grid gap-3">
+            <PreviewMeta
+              label={t("shiftForm.fields.date")}
+              value={form.date ? formatDate(form.date, locale, timezone) : "-"}
+            />
+            <PreviewMeta
+              label={t("shiftForm.fields.platform")}
+              value={platformLabel}
+            />
+            <PreviewMeta
+              label={t("shiftForm.duration.title")}
+              value={durationLabel}
+            />
+          </div>
+
+          <div className="rm-section-divider mt-5" />
+
+          <div className="mt-5 space-y-3">
+            <PreviewStat
+              label={t("shiftForm.preview.grossRevenue")}
+              value={formatCurrency(grossRevenue, locale, currency)}
+            />
+            <PreviewStat
+              label={t("shiftForm.preview.grossPerHour")}
+              value={formatCurrency(grossPerHour, locale, currency)}
+            />
+            <PreviewStat
+              label={t("shiftForm.fields.ordersCompleted")}
+              value={formatNumber(toNumber(form.ordersCompleted), locale, 0)}
+            />
+            <PreviewStat
+              label={t("shiftForm.fields.kilometersDriven")}
+              value={formatNumber(toNumber(form.kilometersDriven), locale)}
+            />
           </div>
 
           {feedback ? (
@@ -336,7 +433,11 @@ export default function ShiftEntryForm({ initialDate, currency }: ShiftEntryForm
             </div>
           ) : null}
 
-          <button type="submit" disabled={loading} className="rm-button-primary mt-5 w-full disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={loading}
+            className="rm-button-primary mt-5 w-full disabled:opacity-60"
+          >
             {loading ? t("common.saving") : t("shiftForm.submit")}
           </button>
 
@@ -388,9 +489,11 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="rm-field-label">{label}</label>
       {children}
-      <p className={`mt-2 text-sm ${error ? "text-rose-600" : "text-slate-500"}`}>{error || helper || " "}</p>
+      <p className={`rm-field-helper ${error ? "text-rose-600" : "text-slate-500"}`}>
+        {error || helper || " "}
+      </p>
     </div>
   );
 }
@@ -410,7 +513,13 @@ function NumberField({
 }) {
   return (
     <Field label={label} error={error} helper={helper}>
-      <input type="number" step="0.01" value={value} onChange={(event) => onChange(event.target.value)} className={inputClass(Boolean(error))} />
+      <input
+        type="number"
+        step="0.01"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={inputClass(Boolean(error))}
+      />
     </Field>
   );
 }
@@ -423,6 +532,8 @@ function DurationCard({
   manualValue,
   onManualChange,
   error,
+  startTime,
+  endTime,
   t,
 }: {
   title: string;
@@ -432,38 +543,93 @@ function DurationCard({
   manualValue: string;
   onManualChange: (value: string) => void;
   error?: string;
+  startTime: string;
+  endTime: string;
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50/80 p-4">
+    <div className="rm-subtle-card p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-slate-700">{title}</p>
+        <p className="rm-field-label !mb-0">{title}</p>
         <div className="inline-flex rounded-full border border-slate-200 bg-white p-1">
-          <button type="button" onClick={() => onModeChange("auto")} className={`rounded-full px-3 py-1 text-xs font-semibold ${mode === "auto" ? "bg-slate-950 text-white" : "text-slate-500"}`}>
+          <button
+            type="button"
+            onClick={() => onModeChange("auto")}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              mode === "auto" ? "bg-slate-950 text-white" : "text-slate-500"
+            }`}
+          >
             {t("shiftForm.duration.auto")}
           </button>
-          <button type="button" onClick={() => onModeChange("manual")} className={`rounded-full px-3 py-1 text-xs font-semibold ${mode === "manual" ? "bg-slate-950 text-white" : "text-slate-500"}`}>
+          <button
+            type="button"
+            onClick={() => onModeChange("manual")}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              mode === "manual" ? "bg-slate-950 text-white" : "text-slate-500"
+            }`}
+          >
             {t("shiftForm.duration.manual")}
           </button>
         </div>
       </div>
+
       {mode === "auto" ? (
-        <p className="mt-4 text-2xl font-semibold text-slate-950">{derivedLabel}</p>
+        <div className="mt-4">
+          <p className="text-2xl font-semibold text-slate-950">{derivedLabel}</p>
+          <p className="mt-2 text-sm text-slate-500">
+            {startTime && endTime
+              ? `${startTime} - ${endTime}`
+              : t("shiftForm.duration.awaiting")}
+          </p>
+        </div>
       ) : (
         <div className="mt-4">
-          <input type="number" step="0.01" value={manualValue} onChange={(event) => onManualChange(event.target.value)} className={inputClass(Boolean(error))} />
-          <p className={`mt-2 text-sm ${error ? "text-rose-600" : "text-slate-500"}`}>{error || t("shiftForm.duration.manualHelp")}</p>
+          <input
+            type="number"
+            step="0.01"
+            value={manualValue}
+            onChange={(event) => onManualChange(event.target.value)}
+            className={inputClass(Boolean(error))}
+          />
+          <p className={`rm-field-helper ${error ? "text-rose-600" : "text-slate-500"}`}>
+            {error || t("shiftForm.duration.manualHelp")}
+          </p>
         </div>
       )}
     </div>
   );
 }
 
-function PreviewStat({ label, value }: { label: string; value: string }) {
+function PreviewStat({
+  label,
+  value,
+  compact = false,
+}: {
+  label: string;
+  value: string;
+  compact?: boolean;
+}) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+    <div
+      className={compact ? "rm-stat-tile" : "rounded-3xl border border-slate-200 bg-slate-50 p-4"}
+    >
+      <p className={compact ? "rm-stat-kicker" : "text-sm text-slate-500"}>{label}</p>
+      <p
+        className={`text-slate-950 ${
+          compact ? "mt-2 text-lg font-semibold" : "mt-2 text-2xl font-semibold"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function PreviewMeta({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-3">
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+      <p className="text-sm font-semibold text-slate-900">{value}</p>
     </div>
   );
 }
