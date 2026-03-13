@@ -23,6 +23,8 @@
     "setupNeeded": "Needs setup",
     "empty": "No data yet",
     "cancel": "Cancel",
+    "previous": "Back",
+    "next": "Continue",
     "optional": "Optional",
     "hour": "hour",
     "shift": "shift",

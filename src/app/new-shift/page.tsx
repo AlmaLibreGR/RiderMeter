@@ -20,22 +20,20 @@ export default async function NewShiftPage() {
 
   return (
     <main className="rm-page-shell">
-      <div className="rm-page-container">
-        <section className="rm-hero">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+      <div className="rm-page-container-compact">
+        <section className="rm-surface p-4 md:p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-3xl">
-              <div className="rm-pill">
-                {t("shiftForm.eyebrow")}
-              </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+              <div className="rm-pill">{t("shiftForm.eyebrow")}</div>
+              <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
                 {t("shiftForm.title")}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 {t("shiftForm.body")}
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 xl:items-end">
+            <div className="flex flex-wrap items-center gap-3 md:justify-end">
               <LanguageSwitcher />
               <LogoutButton />
             </div>
