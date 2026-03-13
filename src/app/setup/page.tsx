@@ -10,6 +10,7 @@ import { getSetupSnapshot } from "@/services/setup-service";
 type SetupPageProps = {
   searchParams?: Promise<{
     onboarding?: string;
+    step?: string;
   }>;
 };
 
@@ -29,6 +30,10 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
   ]);
   const t = (key: string) => translateMessage(messages, key);
   const isOnboarding = params?.onboarding === "1" || !settings.onboardingCompleted;
+  const initialStep =
+    params?.step === "expenses" || params?.step === "categories" || params?.step === "vehicle"
+      ? params.step
+      : undefined;
 
   return (
     <main className="rm-page-shell">
@@ -59,6 +64,7 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
           currency={settings.currency}
           timezone={settings.timezone}
           isOnboarding={isOnboarding}
+          initialStep={initialStep}
         />
       </div>
       <MobileTabBar isAdmin={currentUser.roleType === "admin"} />

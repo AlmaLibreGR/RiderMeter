@@ -110,7 +110,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <div className={`grid gap-3 sm:grid-cols-2 ${currentUser.roleType === "admin" ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
                     <QuickLinkCard href="/new-shift" title={t("common.newShift")} body={t("shiftForm.body")} />
                     <QuickLinkCard href="/history" title={t("common.viewHistory")} body={t("history.body")} />
-                    <QuickLinkCard href="/setup" title={t("common.settings")} body={t("dashboard.settingsCardBody")} />
+                    {dataset.settings.onboardingCompleted ? (
+                      <QuickLinkCard
+                        href="/setup?step=expenses"
+                        title={t("dashboard.addExpenseTitle")}
+                        body={t("setupWorkspace.sections.expensesBody")}
+                      />
+                    ) : (
+                      <QuickLinkCard
+                        href="/setup?onboarding=1"
+                        title={t("common.settings")}
+                        body={t("dashboard.settingsCardBody")}
+                      />
+                    )}
                     {currentUser.roleType === "admin" ? (
                       <QuickLinkCard href="/admin" title={t("common.admin")} body={t("admin.body")} />
                     ) : null}

@@ -23,6 +23,7 @@ type SetupWorkspaceProps = {
   currency: CurrencyCode;
   timezone: string;
   isOnboarding: boolean;
+  initialStep?: SetupStepId;
 };
 
 type VehicleFormState = {
@@ -83,11 +84,12 @@ export default function SetupWorkspace({
   currency,
   timezone,
   isOnboarding,
+  initialStep,
 }: SetupWorkspaceProps) {
   const t = useTranslations();
   const locale = useLocale() as "en" | "el";
   const router = useRouter();
-  const [activeStep, setActiveStep] = useState<SetupStepId>("vehicle");
+  const [activeStep, setActiveStep] = useState<SetupStepId>(initialStep ?? "vehicle");
   const [vehicle, setVehicle] = useState<VehicleFormState>(
     mapVehicleToForm(initialData.vehicleProfile)
   );
