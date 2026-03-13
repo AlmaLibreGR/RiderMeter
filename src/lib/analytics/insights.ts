@@ -5,8 +5,8 @@ export function buildInsights(args: {
   shifts: ShiftWithMetrics[];
   trend: TimeSeriesPoint[];
   weekdayPerformance: WeekdayPerformancePoint[];
-  previousWeekNetProfitPerHour: number;
-  currentWeekNetProfitPerHour: number;
+  previousPeriodNetProfitPerHour: number;
+  currentPeriodNetProfitPerHour: number;
 }): Insight[] {
   const insights: Insight[] = [];
 
@@ -27,10 +27,10 @@ export function buildInsights(args: {
     });
   }
 
-  if (args.previousWeekNetProfitPerHour > 0 && args.currentWeekNetProfitPerHour > 0) {
+  if (args.previousPeriodNetProfitPerHour > 0 && args.currentPeriodNetProfitPerHour > 0) {
     const delta = roundCurrency(
-      ((args.currentWeekNetProfitPerHour - args.previousWeekNetProfitPerHour) /
-        args.previousWeekNetProfitPerHour) *
+      ((args.currentPeriodNetProfitPerHour - args.previousPeriodNetProfitPerHour) /
+        args.previousPeriodNetProfitPerHour) *
         100
     );
 

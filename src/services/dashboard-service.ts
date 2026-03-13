@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { buildInsights } from "@/lib/analytics/insights";
 import { aggregateShiftMetrics, createEmptyAggregate, withShiftMetrics } from "@/lib/calculations";
 import { nowIsoDate, previousRangeStrings, toDateLabel, toRangeStrings, toWeekdayLabel } from "@/lib/dates";
@@ -19,6 +20,8 @@ export async function getDashboardDataset(args: {
   from?: string;
   to?: string;
 }) : Promise<DashboardDataset> {
+  noStore();
+
   const settings = await getUserSettingsSnapshot(args.userId);
   const vehicleProfile = await getVehicleProfileSnapshot(args.userId);
   const costProfile = await getCostProfileSnapshot(args.userId);
@@ -58,7 +61,6 @@ export async function getDashboardDataset(args: {
   const previousTrend = buildTrend(previousShifts, settings.locale, settings.timezone);
   const weekdayPerformance = buildWeekdayPerformance(selectedShifts, settings.locale, settings.timezone);
   const previousAggregate = aggregateShiftMetrics(previousShifts);
-  const currentWeekAggregate = aggregateShiftMetrics(weekShifts);
   const selectedAggregate = aggregateShiftMetrics(selectedShifts);
 
   return {
@@ -92,8 +94,8 @@ export async function getDashboardDataset(args: {
       shifts: selectedShifts,
       trend,
       weekdayPerformance,
-      previousWeekNetProfitPerHour: previousAggregate.netProfitPerHour,
-      currentWeekNetProfitPerHour: currentWeekAggregate.netProfitPerHour,
+      previousPeriodNetProfitPerHour: previousAggregate.netProfitPerHour,
+      currentPeriodNetProfitPerHour: selectedAggregate.netProfitPerHour,
     }),
     topShift: [...selectedShifts].sort(
       (left, right) => right.metrics.netPerHour - left.metrics.netPerHour
@@ -140,16 +142,20 @@ function buildTrend(shifts: ShiftWithMetrics[], locale: "en" | "el", timezone: s
 
   return Object.entries(grouped)
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([date, dayShifts]) => ({
-      date,
-      label: toDateLabel(date, locale, timezone),
-      revenue: dayShifts.reduce((sum, shift) => sum + shift.metrics.totalRevenue, 0),
-      costs: dayShifts.reduce((sum, shift) => sum + shift.metrics.totalShiftCost, 0),
-      netProfit: dayShifts.reduce((sum, shift) => sum + shift.metrics.netProfit, 0),
-      orders: dayShifts.reduce((sum, shift) => sum + shift.ordersCompleted, 0),
-      hours: dayShifts.reduce((sum, shift) => sum + shift.hoursWorked, 0),
-      kilometers: dayShifts.reduce((sum, shift) => sum + shift.kilometersDriven, 0),
-    }));
+    .map(([date, dayShifts]) => {
+      const aggregate = aggregateShiftMetrics(dayShifts);
+
+      return {
+        date,
+        label: toDateLabel(date, locale, timezone),
+        revenue: aggregate.totalRevenue,
+        costs: aggregate.totalCost,
+        netProfit: aggregate.netProfit,
+        orders: aggregate.totalOrders,
+        hours: aggregate.totalHours,
+        kilometers: aggregate.totalKilometers,
+      };
+    });
 }
 
 function buildWeekdayPerformance(
@@ -157,15 +163,24 @@ function buildWeekdayPerformance(
   locale: "en" | "el",
   timezone: string
 ) {
+  const weekdayOrder =
+    locale === "el"
+      ? ["Δευ", "Τρί", "Τετ", "Πέμ", "Παρ", "Σάβ", "Κυρ"]
+      : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const grouped = groupBy(shifts, (shift) => toWeekdayLabel(shift.date, locale, timezone));
 
-  return Object.entries(grouped).map(([weekday, dayShifts]) => {
-    const aggregate = dayShifts.length ? aggregateShiftMetrics(dayShifts) : createEmptyAggregate();
-    return {
-      weekday,
-      revenue: aggregate.totalRevenue,
-      netProfit: aggregate.netProfit,
-      netProfitPerHour: aggregate.netProfitPerHour,
-    };
-  });
+  return Object.entries(grouped)
+    .map(([weekday, dayShifts]) => {
+      const aggregate = dayShifts.length ? aggregateShiftMetrics(dayShifts) : createEmptyAggregate();
+      return {
+        weekday,
+        revenue: aggregate.totalRevenue,
+        netProfit: aggregate.netProfit,
+        netProfitPerHour: aggregate.netProfitPerHour,
+      };
+    })
+    .sort(
+      (left, right) =>
+        weekdayOrder.indexOf(left.weekday) - weekdayOrder.indexOf(right.weekday)
+    );
 }

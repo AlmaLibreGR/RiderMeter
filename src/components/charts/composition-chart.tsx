@@ -5,7 +5,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { formatCurrency } from "@/lib/formatters";
 import type { CompositionSlice } from "@/types/domain";
 
-const colors = ["#0f172a", "#334155", "#0f766e", "#94a3b8", "#cbd5e1", "#e2e8f0"];
+const colors = ["#38bdf8", "#7dd3fc", "#34d399", "#64748b", "#334155", "#94a3b8"];
 
 type CompositionChartProps = {
   data: CompositionSlice[];
@@ -18,8 +18,8 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
 
   if (!visibleData.length) {
     return (
-      <div className="rm-empty-state flex h-72 items-center justify-center text-sm text-slate-500">
-        {locale === "el" ? "Δεν υπάρχουν ακόμη composition δεδομένα." : "No composition data yet."}
+      <div className="rm-empty-state flex h-72 items-center justify-center text-sm text-slate-400">
+        {locale === "el" ? "Δεν υπάρχουν ακόμη δεδομένα σύνθεσης." : "No composition data yet."}
       </div>
     );
   }
@@ -33,9 +33,10 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
             dataKey="value"
             nameKey="label"
             innerRadius={60}
-            outerRadius={84}
-            paddingAngle={2}
-            strokeWidth={0}
+            outerRadius={86}
+            paddingAngle={3}
+            stroke="rgba(5,8,22,0.88)"
+            strokeWidth={2}
           >
             {visibleData.map((entry, index) => (
               <Cell key={entry.key} fill={colors[index % colors.length]} />
@@ -48,10 +49,12 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
             ]}
             contentStyle={{
               borderRadius: "16px",
-              border: "1px solid rgba(148,163,184,0.18)",
-              boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
-              backgroundColor: "rgba(255,255,255,0.98)",
+              border: "1px solid rgba(148,163,184,0.16)",
+              boxShadow: "0 24px 60px rgba(2,6,23,0.42)",
+              backgroundColor: "rgba(10,15,28,0.96)",
+              color: "#e2e8f0",
             }}
+            labelStyle={{ color: "#94a3b8" }}
           />
         </PieChart>
       </ResponsiveContainer>

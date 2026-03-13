@@ -1,5 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { describe, expect, it } from "vitest";
 import { aggregateShiftMetrics, calculateShiftMetrics } from "@/lib/calculations";
+import { mapShiftRecordToCanonical } from "@/services/shift-service";
 import type { CanonicalShift } from "@/types/domain";
 
 const baseShift: CanonicalShift = {
@@ -150,5 +152,44 @@ describe("aggregateShiftMetrics", () => {
     expect(aggregate.averageRevenuePerShift).toBe(85);
     expect(aggregate.totalOrders).toBe(40);
     expect(aggregate.netProfitPerOrder).toBeCloseTo(4.25, 2);
+  });
+});
+
+describe("mapShiftRecordToCanonical", () => {
+  it("preserves Prisma Decimal monetary values when mapping shifts", () => {
+    const shift = mapShiftRecordToCanonical({
+      id: 99,
+      userId: 1,
+      date: new Date("2026-03-12T00:00:00.000Z"),
+      shiftDate: new Date("2026-03-12T00:00:00.000Z"),
+      startTime: "09:00",
+      endTime: "15:00",
+      platform: "efood",
+      area: "Athens",
+      hours: 6,
+      hoursWorked: 6,
+      ordersCount: 12,
+      ordersCompleted: 12,
+      kilometers: 42,
+      kilometersDriven: 42,
+      platformEarnings: 15,
+      baseEarnings: new Prisma.Decimal("90.00"),
+      tipsCard: 0,
+      tipsCash: 0,
+      tipsAmount: new Prisma.Decimal("5.50"),
+      bonus: 0,
+      bonusAmount: new Prisma.Decimal("4.50"),
+      fuelExpenseDirect: new Prisma.Decimal("3.20"),
+      tollsOrParking: new Prisma.Decimal("1.80"),
+      notes: "Test",
+      createdAt: new Date("2026-03-12T09:00:00.000Z"),
+      updatedAt: new Date("2026-03-12T15:00:00.000Z"),
+    } as never);
+
+    expect(shift.baseEarnings).toBe(90);
+    expect(shift.tipsAmount).toBe(5.5);
+    expect(shift.bonusAmount).toBe(4.5);
+    expect(shift.fuelExpenseDirect).toBe(3.2);
+    expect(shift.tollsOrParking).toBe(1.8);
   });
 });

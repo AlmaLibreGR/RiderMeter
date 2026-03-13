@@ -49,13 +49,11 @@ export default function RegisterPage() {
         </div>
 
         <section className="rm-hero p-8">
-          <div className="rm-pill">
-            {t("common.appName")}
-          </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+          <div className="rm-pill">{t("common.appName")}</div>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">
             {t("auth.registerTitle")}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600">{t("auth.registerBody")}</p>
+          <p className="mt-3 text-sm leading-6 text-slate-300">{t("auth.registerBody")}</p>
 
           <form onSubmit={handleSubmit} className="mt-8 grid gap-4">
             <Field label={t("auth.email")}>
@@ -95,12 +93,15 @@ export default function RegisterPage() {
               {loading ? t("common.saving") : t("auth.submitRegister")}
             </button>
 
-            {message ? <p className="text-sm text-rose-600">{message}</p> : null}
+            {message ? <p className="text-sm text-rose-300">{message}</p> : null}
           </form>
 
-          <p className="mt-6 text-sm text-slate-600">
+          <p className="mt-6 text-sm text-slate-300">
             {t("auth.switchToLogin")}{" "}
-            <Link href="/login" className="font-medium text-slate-900 underline">
+            <Link
+              href="/login"
+              className="font-medium text-sky-300 underline decoration-slate-500 underline-offset-4"
+            >
               {t("common.login")}
             </Link>
           </p>
@@ -113,7 +114,7 @@ export default function RegisterPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="rm-field-label">{label}</label>
       {children}
     </div>
   );

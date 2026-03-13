@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, CircleAlert } from "lucide-react";
 import CompositionChart from "@/components/charts/composition-chart";
-import DashboardControls from "@/components/dashboard/dashboard-controls";
 import TrendChart from "@/components/charts/trend-chart";
 import WeekdayPerformanceChart from "@/components/charts/weekday-performance-chart";
+import DashboardControls from "@/components/dashboard/dashboard-controls";
 import HeroKpiCard from "@/components/dashboard/hero-kpi-card";
 import LogoutButton from "@/components/logout-button";
 import ShiftPerformanceTable from "@/components/tables/shift-performance-table";
@@ -57,37 +57,50 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <main className="rm-page-shell">
       <div className="rm-page-container">
         <section className="rm-hero">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-            <div className="max-w-3xl">
-              <div className="rm-pill">
-                {t("dashboard.eyebrow")}
-              </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+          <div className="grid gap-8 xl:grid-cols-[1.4fr_0.7fr]">
+            <div>
+              <div className="rm-pill">{t("dashboard.eyebrow")}</div>
+              <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl">
                 {t("dashboard.title")}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
                 {t("dashboard.body")}
               </p>
-              <div className="mt-6">
+
+              <div className="mt-8">
                 <DashboardControls period={dataset.period} range={dataset.range} />
               </div>
             </div>
 
-            <div className="flex flex-col items-stretch gap-3 xl:items-end">
-              <LanguageSwitcher />
-              <div className="rounded-[28px] border border-slate-200 bg-slate-950 px-6 py-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+            <div className="flex flex-col gap-4 xl:items-stretch">
+              <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
+                <LanguageSwitcher />
+                <LogoutButton />
+              </div>
+
+              <div className="rounded-[32px] border border-sky-400/20 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_28%),linear-gradient(180deg,rgba(12,18,34,0.96)_0%,rgba(7,12,24,1)_100%)] p-6 shadow-[0_30px_80px_rgba(2,6,23,0.45)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-200/80">
                   {t(`dashboard.period.${dataset.period}`)}
                 </p>
-                <p className="mt-3 text-4xl font-semibold">
+                <p className="mt-4 text-4xl font-semibold tracking-tight text-white">
                   {formatCurrency(dataset.selected.netProfit, locale, currency)}
                 </p>
-                <p className="mt-2 text-sm text-white/70">
+                <p className="mt-2 text-sm text-slate-300">
                   {formatCurrency(dataset.selected.netProfitPerHour, locale, currency)} /{" "}
                   {t("dashboard.hero.hours").toLowerCase()}
                 </p>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <MiniSummary
+                    label={t("dashboard.hero.revenue")}
+                    value={formatCurrency(dataset.selected.totalRevenue, locale, currency)}
+                  />
+                  <MiniSummary
+                    label={t("dashboard.hero.margin")}
+                    value={formatPercent(dataset.selected.marginPercent, locale)}
+                  />
+                </div>
               </div>
-              <LogoutButton />
             </div>
           </div>
         </section>
@@ -156,31 +169,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </section>
 
         {!hasShifts ? (
-          <section className="rounded-[32px] border border-dashed border-slate-300 bg-white/82 p-8 text-center shadow-sm">
-            <h2 className="text-2xl font-semibold text-slate-950">{t("dashboard.empty.title")}</h2>
-            <p className="mt-2 text-sm text-slate-600">{t("dashboard.empty.body")}</p>
-            <Link
-              href="/new-shift"
-              className="mt-5 inline-flex rounded-2xl bg-slate-950 px-5 py-3 font-medium text-white"
-            >
+          <section className="rm-empty-state">
+            <h2 className="text-2xl font-semibold text-white">{t("dashboard.empty.title")}</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-300">{t("dashboard.empty.body")}</p>
+            <Link href="/new-shift" className="rm-button-primary mt-6">
               {t("dashboard.empty.cta")}
             </Link>
           </section>
         ) : null}
 
         <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-          <section className="rm-surface-strong p-5 md:p-6">
-            <SectionHeading
-              eyebrow={t("dashboard.sections.trends")}
-              title={t("dashboard.charts.trendTitle")}
-              description={t("dashboard.charts.trendBody")}
-            />
-            <div className="mt-6">
-              <TrendChart data={dataset.trend} currency={currency} />
-            </div>
-          </section>
+          <Panel
+            eyebrow={t("dashboard.sections.trends")}
+            title={t("dashboard.charts.trendTitle")}
+            description={t("dashboard.charts.trendBody")}
+          >
+            <TrendChart data={dataset.trend} currency={currency} />
+          </Panel>
 
-          <section className="space-y-6">
+          <div className="space-y-6">
             <Panel
               eyebrow={t("dashboard.sections.insights")}
               title={t("dashboard.sections.insights")}
@@ -192,16 +199,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     key={insight.id}
                     className={`rounded-[24px] border p-4 ${
                       insight.tone === "positive"
-                        ? "border-emerald-200 bg-emerald-50/70"
+                        ? "border-emerald-400/16 bg-emerald-400/8"
                         : insight.tone === "caution"
-                          ? "border-amber-200 bg-amber-50/70"
-                          : "border-slate-200 bg-slate-50/80"
+                          ? "border-amber-400/18 bg-amber-400/10"
+                          : "border-slate-700/70 bg-slate-900/60"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-slate-950">
-                      {t(insight.titleKey)}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-700">
+                    <p className="text-sm font-semibold text-white">{t(insight.titleKey)}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
                       {t(insight.bodyKey, formatInsightValues(insight.values, locale, currency))}
                     </p>
                   </div>
@@ -231,7 +236,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 />
               </div>
             </Panel>
-          </section>
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-2">
@@ -240,10 +245,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             title={t("dashboard.charts.weekdayTitle")}
             description={t("dashboard.charts.weekdayBody")}
           >
-            <WeekdayPerformanceChart
-              data={dataset.weekdayPerformance}
-              currency={currency}
-            />
+            <WeekdayPerformanceChart data={dataset.weekdayPerformance} currency={currency} />
           </Panel>
 
           <Panel
@@ -252,15 +254,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             description={t("dashboard.charts.costCompositionBody")}
           >
             <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <CompositionChart
-                  data={dataset.costComposition.map((slice) => ({
-                    ...slice,
-                    label: t(slice.label),
-                  }))}
-                  currency={currency}
-                />
-              </div>
+              <CompositionChart
+                data={dataset.costComposition.map((slice) => ({
+                  ...slice,
+                  label: t(slice.label),
+                }))}
+                currency={currency}
+              />
               <LegendList
                 items={dataset.costComposition.map((slice) => ({
                   label: t(slice.label),
@@ -305,13 +305,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             />
 
             {(!dataset.setup.hasVehicleProfile || !dataset.setup.hasCostProfile) && (
-              <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
+              <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-400/18 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
                 <CircleAlert className="mt-0.5 shrink-0" size={18} />
-                <p>
-                  {dataset.setup.hasVehicleProfile && dataset.setup.hasCostProfile
-                    ? ""
-                    : `${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}
-                </p>
+                <p>{`${t("dashboard.setup.vehicleBody")} ${t("dashboard.setup.costBody")}`}</p>
               </div>
             )}
           </Panel>
@@ -322,15 +318,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             description={t("dashboard.charts.revenueCompositionBody")}
           >
             <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <CompositionChart
-                  data={dataset.revenueComposition.map((slice) => ({
-                    ...slice,
-                    label: t(slice.label),
-                  }))}
-                  currency={currency}
-                />
-              </div>
+              <CompositionChart
+                data={dataset.revenueComposition.map((slice) => ({
+                  ...slice,
+                  label: t(slice.label),
+                }))}
+                currency={currency}
+              />
               <LegendList
                 items={dataset.revenueComposition.map((slice) => ({
                   label: t(slice.label),
@@ -395,26 +389,6 @@ function formatInsightValues(
   );
 }
 
-function SectionHeading({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div>
-      <div className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-        {eyebrow}
-      </div>
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
-    </div>
-  );
-}
-
 function Panel({
   eyebrow,
   title,
@@ -427,8 +401,10 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[32px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur md:p-6">
-      <SectionHeading eyebrow={eyebrow} title={title} description={description} />
+    <section className="rm-surface-strong p-5 md:p-6">
+      <div className="rm-pill">{eyebrow}</div>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">{title}</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{description}</p>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -450,20 +426,22 @@ function SetupItem({
   return (
     <Link
       href={href}
-      className="flex items-start justify-between rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm"
+      className="flex items-start justify-between rounded-[24px] border border-slate-700/70 bg-slate-950/55 p-4 hover:border-slate-500"
     >
       <div className="pr-4">
         <span
-          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-            statusReady ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+            statusReady
+              ? "bg-emerald-400/12 text-emerald-300"
+              : "bg-amber-400/12 text-amber-200"
           }`}
         >
           {status}
         </span>
-        <p className="mt-3 font-semibold text-slate-950">{title}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+        <p className="mt-3 font-semibold text-white">{title}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{body}</p>
       </div>
-      <ArrowRight className="mt-1 shrink-0 text-slate-400" size={18} />
+          <ArrowRight className="mt-1 shrink-0 text-slate-400" size={18} />
     </Link>
   );
 }
@@ -472,9 +450,9 @@ function LegendList({ items }: { items: Array<{ label: string; value: string }> 
   return (
     <div className="grid gap-3">
       {items.map((item) => (
-        <div key={item.label} className="rounded-2xl bg-slate-50 px-4 py-3">
-          <p className="text-sm text-slate-500">{item.label}</p>
-          <p className="mt-1 font-semibold text-slate-950">{item.value}</p>
+        <div key={item.label} className="rm-stat-tile min-w-[15rem]">
+          <p className="rm-stat-kicker">{item.label}</p>
+          <p className="mt-2 font-semibold text-white">{item.value}</p>
         </div>
       ))}
     </div>
@@ -487,12 +465,23 @@ function InlineMetrics({ items }: { items: Array<{ label: string; value: string 
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-center justify-between rounded-3xl bg-slate-50 px-4 py-4"
+          className="flex items-center justify-between rounded-[24px] border border-slate-700/60 bg-slate-950/55 px-4 py-4"
         >
-          <p className="text-sm text-slate-600">{item.label}</p>
-          <p className="text-lg font-semibold text-slate-950">{item.value}</p>
+          <p className="text-sm text-slate-300">{item.label}</p>
+          <p className="text-lg font-semibold text-white">{item.value}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function MiniSummary({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[24px] border border-slate-700/70 bg-slate-950/55 px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

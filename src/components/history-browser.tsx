@@ -81,10 +81,8 @@ export default function HistoryBrowser({
               <option value="all">{t("history.filters.allPlatforms")}</option>
               <option value="efood">efood</option>
               <option value="wolt">Wolt</option>
-              <option value="freelance">
-                {locale === "el" ? "Freelance" : "Freelance"}
-              </option>
-              <option value="other">{locale === "el" ? "Άλλο" : "Other"}</option>
+              <option value="freelance">Freelance</option>
+              <option value="other">{t("table.other")}</option>
             </select>
           </Field>
           <Field label={t("history.filters.from")}>
@@ -137,20 +135,13 @@ export default function HistoryBrowser({
 
       {filteredShifts.length === 0 ? (
         <section className="rm-empty-state">
-          <h2 className="text-2xl font-semibold text-slate-950">{t("history.emptyTitle")}</h2>
-          <p className="mt-2 text-sm text-slate-600">{t("history.emptyBody")}</p>
+          <h2 className="text-2xl font-semibold text-white">{t("history.emptyTitle")}</h2>
+          <p className="mt-2 text-sm text-slate-300">{t("history.emptyBody")}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/new-shift"
-              className="rm-button-primary"
-            >
+            <Link href="/new-shift" className="rm-button-primary">
               {t("common.newShift")}
             </Link>
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="rm-button-secondary"
-            >
+            <button type="button" onClick={resetFilters} className="rm-button-secondary">
               {t("history.filters.clear")}
             </button>
           </div>
@@ -158,25 +149,25 @@ export default function HistoryBrowser({
       ) : (
         <section className="space-y-4">
           {filteredShifts.map((shift) => (
-            <article
-              key={shift.id}
-              className="rm-surface p-5"
-            >
+            <article key={shift.id} className="rm-surface p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                    <span className="rounded-full border border-slate-700/70 bg-slate-900/80 px-3 py-1 text-xs font-semibold text-slate-200">
                       {shift.platform}
                     </span>
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                    <span className="rounded-full border border-slate-700/70 bg-slate-950/80 px-3 py-1 text-xs font-medium text-slate-300">
                       {formatDate(shift.date, locale, timezone)}
                     </span>
                   </div>
-                  <h3 className="mt-3 text-xl font-semibold text-slate-950">{shift.area}</h3>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {formatNumber(shift.ordersCompleted, locale, 0)} {t("dashboard.hero.orders").toLowerCase()} ·{" "}
-                    {formatNumber(shift.kilometersDriven, locale)} {t("dashboard.hero.kilometers").toLowerCase()} ·{" "}
-                    {formatNumber(shift.hoursWorked, locale)} {t("dashboard.hero.hours").toLowerCase()}
+                  <h3 className="mt-3 text-xl font-semibold text-white">{shift.area}</h3>
+                  <p className="mt-1 text-sm text-slate-300">
+                    {formatNumber(shift.ordersCompleted, locale, 0)}{" "}
+                    {t("dashboard.hero.orders").toLowerCase()} ·{" "}
+                    {formatNumber(shift.kilometersDriven, locale)}{" "}
+                    {t("dashboard.hero.kilometers").toLowerCase()} ·{" "}
+                    {formatNumber(shift.hoursWorked, locale)}{" "}
+                    {t("dashboard.hero.hours").toLowerCase()}
                   </p>
                 </div>
 
@@ -197,7 +188,7 @@ export default function HistoryBrowser({
               </div>
 
               {shift.notes ? (
-                <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+                <div className="mt-4 rounded-3xl border border-slate-800/90 bg-slate-950/70 p-4 text-sm leading-6 text-slate-300">
                   {shift.notes}
                 </div>
               ) : null}
@@ -218,7 +209,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="rm-field-label">{label}</label>
       {children}
     </div>
   );
@@ -227,17 +218,17 @@ function Field({
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rm-surface p-4">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
     </div>
   );
 }
 
 function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
+    <div className="rounded-3xl border border-slate-800/80 bg-slate-950/65 p-4">
       <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

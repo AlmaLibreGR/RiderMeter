@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
@@ -29,6 +30,8 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const shift = await createShift(currentUser.userId, body);
+    revalidatePath("/");
+    revalidatePath("/history");
 
     return NextResponse.json({ ok: true, data: shift });
   } catch (error) {

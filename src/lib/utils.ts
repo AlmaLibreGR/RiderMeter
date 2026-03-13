@@ -1,10 +1,27 @@
 export function toSafeNumber(value: unknown, fallback = 0) {
-  const parsed =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number(value)
-        : fallback;
+  let parsed = fallback;
+
+  if (typeof value === "number") {
+    parsed = value;
+  } else if (typeof value === "string") {
+    parsed = Number(value);
+  } else if (typeof value === "bigint") {
+    parsed = Number(value);
+  } else if (value && typeof value === "object") {
+    if ("toNumber" in value && typeof value.toNumber === "function") {
+      parsed = Number(value.toNumber());
+    } else if ("valueOf" in value && typeof value.valueOf === "function") {
+      const primitive = value.valueOf();
+      if (primitive !== value) {
+        return toSafeNumber(primitive, fallback);
+      }
+    } else if ("toString" in value && typeof value.toString === "function") {
+      const serialized = value.toString();
+      if (serialized && serialized !== "[object Object]") {
+        parsed = Number(serialized);
+      }
+    }
+  }
 
   if (!Number.isFinite(parsed)) {
     return fallback;

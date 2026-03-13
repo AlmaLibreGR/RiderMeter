@@ -329,8 +329,8 @@ export default function SetupWorkspace({
                 }}
                 className={`rounded-[24px] border px-4 py-4 text-left transition ${
                   vehicle.vehicleType === type
-                    ? "border-slate-900 bg-slate-950 text-white shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                    : "border-slate-200 bg-white text-slate-700 hover:-translate-y-[1px] hover:border-slate-300"
+                    ? "border-sky-500/40 bg-slate-950 text-white shadow-[0_18px_40px_rgba(2,6,23,0.3)]"
+                    : "border-slate-800 bg-slate-950/65 text-slate-200 hover:-translate-y-[1px] hover:border-slate-700 hover:bg-slate-900/90"
                 }`}
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-current/60">
@@ -339,7 +339,7 @@ export default function SetupWorkspace({
                 <p className="mt-2 text-base font-semibold">
                   {t(`setupWorkspace.vehicle.types.${type}`)}
                 </p>
-                <p className={`mt-2 text-sm leading-6 ${vehicle.vehicleType === type ? "text-white/75" : "text-slate-500"}`}>
+                <p className={`mt-2 text-sm leading-6 ${vehicle.vehicleType === type ? "text-white/75" : "text-slate-400"}`}>
                   {t(`setupWorkspace.vehicle.typeBodies.${type}`)}
                 </p>
               </button>
@@ -469,7 +469,7 @@ export default function SetupWorkspace({
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="rm-stat-kicker">{t("setupWorkspace.categories.scope")}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                    <p className="mt-1 text-sm font-semibold text-white">
                       {category.name.trim() || t(`setupWorkspace.categories.scopes.${category.scope}`)}
                     </p>
                   </div>
@@ -480,7 +480,7 @@ export default function SetupWorkspace({
                         current.filter((item) => item.localId !== category.localId)
                       )
                     }
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950/80 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -542,7 +542,7 @@ export default function SetupWorkspace({
                     }
                   />
                   <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600">
+                    <label className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-2 text-sm font-medium text-slate-300">
                       <input
                         type="checkbox"
                         checked={category.isActive}
@@ -734,7 +734,7 @@ export default function SetupWorkspace({
           description={t("setupWorkspace.sections.recentBody")}
         >
           {recentExpenses.length === 0 ? (
-            <div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50/70 p-5 text-sm leading-6 text-slate-500">
+            <div className="rounded-[28px] border border-dashed border-slate-700/70 bg-slate-950/55 p-5 text-sm leading-6 text-slate-400">
               {t("setupWorkspace.expenses.empty")}
             </div>
           ) : (
@@ -746,12 +746,12 @@ export default function SetupWorkspace({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-slate-950">{expense.category}</p>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="text-sm font-semibold text-white">{expense.category}</p>
+                      <p className="mt-1 text-sm text-slate-400">
                         {formatDate(expense.date, locale, timezone)}
                       </p>
                       {expense.description ? (
-                        <p className="mt-3 text-sm leading-6 text-slate-600">
+                        <p className="mt-3 text-sm leading-6 text-slate-300">
                           {expense.description}
                         </p>
                       ) : null}
@@ -760,7 +760,7 @@ export default function SetupWorkspace({
                       <p className="rm-stat-kicker">
                         {t(`setupWorkspace.categories.scopes.${expense.scope}`)}
                       </p>
-                      <p className="text-lg font-semibold text-slate-950">
+                      <p className="text-lg font-semibold text-white">
                         {formatCurrency(expense.amount, locale, currency)}
                       </p>
                     </div>
@@ -789,8 +789,8 @@ function SectionCard({
   return (
     <section className="rm-surface-strong p-5 md:p-6">
       <div className="rm-pill">{eyebrow}</div>
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">{title}</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{description}</p>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -851,11 +851,11 @@ function SummaryTile({
     <div
       className={`rounded-[28px] border p-5 ${
         emphasis
-          ? "border-slate-900 bg-slate-950 text-white"
-          : "border-slate-200 bg-slate-50/80"
+          ? "border-sky-500/40 bg-slate-950 text-white"
+          : "border-slate-800 bg-slate-950/70 text-white"
       }`}
     >
-      <p className={`text-sm ${emphasis ? "text-white/65" : "text-slate-500"}`}>{label}</p>
+      <p className={`text-sm ${emphasis ? "text-white/65" : "text-slate-400"}`}>{label}</p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
     </div>
   );
@@ -873,8 +873,8 @@ function CompactStat({
   return (
     <div className="rm-stat-tile">
       <p className="rm-stat-kicker">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
-      {helper ? <p className="mt-1 text-sm text-slate-500">{helper}</p> : null}
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+      {helper ? <p className="mt-1 text-sm text-slate-400">{helper}</p> : null}
     </div>
   );
 }
@@ -890,8 +890,8 @@ function InlineNotice({
     <div
       className={`mt-4 rounded-[24px] border px-4 py-3 text-sm ${
         error
-          ? "border-rose-200 bg-rose-50 text-rose-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          ? "border-rose-500/25 bg-rose-500/10 text-rose-200"
+          : "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
       }`}
     >
       {children}

@@ -5,16 +5,27 @@ type SparklineProps = {
 
 export default function Sparkline({
   values,
-  stroke = "#0f766e",
+  stroke = "#38bdf8",
 }: SparklineProps) {
   const points = buildPoints(values);
 
   if (!points) {
-    return <div className="h-10 w-20 rounded-full bg-slate-100/90" />;
+    return <div className="h-10 w-20 rounded-full bg-slate-800/80" />;
   }
 
   return (
     <svg viewBox="0 0 100 36" className="h-10 w-20 overflow-visible" aria-hidden="true">
+      <defs>
+        <linearGradient id="sparklineGlow" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={stroke} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path
+        d={`${points} L 100 36 L 0 36 Z`}
+        fill="url(#sparklineGlow)"
+        opacity="0.9"
+      />
       <path
         d={points}
         fill="none"
@@ -22,7 +33,7 @@ export default function Sparkline({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity="0.9"
+        opacity="0.96"
       />
     </svg>
   );

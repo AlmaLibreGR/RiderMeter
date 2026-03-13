@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUserFromCookie } from "@/lib/auth";
@@ -26,6 +27,8 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
 
     const body = await req.json();
     const shift = await updateShift(currentUser.userId, shiftId, body);
+    revalidatePath("/");
+    revalidatePath("/history");
 
     return NextResponse.json({ ok: true, data: shift });
   } catch (error) {
@@ -61,6 +64,8 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
     }
 
     await deleteShift(currentUser.userId, shiftId);
+    revalidatePath("/");
+    revalidatePath("/history");
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (error instanceof Error && error.message === "SHIFT_NOT_FOUND") {
