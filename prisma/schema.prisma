@@ -24,6 +24,7 @@ model User {
   expenseCategories ExpenseCategory[]
   expenses         Expense[]
   appSettings      AppSettings?
+  billingProfile   BillingProfile?
   shifts           Shift[]
 }
 
@@ -157,6 +158,27 @@ model AppSettings {
   updatedAt                DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BillingProfile {
+  id                            Int       @id @default(autoincrement())
+  userId                        Int       @unique
+  planType                      String    @default("free")
+  status                        String    @default("inactive")
+  billingInterval               String?
+  priceAmount                   Decimal?  @db.Decimal(10, 2)
+  currency                      String    @default("EUR")
+  paymentProvider               String?
+  paymentProviderCustomerId     String?
+  paymentProviderSubscriptionId String?
+  currentPeriodEndsAt           DateTime?
+  lifetimeAccessGrantedAt       DateTime?
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([planType, status])
 }
 
 model Shift {

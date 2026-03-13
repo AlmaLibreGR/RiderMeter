@@ -7,6 +7,7 @@
     "dashboard": "Dashboard",
     "history": "Ιστορικό",
     "newShift": "Νέα βάρδια",
+    "admin": "Admin",
     "vehicle": "Όχημα",
     "fixedCosts": "Προφίλ κόστους",
     "logout": "Αποσύνδεση",
@@ -244,6 +245,59 @@
     },
     "emptyTitle": "Δεν υπάρχουν βάρδιες για αυτά τα φίλτρα",
     "emptyBody": "Δοκίμασε μεγαλύτερο εύρος ημερομηνιών ή καταχώρισε την πρώτη σου βάρδια."
+  },
+  "admin": {
+    "title": "Admin χώρος χωρίς προσωπικά στοιχεία",
+    "body": "Έλεγξε adoption, activity και billing κατάσταση χωρίς πρόσβαση σε emails ή προσωπικές σημειώσεις διανομέων.",
+    "forbiddenTitle": "Απαιτείται πρόσβαση admin",
+    "forbiddenBody": "Αυτός ο χώρος είναι διαθέσιμος μόνο σε admin λογαριασμούς.",
+    "summary": {
+      "totalUsers": "Σύνολο χρηστών",
+      "activeUsers": "Ενεργοί 30 ημερών",
+      "payingUsers": "Πληρωμένοι χρήστες",
+      "subscriptionUsers": "Συνδρομές",
+      "projectedMrr": "Προβλεπόμενο MRR"
+    },
+    "users": {
+      "title": "Λογαριασμοί και billing κατάσταση",
+      "body": "Κάθε λογαριασμός εμφανίζεται μόνο με εσωτερικό public code και λειτουργικά metrics.",
+      "code": "Κωδικός λογαριασμού",
+      "joined": "Εγγραφή",
+      "lastActive": "Τελευταία δραστηριότητα",
+      "locale": "Γλώσσα",
+      "role": "Ρόλος",
+      "noActivity": "Χωρίς βάρδιες ακόμη"
+    },
+    "billing": {
+      "planType": "Τύπος πλάνου",
+      "status": "Κατάσταση",
+      "price": "Τιμή",
+      "interval": "Κύκλος χρέωσης",
+      "currentPeriodEndsAt": "Λήξη τρέχουσας περιόδου",
+      "lifetimeAccessGrantedAt": "Ημερομηνία lifetime",
+      "notApplicable": "Δεν εφαρμόζεται",
+      "plan": {
+        "free": "Δωρεάν",
+        "lifetime": "Lifetime",
+        "subscription": "Συνδρομή"
+      },
+      "statuses": {
+        "inactive": "Ανενεργό",
+        "trial": "Δοκιμαστικό",
+        "active": "Ενεργό",
+        "pastDue": "Σε καθυστέρηση",
+        "cancelled": "Ακυρωμένο"
+      },
+      "intervals": {
+        "oneTime": "Εφάπαξ",
+        "monthly": "Μηνιαίο",
+        "yearly": "Ετήσιο"
+      }
+    },
+    "messages": {
+      "saved": "Το billing profile ενημερώθηκε.",
+      "error": "Η ενημέρωση του billing profile απέτυχε."
+    }
   },
   "settings": {
     "vehicleTitle": "Προφίλ οχήματος",

@@ -7,6 +7,7 @@
     "dashboard": "Dashboard",
     "history": "History",
     "newShift": "New shift",
+    "admin": "Admin",
     "vehicle": "Vehicle",
     "fixedCosts": "Cost profile",
     "logout": "Log out",
@@ -244,6 +245,59 @@
     },
     "emptyTitle": "No shifts match these filters",
     "emptyBody": "Try a wider date range or create your first shift."
+  },
+  "admin": {
+    "title": "Privacy-safe admin workspace",
+    "body": "Review adoption, activity, and billing state without exposing rider emails or personal operational notes.",
+    "forbiddenTitle": "Admin access required",
+    "forbiddenBody": "This area is only available to admin accounts.",
+    "summary": {
+      "totalUsers": "Total users",
+      "activeUsers": "Active last 30d",
+      "payingUsers": "Paying users",
+      "subscriptionUsers": "Subscriptions",
+      "projectedMrr": "Projected MRR"
+    },
+    "users": {
+      "title": "Accounts and billing state",
+      "body": "Each account is shown with an internal public code and operational metrics only.",
+      "code": "Account code",
+      "joined": "Joined",
+      "lastActive": "Last active",
+      "locale": "Locale",
+      "role": "Role",
+      "noActivity": "No shifts yet"
+    },
+    "billing": {
+      "planType": "Plan type",
+      "status": "Status",
+      "price": "Price",
+      "interval": "Billing interval",
+      "currentPeriodEndsAt": "Current period ends",
+      "lifetimeAccessGrantedAt": "Lifetime granted",
+      "notApplicable": "Not applicable",
+      "plan": {
+        "free": "Free",
+        "lifetime": "Lifetime",
+        "subscription": "Subscription"
+      },
+      "statuses": {
+        "inactive": "Inactive",
+        "trial": "Trial",
+        "active": "Active",
+        "pastDue": "Past due",
+        "cancelled": "Cancelled"
+      },
+      "intervals": {
+        "oneTime": "One time",
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      }
+    },
+    "messages": {
+      "saved": "Billing profile updated.",
+      "error": "Failed to update billing profile."
+    }
   },
   "settings": {
     "vehicleTitle": "Vehicle profile",

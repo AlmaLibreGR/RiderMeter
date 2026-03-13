@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { comparePassword, createToken } from "@/lib/auth";
+import { comparePassword, createToken, resolveRoleTypeForEmail } from "@/lib/auth";
 import { localeCookieName } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validators/auth";
@@ -31,6 +31,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const resolvedRoleType = resolveRoleTypeForEmail(user.email);
+    if (resolvedRoleType !== user.roleType) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { roleType: resolvedRoleType },
+      });
+    }
+
+    if (!user.appSettings) {
+      await prisma.appSettings.create({
+        data: {
+          userId: user.id,
+          locale: user.locale === "en" ? "en" : "el",
+        },
+      });
+    }
+
+    await prisma.billingProfile.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        planType: "free",
+        status: "inactive",
+        currency: "EUR",
+      },
+      update: {},
+    });
+
     const token = createToken({
       userId: user.id,
       email: user.email,
@@ -42,6 +70,7 @@ export async function POST(req: NextRequest) {
       data: {
         id: user.id,
         email: user.email,
+        roleType: resolvedRoleType,
         locale,
       },
     });

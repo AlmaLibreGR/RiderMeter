@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="space-y-4">
               <DashboardControls period={dataset.period} range={dataset.range} />
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className={`grid gap-3 sm:grid-cols-2 ${currentUser.roleType === "admin" ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
                 <QuickLinkCard
                   href="/new-shift"
                   title={t("common.newShift")}
@@ -94,6 +94,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   title={t("dashboard.sections.setup")}
                   body={t("dashboard.setup.vehicleBody")}
                 />
+                {currentUser.roleType === "admin" ? (
+                  <QuickLinkCard
+                    href="/admin"
+                    title={t("common.admin")}
+                    body={t("admin.body")}
+                  />
+                ) : null}
               </div>
             </div>
 

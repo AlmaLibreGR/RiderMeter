@@ -4,6 +4,9 @@ export type AppLocale = (typeof supportedLocales)[number];
 export const supportedCurrencies = ["EUR"] as const;
 export type CurrencyCode = (typeof supportedCurrencies)[number];
 
+export const supportedRoleTypes = ["simple", "admin"] as const;
+export type RoleType = (typeof supportedRoleTypes)[number];
+
 export const supportedPlatforms = ["efood", "wolt", "freelance", "other"] as const;
 export type PlatformKey = (typeof supportedPlatforms)[number];
 
@@ -24,6 +27,15 @@ export type ExpenseCadence = (typeof expenseCadences)[number];
 
 export const dashboardPeriods = ["today", "week", "month", "custom"] as const;
 export type DashboardPeriod = (typeof dashboardPeriods)[number];
+
+export const billingPlanTypes = ["free", "lifetime", "subscription"] as const;
+export type BillingPlanType = (typeof billingPlanTypes)[number];
+
+export const billingStatuses = ["inactive", "trial", "active", "past_due", "cancelled"] as const;
+export type BillingStatus = (typeof billingStatuses)[number];
+
+export const billingIntervals = ["one_time", "monthly", "yearly"] as const;
+export type BillingInterval = (typeof billingIntervals)[number];
 
 export type Money = number;
 
@@ -110,6 +122,17 @@ export type AppSettingsSnapshot = {
   preferredDashboardPeriod: DashboardPeriod;
   platformFeePercent: number;
   taxReservePercent: number;
+};
+
+export type BillingProfileSnapshot = {
+  planType: BillingPlanType;
+  status: BillingStatus;
+  billingInterval: BillingInterval | null;
+  priceAmount: Money | null;
+  currency: CurrencyCode;
+  paymentProvider: string | null;
+  currentPeriodEndsAt: string | null;
+  lifetimeAccessGrantedAt: string | null;
 };
 
 export type ShiftMetrics = {
@@ -253,4 +276,27 @@ export type DashboardDataset = {
     hasCostProfile: boolean;
   };
   settings: AppSettingsSnapshot;
+};
+
+export type AdminUserSnapshot = {
+  userId: number;
+  publicCode: string;
+  roleType: RoleType;
+  locale: AppLocale;
+  createdAt: string;
+  lastActiveAt: string | null;
+  totalShifts: number;
+  totalRevenue: Money;
+  totalNetProfit: Money;
+  billing: BillingProfileSnapshot;
+};
+
+export type AdminOverviewDataset = {
+  totalUsers: number;
+  activeUsers30d: number;
+  payingUsers: number;
+  lifetimeUsers: number;
+  subscriptionUsers: number;
+  projectedMrr: Money;
+  users: AdminUserSnapshot[];
 };

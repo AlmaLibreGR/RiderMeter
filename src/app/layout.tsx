@@ -7,10 +7,19 @@ export const metadata: Metadata = {
   title: "RiderMeter",
   description:
     "Delivery rider analytics for profitable shifts, operational insight, and reliable cost tracking.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon-192.png",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: "#ef5a29",
 };
 
 export default async function RootLayout({

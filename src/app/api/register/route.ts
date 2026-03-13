@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { createToken, hashPassword } from "@/lib/auth";
+import { createToken, hashPassword, resolveRoleTypeForEmail } from "@/lib/auth";
 import { localeCookieName } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators/auth";
@@ -23,16 +23,24 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hashPassword(payload.password);
+    const roleType = resolveRoleTypeForEmail(email);
 
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
-        roleType: "simple",
+        roleType,
         locale,
         appSettings: {
           create: {
             locale,
+          },
+        },
+        billingProfile: {
+          create: {
+            planType: "free",
+            status: "inactive",
+            currency: "EUR",
           },
         },
       },
@@ -51,6 +59,7 @@ export async function POST(req: NextRequest) {
       data: {
         id: user.id,
         email: user.email,
+        roleType,
         locale,
       },
     });

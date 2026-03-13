@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import type { RoleType } from "@/types/domain";
 
 function getJwtSecret(): string {
   const jwtSecret = process.env.JWT_SECRET;
@@ -31,6 +33,17 @@ export function verifyToken(token: string) {
   };
 }
 
+function getAdminEmails() {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function resolveRoleTypeForEmail(email: string): RoleType {
+  return getAdminEmails().includes(email.trim().toLowerCase()) ? "admin" : "simple";
+}
+
 export async function getCurrentUserFromCookie() {
   try {
     const cookieStore = await cookies();
@@ -39,12 +52,34 @@ export async function getCurrentUserFromCookie() {
     if (!token) return null;
 
     const payload = verifyToken(token);
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      include: {
+        appSettings: true,
+        billingProfile: true,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
 
     return {
-      userId: payload.userId,
-      email: payload.email,
+      userId: user.id,
+      email: user.email,
+      roleType: user.roleType as RoleType,
+      locale: (user.appSettings?.locale ?? user.locale ?? "el") as "en" | "el",
     };
   } catch {
     return null;
   }
+}
+
+export async function requireAdminFromCookie() {
+  const currentUser = await getCurrentUserFromCookie();
+  if (!currentUser || currentUser.roleType !== "admin") {
+    return null;
+  }
+
+  return currentUser;
 }

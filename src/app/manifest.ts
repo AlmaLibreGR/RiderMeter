@@ -2,15 +2,20 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Rider Meter",
-    short_name: "Rider Meter",
-    description: "Εφαρμογή για διανομείς στην Ελλάδα",
+    name: "RiderMeter",
+    short_name: "RiderMeter",
+    description: "Analytics and shift tracking for delivery riders.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f8fafc",
-    theme_color: "#0f172a",
+    background_color: "#f6f1ea",
+    theme_color: "#ef5a29",
     lang: "el-GR",
     icons: [
+      {
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+      },
       {
         src: "/icon-192.png",
         sizes: "192x192",
