@@ -92,6 +92,18 @@
       "fixedCost": "Fixed cost / shift",
       "costPerKm": "Cost / km"
     },
+    "quickRead": {
+      "title": "Quick read",
+      "body": "See the essentials first: pace, margin, movement, and the next useful action.",
+      "paceTitle": "Shift pace",
+      "paceBody": "{value} average revenue per shift in this period.",
+      "marginTitle": "Margin watch",
+      "marginBody": "{margin} margin with {cost} total cost.",
+      "movementTitle": "Movement",
+      "movementBody": "{value} {kilometer} per {order}.",
+      "deeperTitle": "Deeper analytics",
+      "deeperBody": "Open the deeper view only when you want to inspect patterns, weather, and composition in detail."
+    },
     "empty": {
       "title": "No shifts yet",
       "body": "Start with your first shift to unlock profitability tracking and trend analysis.",
@@ -210,18 +222,33 @@
     "eyebrow": "Fast entry",
     "title": "Capture a shift without slowing down",
     "body": "Choose a fast entry style, capture weather, and save a complete shift from your phone without friction.",
+    "finishTitle": "Finish a shift in one quick pass",
+    "finishBody": "Enter only the six essentials first, save fast, and keep the extra details tucked away unless you need them.",
     "quickTitle": "Quick entry for after the shift",
     "timerTitle": "Live timer for active riding",
     "performanceTitle": "Operational output",
     "earningsTitle": "Revenue and extras",
+    "finishEssentialsTitle": "Finish shift essentials",
+    "finishEssentialsBody": "These are the only values you usually need right after a shift ends.",
+    "moreDetailsBody": "Fuel overrides, tolls, and notes can stay tucked away unless this shift really needs them.",
     "quickHelp": "Use this when you know the total duration and want the fastest possible entry.",
     "toggleAdvanced": "Show extra costs and notes",
     "useLastShift": "Duplicate last shift",
+    "useLastSetupToday": "Same setup, today",
     "restoreDraft": "Restore draft",
     "saveDraft": "Save draft",
     "clearDraft": "Clear draft",
+    "submitFast": "Save fast",
     "draftSaved": "Draft saved on this device.",
     "draftCleared": "Draft cleared from this device.",
+    "prefilledToday": "Last shift setup loaded for today.",
+    "readyTitle": "Just finished a shift?",
+    "readyBody": "Start with the essentials below and save fast. You can always add the extra details after.",
+    "mobileDockHint": "Add the essentials and save when ready.",
+    "finishStrip": {
+      "title": "Six taps and done",
+      "body": "A fast finish usually needs duration, activity, and payout only."
+    },
     "modes": {
       "quick": "Quick Entry",
       "timer": "Live Timer"
@@ -232,6 +259,26 @@
       "earnings": "Earnings",
       "extras": "Extras and notes",
       "preview": "Live preview"
+    },
+    "quickActions": {
+      "body": "Tap the common values first, then fine-tune only what needs it.",
+      "hoursWorked": "Quick hours",
+      "ordersCompleted": "Quick orders",
+      "kilometersDriven": "Quick km",
+      "baseEarnings": "Quick revenue",
+      "tipsAmount": "Quick tips",
+      "bonusAmount": "Quick bonus"
+    },
+    "shortcuts": {
+      "title": "Use your last rhythm",
+      "body": "Pull in only the parts of the previous shift that still fit today.",
+      "platform": "Same platform",
+      "weather": "Same weather",
+      "payout": "Same payout",
+      "activity": "Same activity",
+      "now": "Quick time",
+      "startNow": "Start now",
+      "endNow": "End now"
     },
     "fields": {
       "date": "Date",

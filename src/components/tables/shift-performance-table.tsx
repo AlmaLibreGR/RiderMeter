@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -121,10 +121,11 @@ export default function ShiftPerformanceTable({
   }
 
   return (
-    <section className="rm-surface p-5 md:p-6">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+    <section className="rm-flow-card">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
+          <div className="rm-pill">{columns.actions}</div>
+          <h2 className="mt-3 text-xl font-semibold text-slate-950">{title}</h2>
         </div>
         {feedback ? (
           <div className="rounded-[18px] border border-stone-200 bg-white px-4 py-2 text-sm text-slate-700">
@@ -135,7 +136,7 @@ export default function ShiftPerformanceTable({
 
       <div className="mt-5 space-y-3 md:hidden">
         {shifts.map((shift) => (
-          <article key={shift.id} className="rounded-[24px] border border-stone-200 bg-white p-4">
+          <article key={shift.id} className="rm-journal-card">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-slate-950">
@@ -246,25 +247,37 @@ export default function ShiftPerformanceTable({
       </div>
 
       {editingShift && draft ? (
-        <div className="mt-6 rounded-[28px] border border-stone-200 bg-stone-50/90 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-950">{t("table.editShift")}</h3>
-              <p className="text-sm text-slate-500">{t(`shiftForm.weather.${editingShift.weatherCondition}`)}</p>
+        <>
+          <button
+            type="button"
+            className="rm-sheet-overlay"
+            aria-label={t("common.cancel")}
+            onClick={() => {
+              setEditingShift(null);
+              setDraft(null);
+            }}
+          />
+          <div className="rm-sheet">
+            <div className="rm-sheet-header">
+              <div>
+                <div className="rm-pill">{columns.actions}</div>
+                <h3 className="mt-3 text-lg font-semibold text-slate-950">{t("table.editShift")}</h3>
+                <p className="mt-1 text-sm text-slate-500">{t(`shiftForm.weather.${editingShift.weatherCondition}`)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingShift(null);
+                  setDraft(null);
+                }}
+                className="rm-button-secondary"
+              >
+                {t("common.cancel")}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setEditingShift(null);
-                setDraft(null);
-              }}
-              className="rm-button-secondary"
-            >
-              {t("common.cancel")}
-            </button>
-          </div>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rm-sheet-body">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <EditorField label={t("shiftForm.fields.date")}>
               <input
                 type="date"
@@ -397,14 +410,16 @@ export default function ShiftPerformanceTable({
                 />
               </EditorField>
             </div>
-          </div>
+              </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button type="button" onClick={saveEdit} disabled={submitting} className="rm-button-primary disabled:opacity-60">
-              {submitting ? t("common.saving") : t("common.update")}
-            </button>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button type="button" onClick={saveEdit} disabled={submitting} className="rm-button-primary disabled:opacity-60">
+                  {submitting ? t("common.saving") : t("common.update")}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       ) : null}
     </section>
   );
@@ -421,7 +436,7 @@ function EditorField({ label, children }: { label: string; children: React.React
 
 function MobileMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[20px] border border-stone-200 bg-stone-50 px-4 py-3">
+    <div className="rm-home-hero-card">
       <p className="rm-stat-kicker">{label}</p>
       <p className="mt-2 text-base font-semibold text-slate-950">{value}</p>
     </div>

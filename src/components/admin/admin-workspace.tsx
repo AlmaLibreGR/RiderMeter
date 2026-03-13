@@ -83,7 +83,7 @@ export default function AdminWorkspace({
 
   return (
     <div className="space-y-4">
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="rm-home-hero-grid xl:grid-cols-5">
         <StatCard label={t("admin.summary.totalUsers")} value={formatNumber(dataset.totalUsers, locale, 0)} />
         <StatCard
           label={t("admin.summary.activeUsers")}
@@ -103,7 +103,7 @@ export default function AdminWorkspace({
         />
       </section>
 
-      <section className="rm-surface p-5 md:p-6">
+      <section className="rm-flow-card">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="rm-pill">{t("common.admin")}</div>
@@ -129,7 +129,7 @@ export default function AdminWorkspace({
             const isLifetime = draft.planType === "lifetime";
 
             return (
-              <article key={user.userId} className="rm-subtle-card p-4">
+              <article key={user.userId} className="rm-journal-card">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:gap-4">
                     <InfoPill
@@ -290,7 +290,7 @@ function toDraft(user: AdminUserSnapshot): BillingDraft {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rm-surface p-4">
+    <div className="rm-home-hero-card">
       <p className="rm-stat-kicker">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
     </div>
@@ -299,7 +299,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 function InfoPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[20px] border border-stone-200 bg-white px-4 py-3">
+    <div className="rm-home-hero-card">
       <p className="rm-stat-kicker">{label}</p>
       <p className="mt-2 text-sm font-semibold text-slate-950">{value}</p>
     </div>

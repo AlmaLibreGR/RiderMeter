@@ -1,5 +1,6 @@
 import LogoutButton from "@/components/logout-button";
 import SetupWorkspace from "@/components/forms/setup-workspace";
+import MobileTabBar from "@/components/ui/mobile-tab-bar";
 import LanguageSwitcher from "@/components/ui/language-switcher";
 import { getCurrentUserFromCookie } from "@/lib/auth";
 import { getCurrentLocale, getMessages, translateMessage } from "@/lib/i18n";
@@ -24,11 +25,11 @@ export default async function SetupPage() {
   return (
     <main className="rm-page-shell">
       <div className="rm-page-container-compact">
-        <section className="rm-surface p-4 md:p-5">
+        <section className="rm-spotlight">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-3xl">
               <div className="rm-pill">{t("setupWorkspace.eyebrow")}</div>
-              <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
                 {t("setupWorkspace.title")}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -49,6 +50,7 @@ export default async function SetupPage() {
           timezone={settings.timezone}
         />
       </div>
+      <MobileTabBar isAdmin={currentUser.roleType === "admin"} />
     </main>
   );
 }

@@ -306,7 +306,7 @@ export default function SetupWorkspace({
   return (
     <div className="grid gap-5 pb-28 xl:grid-cols-[minmax(0,1.3fr)_22rem] xl:pb-0">
       <div className="space-y-4">
-        <section className="rm-surface p-4 md:p-5">
+        <section className="rm-phone-stage">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -585,7 +585,7 @@ export default function SetupWorkspace({
 
             <div className="space-y-4">
               {categories.map((category) => (
-                <div key={category.localId} className="rm-subtle-card p-4">
+                <div key={category.localId} className="rm-step-panel">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <InputField label={t("setupWorkspace.categories.name")}>
@@ -868,7 +868,7 @@ export default function SetupWorkspace({
       </div>
 
       <aside className="hidden space-y-4 xl:block xl:sticky xl:top-5 xl:self-start">
-        <section className="rm-surface-strong p-5">
+        <section className="rm-flow-card">
           <div className="rm-pill">{t("setupWorkspace.eyebrow")}</div>
           <div className="mt-4 grid gap-3">
             <MetricTile
@@ -904,7 +904,7 @@ export default function SetupWorkspace({
           </div>
         </section>
 
-        <section className="rm-surface-strong p-5">
+        <section className="rm-flow-card">
           <div className="rm-pill">{t("setupWorkspace.sections.recentEyebrow")}</div>
           <h3 className="mt-3 text-lg font-semibold text-slate-950">
             {t("setupWorkspace.sections.recentTitle")}
@@ -1004,7 +1004,7 @@ function WorkspaceSection({
 }) {
   return (
     <section className={className}>
-      <div className="rm-surface-strong p-5 md:p-6">
+      <div className="rm-step-panel md:p-6">
         <div className="flex items-center gap-3">
           <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-orange-50 text-orange-600">
             {icon}
@@ -1077,7 +1077,7 @@ function MetricTile({
   return (
     <div
       className={`rounded-[24px] border px-4 py-4 ${
-        emphasis ? "border-orange-200 bg-orange-50" : "border-stone-200 bg-white"
+        emphasis ? "border-orange-200 bg-orange-50 shadow-[0_16px_28px_rgba(239,90,41,0.1)]" : "border-stone-200 bg-white"
       }`}
     >
       <p className="rm-stat-kicker">{label}</p>

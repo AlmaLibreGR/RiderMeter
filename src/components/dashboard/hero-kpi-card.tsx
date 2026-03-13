@@ -19,22 +19,24 @@ export default function HeroKpiCard({
   sparklineValues,
 }: HeroKpiCardProps) {
   return (
-    <div className="rm-surface p-4 md:p-5">
-      <div className="flex items-start justify-between gap-3">
+    <div className="rm-home-hero-card">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <p className="rm-stat-kicker">{label}</p>
-          <p className="mt-2 text-[1.8rem] font-semibold tracking-tight text-slate-950 md:text-[2rem]">
+          <p className="mt-3 text-[1.8rem] font-semibold tracking-tight text-slate-950 md:text-[2.05rem]">
             {value}
           </p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">{helper}</p>
         </div>
-        <Sparkline
-          values={sparklineValues}
-          stroke={deltaDirection === "down" ? "#e11d48" : "#ef5a29"}
-        />
+        <div className="rounded-[20px] border border-blue-100 bg-white px-3 py-3">
+          <Sparkline
+            values={sparklineValues}
+            stroke={deltaDirection === "down" ? "#e11d48" : "#315efb"}
+          />
+        </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <DeltaBadge value={delta} direction={deltaDirection} />
-        <p className="text-sm leading-6 text-slate-600">{helper}</p>
       </div>
     </div>
   );

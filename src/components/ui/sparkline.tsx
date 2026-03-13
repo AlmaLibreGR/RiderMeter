@@ -5,12 +5,12 @@ type SparklineProps = {
 
 export default function Sparkline({
   values,
-  stroke = "#ef5a29",
+  stroke = "#315efb",
 }: SparklineProps) {
   const points = buildPoints(values);
 
   if (!points) {
-    return <div className="h-10 w-20 rounded-full bg-orange-50" />;
+    return <div className="h-10 w-20 rounded-full bg-blue-50" />;
   }
 
   return (

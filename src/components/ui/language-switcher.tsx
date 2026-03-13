@@ -26,7 +26,7 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <label className="inline-flex items-center gap-2 rounded-2xl border border-orange-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(154,96,54,0.08)]">
+    <label className="inline-flex items-center gap-2 rounded-2xl border border-blue-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-[0_12px_28px_rgba(42,69,104,0.08)]">
       <Globe size={15} className="text-orange-500" />
       <span className="sr-only">{t("language")}</span>
       <select

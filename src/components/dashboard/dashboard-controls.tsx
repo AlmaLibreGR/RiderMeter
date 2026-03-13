@@ -47,7 +47,8 @@ export default function DashboardControls({
   const exportHref = `/api/shifts/export?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      <div className="rounded-[26px] border border-blue-100 bg-white/80 p-2">
       <div className="rm-inline-chip-row">
         {periods.map((value) => (
           <button
@@ -62,8 +63,8 @@ export default function DashboardControls({
             }
             className={`rounded-full border px-3.5 py-2 text-sm font-medium transition ${
               period === value
-                ? "border-orange-200 bg-orange-50 text-orange-700 shadow-[0_12px_26px_rgba(239,90,41,0.12)]"
-                : "border-stone-200 bg-white text-slate-700 hover:border-orange-200 hover:bg-orange-50/60"
+                ? "border-blue-200 bg-blue-50 text-blue-700 shadow-[0_12px_26px_rgba(49,94,251,0.12)]"
+                : "border-transparent bg-transparent text-slate-700 hover:border-blue-100 hover:bg-blue-50/60"
             }`}
             disabled={isPending}
           >
@@ -71,7 +72,9 @@ export default function DashboardControls({
           </button>
         ))}
       </div>
+      </div>
 
+      <div className="rm-home-hero-card">
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
           <input
@@ -112,6 +115,7 @@ export default function DashboardControls({
             {t("common.newShift")}
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useLocale } from "next-intl";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { formatCurrency } from "@/lib/formatters";
 import type { CompositionSlice } from "@/types/domain";
 
-const colors = ["#ef5a29", "#fb923c", "#f59e0b", "#fb7185", "#1f9d76", "#8b6f59"];
+const colors = ["#315efb", "#5b7cff", "#ff8a52", "#f59e0b", "#34d399", "#94a3b8"];
 
 type CompositionChartProps = {
   data: CompositionSlice[];
@@ -35,7 +35,7 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
             innerRadius={60}
             outerRadius={86}
             paddingAngle={3}
-            stroke="rgba(5,8,22,0.88)"
+            stroke="rgba(255,255,255,0.95)"
             strokeWidth={2}
           >
             {visibleData.map((entry, index) => (
@@ -49,12 +49,12 @@ export default function CompositionChart({ data, currency }: CompositionChartPro
             ]}
             contentStyle={{
               borderRadius: "16px",
-              border: "1px solid rgba(164,128,97,0.16)",
-              boxShadow: "0 20px 44px rgba(154,96,54,0.12)",
+              border: "1px solid rgba(148,163,184,0.16)",
+              boxShadow: "0 20px 44px rgba(42,69,104,0.12)",
               backgroundColor: "rgba(255,255,255,0.98)",
               color: "#18212f",
             }}
-            labelStyle={{ color: "#8b6f59" }}
+            labelStyle={{ color: "#64748b" }}
           />
         </PieChart>
       </ResponsiveContainer>
